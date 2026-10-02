@@ -1,0 +1,1 @@
+export const SPECIAL_EFFECTS_GENERAL_VERSION = "1.0.0";

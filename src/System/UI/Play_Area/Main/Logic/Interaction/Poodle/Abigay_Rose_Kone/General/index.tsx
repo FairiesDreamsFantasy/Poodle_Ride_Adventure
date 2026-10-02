@@ -1,0 +1,1 @@
+export const ABIGAY_INTERACTIONS_GENERAL = true;

@@ -1,0 +1,1 @@
+export const REQUIRES_EARNING_HEART_VERSION = "1.0.0";

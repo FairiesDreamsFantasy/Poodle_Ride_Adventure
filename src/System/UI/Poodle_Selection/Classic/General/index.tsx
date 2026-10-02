@@ -1,0 +1,1 @@
+export const POODLE_SELECTION_CLASSIC_GENERAL = true;

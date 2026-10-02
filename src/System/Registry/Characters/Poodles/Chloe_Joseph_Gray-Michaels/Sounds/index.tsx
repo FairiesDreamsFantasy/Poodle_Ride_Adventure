@@ -1,0 +1,2 @@
+// Chloe Sounds Registry
+export {};

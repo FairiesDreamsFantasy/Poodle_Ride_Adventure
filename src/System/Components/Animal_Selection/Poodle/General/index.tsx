@@ -1,0 +1,7 @@
+import { CRAFTED_POODLES_SELECTION_MENU } from '../Crafted';
+import { CLASSIC_POODLES_SELECTION_MENU } from '../Classic';
+
+export const POODLE_COMPONENTS_INFO = {
+  crafted: CRAFTED_POODLES_SELECTION_MENU,
+  classic: CLASSIC_POODLES_SELECTION_MENU,
+};

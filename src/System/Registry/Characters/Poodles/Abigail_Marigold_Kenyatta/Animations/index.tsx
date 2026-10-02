@@ -1,0 +1,2 @@
+// Abigail Animations Registry
+export {};

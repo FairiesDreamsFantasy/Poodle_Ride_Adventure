@@ -1,0 +1,1 @@
+export const CLASSIC_WHITE_POODLE_PETTING_GENERAL = true;

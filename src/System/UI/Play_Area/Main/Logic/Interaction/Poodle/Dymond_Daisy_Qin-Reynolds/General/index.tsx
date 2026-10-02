@@ -1,0 +1,1 @@
+export const DYMOND_INTERACTIONS_GENERAL = true;

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+Poodle_Ride_Adventure_Build/
+build/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
