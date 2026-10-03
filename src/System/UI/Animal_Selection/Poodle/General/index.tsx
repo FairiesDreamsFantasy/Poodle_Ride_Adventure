@@ -67,9 +67,9 @@ export const General: React.FC<PoodleSelectionMenuProps> = ({ state, setGameStat
           handlePoodleAboutAI(poodle.id, speak);
           break;
         case "Bark Type":
-          if (poodle.supportsBarkToggle) {
-             const currentTypeIdx = poodle.barkTypes!.indexOf(poodleBarkType);
-             const nextType = poodle.barkTypes![(currentTypeIdx + 1) % poodle.barkTypes!.length];
+          if (poodle.supportsBarkToggle && poodle.barkTypes && poodle.barkTypes.length > 0) {
+             const currentTypeIdx = poodle.barkTypes.indexOf(poodleBarkType);
+             const nextType = poodle.barkTypes[(currentTypeIdx + 1) % poodle.barkTypes.length];
              setGameState(prev => ({ ...prev, poodleBarkType: nextType as any }));
              const displayName = nextType === 'Generic' ? 'Classic' : nextType;
              speak(displayName);

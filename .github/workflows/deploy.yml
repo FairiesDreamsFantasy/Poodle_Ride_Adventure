@@ -54,14 +54,15 @@ jobs:
           
           # Copy newly built assets into dist_workspace including hidden files (.htaccess)
           cp -rf Poodle_Ride_Adventure_Build/. dist_workspace/
+          # Copy deployment scripts so cPanel tasks can find them
+          cp -rf scripts dist_workspace/
           
           cd dist_workspace
           cat <<EOF > .cpanel.yml
 ---
 deployment:
   tasks:
-    - "export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure"
-    - "/bin/bash scripts/deploy_cpanel.sh"
+    - "DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure /bin/bash scripts/deploy_cpanel.sh"
 EOF
 
           git add -A
