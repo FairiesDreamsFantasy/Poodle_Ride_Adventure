@@ -9,22 +9,6 @@ export default defineConfig(({mode}) => {
     plugins: [
       react(),
       tailwindcss(),
-      {
-        name: 'move-script-to-body',
-        transformIndexHtml(html) {
-          // Find the main script tag injected by Vite
-          const scriptTagMatch = html.match(/<script type="module" crossorigin src=".*"><\/script>/);
-          if (scriptTagMatch) {
-            const scriptTag = scriptTagMatch[0];
-            // Remove it from its current position
-            let newHtml = html.replace(scriptTag, '');
-            // Insert it before the closing body tag
-            newHtml = newHtml.replace('</body>', `  ${scriptTag}\n  </body>`);
-            return newHtml;
-          }
-          return html;
-        }
-      }
     ],
     base: './',
     define: {

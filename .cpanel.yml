@@ -3,6 +3,5 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
     - /bin/mkdir -p $DEPLOYPATH
-    - export PATH=$PATH:/usr/local/bin:/usr/bin:~/.nvm/versions/node/$(ls ~/.nvm/versions/node 2>/dev/null | tail -n 1)/bin
-    - if command -v npm >/dev/null 2>&1; then npm ci --prefer-offline && npm run build; fi
-    - if [ -d "Poodle_Ride_Adventure_Build" ]; then /bin/cp -rf Poodle_Ride_Adventure_Build/. $DEPLOYPATH/; fi
+    - if [ -d "Poodle_Ride_Adventure_Build" ]; then /bin/cp -rf Poodle_Ride_Adventure_Build/. $DEPLOYPATH/; else /bin/cp -rf index.html Assets sw.js .htaccess $DEPLOYPATH/ 2>/dev/null || /bin/cp -rf index.html Assets $DEPLOYPATH/; fi
+    - /bin/chmod -R 755 $DEPLOYPATH

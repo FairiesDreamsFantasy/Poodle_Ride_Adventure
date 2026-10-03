@@ -1,8 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { AISafetyFilter } from "../Safety";
 
-export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-export const isGeminiAvailable = !!process.env.GEMINI_API_KEY;
+const apiKey = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined;
+
+export const ai: GoogleGenAI | null = apiKey ? new GoogleGenAI({ apiKey }) : null;
+export const isGeminiAvailable = !!apiKey;
 export const GEMINI_MODEL_TTS = "gemini-2.5-flash-preview-tts";
 
 export const generateGameDialogue = async (prompt: string) => {
@@ -11,6 +13,10 @@ export const generateGameDialogue = async (prompt: string) => {
   if (!safetyCheck.safe) {
     console.warn(`[AI SAFETY INTRUSION BLOCKED] Category: ${safetyCheck.category}. Reason: ${safetyCheck.reason}`);
     return `[Zion Safeguard Alert] Conversation blocked due to safety guidelines (${safetyCheck.category}).`;
+  }
+
+  if (!ai) {
+    return null;
   }
 
   try {
