@@ -62,7 +62,8 @@ jobs:
             "  tasks:" \
             "    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure" \
             "    - /bin/mkdir -p \$DEPLOYPATH" \
-            "    - /bin/cp -rf index.html Assets \$DEPLOYPATH/" > .cpanel.yml
+            "    - /bin/cp -rf index.html Assets \$DEPLOYPATH/" \
+            "    - [ -f .htaccess ] && /bin/cp -f .htaccess \$DEPLOYPATH/ || true" > .cpanel.yml
 
           git add -A
           git diff --quiet && git diff --staged --quiet || git commit -m "Automated production build for commit ${{ github.sha }}"
