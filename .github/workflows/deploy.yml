@@ -53,14 +53,13 @@ jobs:
           git init
           git checkout -b dist-deploy
           
-          cat << 'EOF' > .cpanel.yml
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
-    - /bin/mkdir -p $DEPLOYPATH
-    - /bin/cp -rf index.html Assets $DEPLOYPATH/
-EOF
+          printf "%s\n" \
+            "---" \
+            "deployment:" \
+            "  tasks:" \
+            "    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure" \
+            "    - /bin/mkdir -p \$DEPLOYPATH" \
+            "    - /bin/cp -rf index.html Assets \$DEPLOYPATH/" > .cpanel.yml
 
           git add .
           git commit -m "Automated production build for commit ${{ github.sha }}"
