@@ -54,13 +54,13 @@ jobs:
           git checkout -b dist-deploy
           
           cat << 'EOF' > .cpanel.yml
-          ---
-          deployment:
-            tasks:
-              - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure/
-              - /bin/mkdir -p $DEPLOYPATH
-              - /bin/cp -R * $DEPLOYPATH
-          EOF
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -rf index.html Assets $DEPLOYPATH/
+EOF
 
           git add .
           git commit -m "Automated production build for commit ${{ github.sha }}"
@@ -68,7 +68,11 @@ jobs:
           git push -f origin dist-deploy
 
       - name: 📡 FTP Deploy to cPanel (Optional)
-        if: ${{ secrets.FTP_SERVER != '' }}
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        if: env.FTP_SERVER != ''
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
