@@ -7,7 +7,9 @@ export const POODLE_HEAD_HEIGHT_MAP: Record<string, number> = {
   'Abigay Rose Kone': 25, // inches (approx based on 25% larger than typical)
   'Anninne-Amelia Rose Julisus': 20, // inches
   'Dymond Daisy Qin-Reynolds': 40, // inches
-  'Abigail Marigold Kenyatta': 20 // inches
+  'Abigail Marigold Kenyatta': 20, // inches
+  'Olga-Olivia': 14,
+  'Chloe Joseph Gray-Michaels': 12
 };
 
 export function getPoodleHeadHeight(name: string): number | null {

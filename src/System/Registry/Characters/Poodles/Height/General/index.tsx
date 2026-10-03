@@ -28,5 +28,15 @@ export const POODLE_HEIGHT_MAP: Record<string, HeightMetadata> = {
     shoulder: 5.416, // 5 feet 5 inches
     head: 8.5,
     total: 9
+  },
+  'Olga-Olivia': {
+    shoulder: 3.5,
+    head: 4.2,
+    total: 4.5
+  },
+  'Chloe Joseph Gray-Michaels': {
+    shoulder: 3.2,
+    head: 3.8,
+    total: 4.2
   }
 };

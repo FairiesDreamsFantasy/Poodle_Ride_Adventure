@@ -27,5 +27,13 @@ export const POODLE_TAIL_MAP: Record<string, TailMetadata> = {
     length: 38,
     hasBallTip: true,
     ballTipDiameter: 24
+  },
+  'Olga-Olivia': {
+    length: 15,
+    hasBallTip: false
+  },
+  'Chloe Joseph Gray-Michaels': {
+    length: 12,
+    hasBallTip: false
   }
 };

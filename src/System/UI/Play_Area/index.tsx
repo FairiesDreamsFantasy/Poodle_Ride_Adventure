@@ -554,16 +554,18 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
       
       if (isInsideElevator) {
         audio.playElevatorButtonIntersection(gridX, gridY);
-        // Announce floor beep and logical floor change is handled by movement or separate logic?
-        // User says: "When inside the elevator; going north makes the elevator go up, and going south makes the elevator go down."
-        // "pressing the jump key can help make use of this elevator easier... jump anywhere inside the elevator (plays a special rpre-recorded click... replacing a landing thump)"
-        // It sounds like jumping is just for the button click effect or to "interact" if we are stationary.
-        // Actually, the user says north/south moves it.
         speak("Elevator button clicked.", 'EN_US');
         setGameState(prev => ({ ...prev, isJumping: true }));
         setTimeout(() => {
           setGameState(prev => ({ ...prev, isJumping: false }));
         }, 500);
+        return;
+      }
+
+      // SCIENTIFIC MANDATE: Olga-Olivia and other Babylonian characters MUST NOT use the crafted jump system.
+      if (state.ridingAnimal === 'Olga-Olivia' || state.ridingAnimal === 'Chloe Joseph Gray-Michaels' || state.ridingAnimal === 'Priscilla') {
+        speak("Babylonian characters cannot use elegant jump maneuvers.", 'EN_US');
+        audio.playNoInteractionSound();
         return;
       }
 

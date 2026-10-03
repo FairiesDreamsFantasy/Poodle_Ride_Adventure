@@ -72,5 +72,12 @@ export const POODLE_NOSE_STYLE_MAP: Record<string, NoseMetadata> = {
     temperature: NoseTemperature.COLD,
     nostrils: NoseNostrils.WITH_NOSTRILS,
     hasMirrorShine: false
+  },
+  'Chloe Joseph Gray-Michaels': {
+    style: NoseStyle.ROUNDED,
+    moisture: NoseMoisture.WET,
+    temperature: NoseTemperature.COLD,
+    nostrils: NoseNostrils.WITH_NOSTRILS,
+    hasMirrorShine: false
   }
 };

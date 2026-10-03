@@ -8,7 +8,8 @@ export const POODLE_BALL_TIP_MAP: Record<string, boolean> = {
   'Abigail Marigold Kenyatta': true,
   'Dymond Daisy Qin-Reynolds': true,
   'Classic White Poodle': false,
-  'Olga-Olivia': false
+  'Olga-Olivia': false,
+  'Chloe Joseph Gray-Michaels': false
 };
 
 export function hasBallTip(name: string): boolean {

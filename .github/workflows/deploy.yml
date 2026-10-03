@@ -56,14 +56,13 @@ jobs:
           cp -rf Poodle_Ride_Adventure_Build/. dist_workspace/
           
           cd dist_workspace
-          printf "%s\n" \
-            "---" \
-            "deployment:" \
-            "  tasks:" \
-            "    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure" \
-            "    - /bin/mkdir -p \$DEPLOYPATH" \
-            "    - /bin/cp -rf index.html Assets sw.js .htaccess \$DEPLOYPATH/ 2>/dev/null || /bin/cp -rf index.html Assets \$DEPLOYPATH/" \
-            "    - /bin/chmod -R 755 \$DEPLOYPATH" > .cpanel.yml
+          cat <<EOF > .cpanel.yml
+---
+deployment:
+  tasks:
+    - "export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure"
+    - "/bin/bash scripts/deploy_cpanel.sh"
+EOF
 
           git add -A
           git diff --quiet && git diff --staged --quiet || git commit -m "Automated production build for commit ${{ github.sha }}"

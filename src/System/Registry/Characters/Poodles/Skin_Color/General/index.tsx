@@ -17,5 +17,7 @@ export const POODLE_SKIN_COLOR_MAP: Record<string, PoodleSkinColor> = {
   'Anninne-Amelia Rose Julisus': PoodleSkinColor.SHINY_TAN,
   'Abigail Marigold Kenyatta': PoodleSkinColor.PEACH,
   'Dymond Daisy Qin-Reynolds': PoodleSkinColor.PEACH_WITH_YELLOWISH_UNDERTONE,
-  'Classic White Poodle': PoodleSkinColor.REFINED_SHINY_PEACH
+  'Classic White Poodle': PoodleSkinColor.REFINED_SHINY_PEACH,
+  'Olga-Olivia': PoodleSkinColor.TAN,
+  'Chloe Joseph Gray-Michaels': PoodleSkinColor.TAN
 };

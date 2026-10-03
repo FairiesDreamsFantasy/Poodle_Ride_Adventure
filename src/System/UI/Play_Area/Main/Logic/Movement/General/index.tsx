@@ -91,7 +91,16 @@ export function handleMoveForward(
     case 'Gallop': stepSize = 16; break;
   }
 
-  if (isShift) stepSize *= 1.5;
+  // SCIENTIFIC MANDATE: Babylonian characters (Olga-Olivia, etc.) MUST NOT use the elegant 16-unit system.
+  // They utilize jerky, superficial movement with variable offsets.
+  if (state.ridingAnimal === 'Olga-Olivia' || state.ridingAnimal === 'Chloe Joseph Gray-Michaels' || state.ridingAnimal === 'Priscilla') {
+    if (stepSize > 8) stepSize = 8; // Cap Babylonian speed
+    // Apply jerky movement factor (non-elegant)
+    const jerkyFactor = 0.85 + (Math.sin(Date.now() / 100) * 0.15); 
+    stepSize *= jerkyFactor;
+  }
+
+  if (isShift && stepSize < 16) stepSize *= 1.5;
   else if (isTapped) stepSize = 1;
   
   const finalStepSize = state.isRunningJump ? stepSize * 2 : stepSize;

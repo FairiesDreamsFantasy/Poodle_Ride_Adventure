@@ -75,10 +75,13 @@ export async function playPoodleBark(contextState: any, x: number = 0, y: number
           return;
         }
 
+        const isClassic = animal.includes('Classic') || animal === 'White Poodle';
+        const effectiveBarkType = isClassic && (barkType === 'Generic' || barkType === 'BOW') ? 'Classic_A' : barkType;
+
         const synthFn = synthModule.playElegantBark;
 
         // 1. Play the Primary Bark (Always disable internal echo here to use the modular system instead)
-        synthFn(ctx, barkGain, (pX, pY, pZ) => contextState.createPanner(pX, pY, pZ), x, y, z, true, internalReverbEnabled, barkType as any, disableDescendingPitch);
+        synthFn(ctx, barkGain, (pX, pY, pZ) => contextState.createPanner(pX, pY, pZ), x, y, z, true, internalReverbEnabled, effectiveBarkType as any, disableDescendingPitch);
       }
 
       // 2. Play Modular Echoes if enabled for this area

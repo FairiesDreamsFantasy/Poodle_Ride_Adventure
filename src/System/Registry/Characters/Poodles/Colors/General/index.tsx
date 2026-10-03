@@ -31,5 +31,7 @@ export const POODLE_FUR_COLOR_MAP: Record<string, PoodleFurColor> = {
   'Abigail Marigold Kenyatta': PoodleFurColor.CREAM,
   'Dymond Daisy Qin-Reynolds': PoodleFurColor.LIGHT_YELLOW,
   'Classic White Poodle': PoodleFurColor.WHITE,
-  'White Poodle': PoodleFurColor.WHITE
+  'White Poodle': PoodleFurColor.WHITE,
+  'Olga-Olivia': PoodleFurColor.GRAY,
+  'Chloe Joseph Gray-Michaels': PoodleFurColor.GRAY
 };

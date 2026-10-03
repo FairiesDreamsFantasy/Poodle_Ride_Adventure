@@ -1,2 +1,2 @@
 // Chloe Sounds Registry
-export {};
+export * from '../../../../../../Characters/Poodles/Chloe_Joseph_Gray-Michaels/Sounds/Synthesizer';
