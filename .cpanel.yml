@@ -4,3 +4,4 @@ deployment:
     - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
     - /bin/mkdir -p $DEPLOYPATH
     - /bin/cp -rf index.html Assets $DEPLOYPATH/
+    - [ -f .htaccess ] && /bin/cp -f .htaccess $DEPLOYPATH/ || true
