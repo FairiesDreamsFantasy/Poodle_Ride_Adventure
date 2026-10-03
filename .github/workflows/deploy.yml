@@ -49,10 +49,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          cd Poodle_Ride_Adventure_Build
-          git init
-          git checkout -b dist-deploy
+          # Clone existing dist-deploy branch to preserve linear history
+          git clone --depth 1 --branch dist-deploy "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" dist_workspace
           
+          # Copy newly built assets into dist_workspace
+          cp -rf Poodle_Ride_Adventure_Build/* dist_workspace/
+          
+          cd dist_workspace
           printf "%s\n" \
             "---" \
             "deployment:" \
@@ -61,10 +64,9 @@ jobs:
             "    - /bin/mkdir -p \$DEPLOYPATH" \
             "    - /bin/cp -rf index.html Assets \$DEPLOYPATH/" > .cpanel.yml
 
-          git add .
-          git commit -m "Automated production build for commit ${{ github.sha }}"
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git push -f origin dist-deploy
+          git add -A
+          git diff --quiet && git diff --staged --quiet || git commit -m "Automated production build for commit ${{ github.sha }}"
+          git push origin dist-deploy
 
       - name: 📡 FTP Deploy to cPanel (Optional)
         env:
