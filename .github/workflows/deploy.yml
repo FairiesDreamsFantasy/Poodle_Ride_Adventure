@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - StableFallback
   workflow_dispatch:
 
 permissions:
@@ -60,7 +61,7 @@ EOF
           git init
           git checkout -b main
           git add -A
-          git commit -m "Production build release ${{ github.sha }}"
+          git commit -m "Production stable release build ${{ github.sha }}"
           
           # Force push the compiled bundle directly to main
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
