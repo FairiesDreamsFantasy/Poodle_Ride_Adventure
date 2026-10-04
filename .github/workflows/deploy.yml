@@ -29,30 +29,26 @@ jobs:
       - name: 🏗️ Build Production Bundle
         run: npm run build
 
-      - name: 🤐 Zip Production Bundle
-        run: |
-          cd Poodle_Ride_Adventure_Build
-          zip -r ../Poodle_Ride_Adventure_Production_Build.zip .
-          cd ..
-
-      - name: 📤 Upload Production Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Poodle_Ride_Adventure_Production_Build
-          path: Poodle_Ride_Adventure_Production_Build.zip
-          retention-days: 30
-
-      - name: 🚀 Push Production Bundle to dist-deploy Branch
+      - name: 🚀 Publish Build Output to Main Branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create a clean deployment workspace
-          mkdir dist_workspace
-          cp -rf Poodle_Ride_Adventure_Build/. dist_workspace/
-          # Copy deployment scripts so cPanel tasks can find them
-          cp -rf scripts dist_workspace/
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Prepare deployment configuration in build folder
+          cd Poodle_Ride_Adventure_Build
           
-          cd dist_workspace
+          # Ensure .htaccess is included
+          if [ -f ../public/.htaccess ]; then
+            cp ../public/.htaccess .
+          fi
+
+          # Copy deployment scripts so cPanel tasks can execute them
+          mkdir -p scripts
+          cp -rf ../scripts/. scripts/
+
+          # Create cpanel yml config
           cat <<EOF > .cpanel.yml
 ---
 deployment:
@@ -60,25 +56,12 @@ deployment:
     - "DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure /bin/bash scripts/deploy_cpanel.sh"
 EOF
 
+          # Initialize a fresh git repo from the build output
           git init
-          git checkout -b dist-deploy
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b main
           git add -A
-          git commit -m "Automated production build for commit ${{ github.sha }}"
+          git commit -m "Production build release ${{ github.sha }}"
+          
+          # Force push the compiled bundle directly to main
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin dist-deploy --force
-
-      - name: 📡 FTP Deploy to cPanel (Optional)
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        if: env.FTP_SERVER != ''
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/Arcade/Poodle_Ride_Adventure/
-          local-dir: ./Poodle_Ride_Adventure_Build/
+          git push origin main --force
