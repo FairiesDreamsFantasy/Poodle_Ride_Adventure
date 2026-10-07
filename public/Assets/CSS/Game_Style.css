@@ -1,0 +1,29 @@
+/* Game_Style.css - Core Styling for Poodle Ride Adventure */
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-nursery-pink: #ffc0cb;
+  --color-nursery-blue: #add8e6;
+  --color-nursery-white: #ffffff;
+  --color-nursery-orange: #ffa500;
+}
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+}
+
+.nursery-gradient {
+  background: linear-gradient(to bottom, #add8e6 0%, #ffffff 50%, #90ee90 100%);
+}

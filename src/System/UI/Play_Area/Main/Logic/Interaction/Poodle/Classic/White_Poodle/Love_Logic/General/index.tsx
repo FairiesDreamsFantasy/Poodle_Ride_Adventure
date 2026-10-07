@@ -1,0 +1,1 @@
+export const CLASSIC_WHITE_POODLE_LOVE_LOGIC_GENERAL = true;

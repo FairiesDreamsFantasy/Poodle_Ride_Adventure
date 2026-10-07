@@ -1,0 +1,1 @@
+export const FRONT_PORCH_DESCRIPTION_GENERAL = true;
