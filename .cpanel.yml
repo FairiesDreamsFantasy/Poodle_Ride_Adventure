@@ -1,0 +1,4 @@
+---
+deployment:
+  tasks:
+    - "DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure /bin/bash scripts/deploy_cpanel.sh"

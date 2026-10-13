@@ -1,0 +1,1 @@
+export const STATE_ACTION_DISPATCHER_GENERAL = true;

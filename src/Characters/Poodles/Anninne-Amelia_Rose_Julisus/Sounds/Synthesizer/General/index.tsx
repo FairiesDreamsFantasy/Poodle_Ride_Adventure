@@ -1,0 +1,1 @@
+export const ANNINNE_AMELIA_SYNTHESIZER_GENERAL = true;

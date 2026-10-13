@@ -1,0 +1,1 @@
+export const ANIMATIONS_WHITE_POODLE_GENERAL = true;

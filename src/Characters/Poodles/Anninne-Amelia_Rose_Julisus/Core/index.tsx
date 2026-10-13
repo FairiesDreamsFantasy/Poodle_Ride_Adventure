@@ -1,0 +1,8 @@
+import { POODLE_CORE, ANNINNE_AMELIA_DESCRIPTION } from '../General';
+
+export const AnninneAmeliaCore = {
+  POODLE_CORE,
+  ANNINNE_AMELIA_DESCRIPTION
+};
+
+export { POODLE_CORE, ANNINNE_AMELIA_DESCRIPTION };

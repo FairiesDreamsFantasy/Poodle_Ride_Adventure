@@ -1,0 +1,8 @@
+{
+  "name": "Poodle Ride Adventure",
+  "description": "A blind-accessible adventure game promoting an adventure as you ride a poodle.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,2 @@
+// Dymond Sounds Registry
+export {};

@@ -1,0 +1,12 @@
+# Poodle Ride Adventure - Root Table Of Contents
+- Accessibility/
+- Color_Manager/
+- Primary_Characters/
+- World/
+- Levels/
+- Logic/
+- Objects/
+- Sound/
+- Visuals/
+- Text_Manager/
+- Play_Area/PoodleRideAdventure.tsx

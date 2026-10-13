@@ -1,0 +1,1 @@
+export const CLASSIC_WHITE_POODLE_LEANING_GENERAL = true;

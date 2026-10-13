@@ -1,0 +1,1 @@
+export const ABIGAIL_INTERACTIONS_GENERAL = true;

@@ -1,0 +1,2 @@
+// Classic General Registry
+export {};

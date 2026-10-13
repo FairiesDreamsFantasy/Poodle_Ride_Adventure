@@ -1,0 +1,1 @@
+export const STATE_INDEXED_DB_MANAGER_GENERAL = true;

@@ -1,0 +1,1 @@
+export const SYSTEM_HARDWARE_OPTIMIZATION_GENERAL = true;

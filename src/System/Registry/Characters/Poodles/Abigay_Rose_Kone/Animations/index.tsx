@@ -1,0 +1,2 @@
+// Abigay Animations Registry
+export {};

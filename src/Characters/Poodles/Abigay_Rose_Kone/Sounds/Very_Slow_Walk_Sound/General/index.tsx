@@ -1,0 +1,1 @@
+export const ABIGAY_VERY_SLOW_WALK_SOUND_GENERAL = true;
