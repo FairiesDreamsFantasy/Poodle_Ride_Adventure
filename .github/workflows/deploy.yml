@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: 📥 Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: 🟢 Setup Node.js 22
         uses: actions/setup-node@v4
@@ -30,40 +32,23 @@ jobs:
       - name: 🏗️ Build Production Bundle
         run: npm run build
 
-      - name: 🚀 Publish Build Output to Main Branch
+      - name: 🚀 Commit & Publish Build Output to Main Branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Prepare deployment configuration in build folder
-          cd Poodle_Ride_Adventure_Build
-          
-          # Ensure .htaccess is included
-          if [ -f ../public/.htaccess ]; then
-            cp ../public/.htaccess .
+          # Ensure .htaccess is included in build directory
+          if [ -f public/.htaccess ]; then
+            cp public/.htaccess Poodle_Ride_Adventure_Build/
           fi
 
-          # Copy deployment scripts so cPanel tasks can execute them
-          mkdir -p scripts
-          cp -rf ../scripts/. scripts/
+          # Stage compiled build output and cPanel scripts into repository
+          git add -f Poodle_Ride_Adventure_Build .cpanel.yml scripts/
 
-          # Create cpanel yml config with standard export task syntax
-          cat <<'EOF' > .cpanel.yml
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
-    - /bin/bash scripts/deploy_cpanel.sh
-EOF
+          # Commit linearly on top of existing repository history
+          git commit -m "Production release build ${{ github.sha }}" || echo "No changes to commit"
 
-          # Initialize a fresh git repo from the build output
-          git init
-          git checkout -b main
-          git add -A
-          git commit -m "Production stable release build ${{ github.sha }}"
-          
-          # Force push the compiled bundle directly to main
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin main --force
+          # Push to main linearly to preserve fast-forward ability for cPanel
+          git push origin HEAD:main

@@ -12,10 +12,17 @@ fi
 
 echo "[INFO] Starting deployment to $DEPLOYPATH"
 
-# 2. Ensure directory exists
+# 2. Ensure target deployment directory exists
 mkdir -p "$DEPLOYPATH"
 
-# 3. Identify Source and Deploy
+# 3. Build if needed and Node.js is present
+if [ ! -d "Poodle_Ride_Adventure_Build" ] && command -v npm &> /dev/null; then
+    echo "[INFO] Building applet directly on cPanel server..."
+    npm ci || npm install
+    npm run build
+fi
+
+# 4. Identify Source and Deploy
 if [ -d "Poodle_Ride_Adventure_Build" ]; then
     echo "[INFO] Detected build directory. Deploying from build..."
     # Copy all contents including hidden files
@@ -33,7 +40,7 @@ else
     fi
 fi
 
-# 4. Enforce Permissions
+# 5. Enforce Permissions
 echo "[INFO] Enforcing 755 (dir) and 644 (file) permissions..."
 find "$DEPLOYPATH" -type d -exec chmod 755 {} +
 find "$DEPLOYPATH" -type f -exec chmod 644 {} +
