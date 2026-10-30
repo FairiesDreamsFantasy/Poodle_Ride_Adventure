@@ -50,7 +50,7 @@ jobs:
           cp -rf ../scripts/. scripts/
 
           # Create cpanel yml config
-          cat <<EOF > .cpanel.yml
+          cat <<'EOF' > .cpanel.yml
 ---
 deployment:
   tasks:
@@ -59,10 +59,10 @@ EOF
 
           # Initialize a fresh git repo from the build output
           git init
-          git checkout -b main
+          git checkout -b dist-deploy
           git add -A
           git commit -m "Production stable release build ${{ github.sha }}"
           
-          # Force push the compiled bundle directly to main
+          # Force push the compiled bundle directly to dist-deploy
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin main --force
+          git push origin dist-deploy --force
