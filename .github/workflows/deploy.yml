@@ -49,20 +49,21 @@ jobs:
           mkdir -p scripts
           cp -rf ../scripts/. scripts/
 
-          # Create cpanel yml config
+          # Create cpanel yml config with standard export task syntax
           cat <<'EOF' > .cpanel.yml
 ---
 deployment:
   tasks:
-    - "DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure /bin/bash scripts/deploy_cpanel.sh"
+    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
+    - /bin/bash scripts/deploy_cpanel.sh
 EOF
 
           # Initialize a fresh git repo from the build output
           git init
-          git checkout -b dist-deploy
+          git checkout -b main
           git add -A
           git commit -m "Production stable release build ${{ github.sha }}"
           
-          # Force push the compiled bundle directly to dist-deploy
+          # Force push the compiled bundle directly to main
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin dist-deploy --force
+          git push origin main --force
