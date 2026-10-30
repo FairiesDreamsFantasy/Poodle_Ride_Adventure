@@ -1,13 +1,12 @@
 #!/bin/bash
 # Bulletproof cPanel Deployment Script for Poodle Ride Adventure
-# This script handles different branch structures and ensures correct permissions.
+# Handles file deployment and keeps local working directory clean.
 
 set -e
 
 # 1. Define Deployment Path
 if [ -z "$DEPLOYPATH" ]; then
-    echo "[ERROR] DEPLOYPATH is not set."
-    exit 1
+    DEPLOYPATH="/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure"
 fi
 
 echo "[INFO] Starting deployment to $DEPLOYPATH"
@@ -15,34 +14,30 @@ echo "[INFO] Starting deployment to $DEPLOYPATH"
 # 2. Ensure target deployment directory exists
 mkdir -p "$DEPLOYPATH"
 
-# 3. Build if needed and Node.js is present
-if [ ! -d "Poodle_Ride_Adventure_Build" ] && command -v npm &> /dev/null; then
-    echo "[INFO] Building applet directly on cPanel server..."
-    npm ci || npm install
-    npm run build
-fi
-
-# 4. Identify Source and Deploy
+# 3. Identify Source and Deploy
 if [ -d "Poodle_Ride_Adventure_Build" ]; then
     echo "[INFO] Detected build directory. Deploying from build..."
-    # Copy all contents including hidden files
     cp -rf Poodle_Ride_Adventure_Build/. "$DEPLOYPATH/"
 else
     echo "[INFO] Deploying from production branch root..."
-    # Copy primary files
     [ -f index.html ] && cp -f index.html "$DEPLOYPATH/"
     [ -f sw.js ] && cp -f sw.js "$DEPLOYPATH/"
     [ -f .htaccess ] && cp -f .htaccess "$DEPLOYPATH/"
-    
-    # Copy Assets directory
     if [ -d Assets ]; then
         cp -rf Assets "$DEPLOYPATH/"
     fi
 fi
 
-# 5. Enforce Permissions
+# 4. Enforce Permissions
 echo "[INFO] Enforcing 755 (dir) and 644 (file) permissions..."
 find "$DEPLOYPATH" -type d -exec chmod 755 {} +
 find "$DEPLOYPATH" -type f -exec chmod 644 {} +
+
+# 5. Clean Repository Working Directory to prevent "uncommitted changes" warning
+if git rev-parse --is-inside-work-tree &> /dev/null; then
+    echo "[INFO] Cleaning repository working copy to maintain pristine status..."
+    git reset --hard HEAD || true
+    git clean -fd || true
+fi
 
 echo "[SUCCESS] Deployment to $DEPLOYPATH completed successfully."

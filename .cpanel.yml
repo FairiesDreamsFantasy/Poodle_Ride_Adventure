@@ -2,4 +2,7 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -rf Poodle_Ride_Adventure_Build/* $DEPLOYPATH/
+    - /bin/cp -f Poodle_Ride_Adventure_Build/.htaccess $DEPLOYPATH/
     - /bin/bash scripts/deploy_cpanel.sh
