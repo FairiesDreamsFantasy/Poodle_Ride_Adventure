@@ -21,25 +21,15 @@ import {
   evaluateOrientationAndStrafing
 } from '../../AI/In-Game/Category/UI/Play_Area';
 import { handleStandardKinematics, handlePreciseKinematics } from '../../AI/In-Game/Drift_Guard';
+import { renderCanvasFrame } from '../../AI/In-Game/Category/Visuals/Canvas';
 import { formulateAreaMetrics as formulateArenaMetrics } from '../../AI/In-Game/Category/Arena';
 import { getRelativePositionDescription, getAreaPerimeterDescription } from '../../Engine/Scientific_Imports/P/Positions';
-import { drawPoodleRiderView, drawPoodle3D } from '../../../Characters/Poodles/Abigay_Rose_Kone';
-import { drawAnninneAmeliaRiderView } from '../../../Characters/Poodles/Anninne-Amelia_Rose_Julisus';
-import { drawAbigailRiderView } from '../../../Characters/Poodles/Abigail_Marigold_Kenyatta';
 import { PoodleSelectionMenu } from '../Animal_Selection';
-import { drawDymondRiderView } from '../../../Characters/Poodles/Dymond_Daisy_Qin-Reynolds';
-import { drawWorldObjects } from '../../Engine/Science/Graphical_Renderer/W/WorldRenderer';
-import { drawStoryBookCourse, drawToyInterface } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookRenderer';
-import { drawInitialShort400FeetPath } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/Initial_Short_400_Feet_Path/InitialPathRenderer';
-import { STORY_BOOK_PAGES } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
-import { drawPoodlePOV } from '../../../Characters/Riders/Fairy-Rider/POV';
-import { drawPriscillaRiderView, drawPriscillaPOV } from '../../../Characters/Riders/Priscilla/Animations/PriscillaRiderRenderer';
 import { checkCollision } from '../../Engine/Core/C/Collision';
 import { checkAnnouncementFlags } from '../../Engine/Core/Announcement';
 import { ScreenReader as ScreenReaderComponent } from '../../Registry/Sound/TTS';
-import { drawEnvironment, drawWindowViews } from '../../../Arena/Manorsville/Rasta-Manor/Environment';
 import FloorFoyerGrid from '../../../System/Engine/Mathematics/Grid/Floor_Foyer_Grid';
-import { detectHardwareProfile, applyLegacyConstraints } from '../../HardwareOptimization';
+import { detectHardwareProfile } from '../../HardwareOptimization';
 import { TOY_DIMENSIONS } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/Obstacles/Interactive_Obstacles/Ride-On_Pink_Poodle_Rocker/Dimensions/Dimensions';
 import { calculateMovement } from '../../../System/Engine/Movement/M/Movement';
 import { routeKeyboardEvent } from '../../../System/Engine/Scientific_Imports/K/Keyboard';
@@ -48,7 +38,7 @@ import { PlayAreaHeader } from './Header';
 import { PlayAreaMainContainer } from './Main';
 import { PlayAreaFooter } from './Footer';
 import { SystemTheme, ThemeProvider } from '../../../System/Theme';
-import { getFootage, getMeasurementDescription, getSpeedDescription, convertText } from '../../../System/Engine/Science/Physics/Measurements';
+import { getMeasurementDescription, getSpeedDescription, convertText } from '../../../System/Engine/Science/Physics/Measurements';
 import { FOYER_OBSTACLES, GARDEN_OBSTACLES, Obstacle as LegacyObstacle } from '../../../System/Engine/Core/O/Obstacles';
 import { ADVENTURE_COURSE, checkCourseTransition, CourseArea } from '../../Levels/CourseManager';
 import { generateObstacles, checkObstacleCollision, getObstacleBeepInterval, Obstacle } from '../../Building_Blocks/Obstacles/ObstacleManager';
@@ -64,7 +54,6 @@ import { FinalScore } from './Final_Score';
 
 // Modular Imports
 import { WELCOME_MESSAGE, getDynamicWelcomeMessage } from '../../Engine/Scientific_Imports/W/Welcome';
-import { draw2DView } from '../../Engine/Scientific_Imports/D/Drawing';
 import { getInputLearnDescription, getWallInteractionDescription } from '../../Engine/Scientific_Imports/I/InputDescriptions';
 import { getSystemStatusDescription } from '../../Engine/Scientific_Imports/S/SystemStatus';
 import { triggerAmbientSounds } from '../../Engine/Scientific_Imports/A/Ambient';
@@ -756,244 +745,20 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
     if (!ctx) return;
 
     const render = (time: number) => {
-      const hw = hardwareProfile.current;
-      const state = gameStateRef.current;
-      
-      // Hardware-aware throttling
-      const fpsLimit = hw.targetFPS;
-      const interval = 1000 / fpsLimit;
-      if (time - lastRenderTime.current < interval) {
-        renderRequestRef.current = requestAnimationFrame(render);
-        return;
-      }
-      lastRenderTime.current = time;
-
-      const cstDate = getCSTTime();
-      const currentHour = cstDate.getHours();
-      const lighting = getLightingMode(currentHour);
-      const isNight = lighting === 'Night';
-
-      applyLegacyConstraints(ctx);
-
-      // Cache exact simulation epoch seconds to protect the browser heap from redundant float object allocations
-      const nowSeconds = Date.now() / 1000;
-
-      // Determine native device pixel density (DPR), restricted by mathematically-backed hardware capability caps
-      const dpr = Math.min(hw.maxDPR, window.devicePixelRatio || 1);
-
-      // Visual Preference: 2D Mode
-      if (state.visualPrefs === '2D') {
-        const physicalWidth = Math.round(GAME_WIDTH * dpr);
-        const physicalHeight = Math.round(GAME_HEIGHT * dpr);
-        if (canvas.width !== physicalWidth || canvas.height !== physicalHeight) {
-          canvas.width = physicalWidth;
-          canvas.height = physicalHeight;
+      renderCanvasFrame(
+        {
+          canvas,
+          ctx,
+          time,
+          hardwareProfile,
+          gameStateRef,
+          lastRenderTime,
+          renderRequestRef
+        },
+        (nextTime) => {
+          renderRequestRef.current = requestAnimationFrame(render);
         }
-
-        ctx.save();
-        ctx.scale(dpr, dpr);
-        draw2DView(ctx, GAME_WIDTH, GAME_HEIGHT, state);
-        ctx.restore();
-
-        renderRequestRef.current = requestAnimationFrame(render);
-        return;
-      }
-
-      // Pixelation support
-      let pixelRatio = state.visualPrefs === 'Auto' ? state.pixelRatio : 
-                        (state.visualPrefs === 'Simulated3D' ? 0.5 : 
-                        (state.visualPrefs === 'Super3D' ? 1.5 : 
-                        (state.visualPrefs === '3DPlus' ? 1.2 : 1)));
-      
-      // Auto-recalibration for legacy hardware (e.g. iPad)
-      if (state.visualPrefs === 'Auto' && hw.isLegacy) {
-        pixelRatio = 0.75; // Save ~44% of pixel processing
-      }
-
-      // Compute total physical scaling (DPR mapped alongside visual quality multiplier)
-      const physicalScale = dpr * pixelRatio;
-      const physicalWidth = Math.round(GAME_WIDTH * physicalScale);
-      const physicalHeight = Math.round(GAME_HEIGHT * physicalScale);
-
-      // Dynamically size backing store only on changes to protect physical VRAM layout
-      if (canvas.width !== physicalWidth || canvas.height !== physicalHeight) {
-        canvas.width = physicalWidth;
-        canvas.height = physicalHeight;
-      }
-
-      ctx.save();
-
-      if (pixelRatio < 1) {
-        // Multiplier scaling for low resolution / performance pixelation
-        const renderScale = dpr * pixelRatio * pixelRatio;
-        ctx.scale(renderScale, renderScale);
-        
-        // Adjust width/height for scaled context
-        const sw = GAME_WIDTH / pixelRatio;
-        const sh = GAME_HEIGHT / pixelRatio;
-        
-        // Ultra Black for night skies
-        ctx.fillStyle = isNight ? '#000000' : '#050505';
-        ctx.fillRect(0, 0, sw, sh);
-
-        const { area, isLeaning, isGraspingCollar } = state;
-
-        // Draw Environment
-        drawEnvironment(ctx, sw, sh, state, nowSeconds);
-        drawWorldObjects(ctx, sw, sh, state, nowSeconds);
-
-        // Draw Window Views
-        drawWindowViews(ctx, sw, sh, state, nowSeconds, cstDate);
-
-        if (state.viewMode === 'Rider') {
-          if (state.visualPrefs === 'Active3D') {
-            drawPoodle3D(ctx, sw, sh, nowSeconds, 0); 
-          } else {
-            // Draw Poodle (Rider's View - 3rd Person)
-            if (state.characterName === 'Priscilla' || state.ridingAnimal === 'Olga-Olivia') {
-              drawPriscillaRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
-            } else if (state.ridingAnimal === 'Anninne-Amelia Rose Julisus') {
-              drawAnninneAmeliaRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
-            } else if (state.ridingAnimal === 'Abigail Marigold Kenyatta') {
-              drawAbigailRiderView(ctx, sw, sh, isLeaning, nowSeconds, state.isPetting, state.lastPetTime);
-            } else if (state.isRidingToy) {
-              drawToyInterface(ctx, sw, sh, state, nowSeconds);
-            } else if (state.ridingAnimal === 'Dymond Daisy Qin-Reynolds') {
-              drawDymondRiderView(ctx, sw, sh, state, nowSeconds);
-            } else {
-              drawPoodleRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
-            }
-          }
-        } else {
-          // POV Poodle Rendering (1st Person)
-          if (state.characterName === 'Priscilla' || state.ridingAnimal === 'Olga-Olivia') {
-            drawPriscillaPOV(ctx, sw, sh, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
-          } else {
-            drawPoodlePOV(ctx, sw, sh, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.ridingAnimal, state.isPetting, state.lastPetTime);
-          }
-        }
-
-      } else {
-        // High-Quality / Standard Path
-        ctx.scale(physicalScale, physicalScale);
-
-        // Ultra Black for night skies
-        ctx.fillStyle = isNight ? '#000000' : '#050505';
-        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-        const { area, isLeaning, isGraspingCollar } = state;
-
-        // Draw Environment
-        drawEnvironment(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-        drawWorldObjects(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-
-        // Draw Window Views
-        drawWindowViews(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds, cstDate);
-
-        if (state.viewMode === 'Rider') {
-          if (state.visualPrefs === 'Active3D') {
-            drawPoodle3D(ctx, GAME_WIDTH, GAME_HEIGHT, nowSeconds, 0); // Front facing for now
-          } else {
-            // Draw Poodle (Rider's View - 3rd Person)
-            if (state.characterName === 'Priscilla' || state.ridingAnimal === 'Olga-Olivia') {
-              drawPriscillaRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
-            } else if (state.ridingAnimal === 'Anninne-Amelia Rose Julisus') {
-              drawAnninneAmeliaRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
-            } else if (state.ridingAnimal === 'Abigail Marigold Kenyatta') {
-              drawAbigailRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, nowSeconds, state.isPetting, state.lastPetTime);
-            } else if (state.isRidingToy) {
-              drawToyInterface(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-            } else if (state.ridingAnimal === 'Dymond Daisy Qin-Reynolds') {
-              drawDymondRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-            } else {
-              drawPoodleRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
-            }
-          }
-        } else {
-          // POV Poodle Rendering (1st Person)
-          if (state.characterName === 'Priscilla' || state.ridingAnimal === 'Olga-Olivia') {
-            drawPriscillaPOV(ctx, GAME_WIDTH, GAME_HEIGHT, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
-          } else {
-            drawPoodlePOV(ctx, GAME_WIDTH, GAME_HEIGHT, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.ridingAnimal, state.isPetting, state.lastPetTime);
-          }
-        }
-        
-        // Hybrid Mode: Scanlines
-        if (state.visualPrefs === 'Hybrid') {
-          ctx.save();
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-          for (let i = 0; i < GAME_HEIGHT; i += 4) {
-            ctx.fillRect(0, i, GAME_WIDTH, 2);
-          }
-          ctx.restore();
-        }
-
-        // 3D+ Mode: Slight Bloom/Glow (converts display layout coordinate space to soft radiant light bleed)
-        if (state.visualPrefs === '3DPlus') {
-          ctx.save();
-          const bloomGrad = ctx.createRadialGradient(GAME_WIDTH / 2, GAME_HEIGHT / 2, 50, GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH);
-          bloomGrad.addColorStop(0, 'rgba(255, 192, 203, 0.05)');
-          bloomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = bloomGrad;
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-          ctx.restore();
-        }
-
-        // Super 3D Effects
-        if (state.visualPrefs === 'Super3D') {
-          ctx.save();
-          ctx.globalAlpha = 0.05;
-          ctx.fillStyle = '#ffffff';
-          for (let i = 0; i < 50; i++) {
-            ctx.fillRect(Math.random() * GAME_WIDTH, Math.random() * GAME_HEIGHT, 1, 1);
-          }
-          ctx.restore();
-        }
-      }
-
-      // Draw CST Clock if enabled (Always at full res for readability)
-      if (state.isCSTEnabled) {
-        ctx.save();
-        const timeStr = cstDate.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        
-        ctx.fillStyle = '#00ff00';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText(`CST: ${timeStr} (Chicago)`, 20, 30);
-        ctx.restore();
-      }
-
-      // Babylon-Free Label (Canvas Overlay - display during Pause, Positioning, or on Setup/Landing pages)
-      if (state.isPaused || !state.isStarted || state.isPositioningEnabled) {
-        ctx.save();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText('BABYLON-FREE CRAFTSMANSHIP', GAME_WIDTH - 10, 20);
-        ctx.restore();
-      }
-      
-      // Positioning Info
-      if (state.isPositioningEnabled) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(10, 10, 250, 60);
-        ctx.fillStyle = '#00ff00';
-        ctx.font = '10px monospace';
-        ctx.textAlign = 'left';
-        const currentAreaMetrics = formulateArenaMetrics(state.area);
-        const currentDims = { width: currentAreaMetrics.width, height: currentAreaMetrics.height };
-        ctx.fillText(`POSITIONING ACTIVE`, 20, 25);
-        if (state.useCoordinates) {
-          ctx.fillText(`POS: ${getRelativePositionDescription(state.gridX, state.gridY, currentDims.width / 2, currentDims.height)}`, 20, 40);
-        }
-        if (state.showMeasurements) {
-          ctx.fillText(`FEET: ${getFootage(state.gridX)}x${getFootage(state.gridY)}`, 20, 55);
-        }
-      }
-
-      ctx.restore();
-
-      renderRequestRef.current = requestAnimationFrame(render);
+      );
     };
 
     renderRequestRef.current = requestAnimationFrame(render);
