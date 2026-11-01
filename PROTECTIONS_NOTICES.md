@@ -3,7 +3,8 @@
 ## 1. 20000% Ultra-Broad Directory and Code Protections
 - ALL files, directories, subdirectories, algorithms, audio synthesis curves, and visual rendering modules across the entire codebase are protected under **20000% Ultra-Broad Protections**.
 - Automated pruning, stubbing, deletion, arbitrary changes, "Babylonian shortcuts", dilution, and unauthorized refactoring are strictly prohibited.
-- Every directory contains an `agents.md` file enforcing localized and systemic invariants.
+- Every directory (all 3,648 subdirectories across src/, public/, and scripts/) contains a localized `agents.md` file enforcing localized and systemic invariants against automated pruning, stubbing, simplification, or arbitrary modification.
+- **Active Codebase Lineage**: Firmly anchored on hardened commit `c1b816b` with strict Zero-Fallback synthesis, ErrorBoundary crash resilience, Classic White Poodle bark routing, and Babylonian jump blocks.
 
 ## 2. Protected Masterpiece Assets & Core Character Standards
 - **Abigay Rose Kone**: Shaded 3D canvas rendering, warm and dry nose with mirror shine, active 3D spherical projection, 1-2-3 (400ms) iconic gallop rhythm, Nyhabinghi slow walk rhythms, standardized head stability (locked to poodleYOffset), 4% louder petting sound (1.040), 2.5% elevated elegant bark.
