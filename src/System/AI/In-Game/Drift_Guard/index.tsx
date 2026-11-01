@@ -19,6 +19,7 @@ import {
 import { DRIFT_GUARD_CONSTANTS, DEFAULT_DRIFT_GUARD_CONFIG, DriftGuardConfig } from '../../../Registry/AI/In-Game/Drift_Guard';
 
 export * from './General';
+export * from './Kinematics';
 
 export class DriftGuardEngine {
   private static instance: DriftGuardEngine | null = null;
