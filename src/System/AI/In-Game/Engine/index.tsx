@@ -1,1 +1,11 @@
 export * from './General/index.tsx';
+export * as C from './C';
+export * as Python from './Python';
+export * as CPP from './CPP';
+export * as CSharp from './CSharp';
+export * as Rust from './Rust';
+export * as Assembly from './Assembly';
+export * as Java from './Java';
+export * as Swift from './Swift';
+export * as SQL from './SQL';
+export * as BASIC from './BASIC';
