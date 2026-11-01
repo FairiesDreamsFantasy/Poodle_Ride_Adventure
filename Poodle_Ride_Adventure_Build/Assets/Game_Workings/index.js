@@ -46579,154 +46579,166 @@ const evaluatePlayAreaActivity = (state) => {
     suppressWorldAudio: false
   };
 };
-const STORY_BOOK_PAGES = [
-  {
-    text: "Once upon a time, a group of poodles gathered for a special tea party.",
-    imageAlt: "Three poodles sitting at a wooden table with tea cups. One is blue, one is yellow, and one is green."
-  },
-  {
-    text: "They lived in a welcoming house with mirrored walls that reflected the beauty of the dream forest.",
-    imageAlt: "A cozy room with mirrors on the walls, reflecting a forest of blue and pink flowers."
-  },
-  {
-    text: "The sun was golden, and the river Nile flowed nearby, where elephants bathed peacefully.",
-    imageAlt: "A golden sun over a river. An elephant is in the background near some palm trees."
-  },
-  {
-    text: "And they all lived happily ever after in the world of dreams.",
-    imageAlt: "The poodles waving from their front porch under a rainbow sky."
+function getFootage(units, system = "Imperial") {
+  if (system === "Metric") {
+    return `${(units * 0.3048).toFixed(2)} meters`;
   }
-];
-function executeToyRideChoice(ride, gameState, setGameState, audio2, speech) {
-  if (ride) {
-    if (gameState.statistics.obstaclesCleared < 7) {
-      speech.speak(
-        "You haven't completed enough courses yet. You need at least 7 to ride the interactive poodle rocker.",
-        "EN_US"
-      );
-      setGameState((prev) => ({ ...prev, isToyReady: false, choices: null }));
-      return;
+  return `${units} feet`;
+}
+function getMeasurementDescription(value, system, type) {
+  if (system === "Imperial") {
+    switch (type) {
+      case "distance":
+        return `${value} feet`;
+      case "longDistance":
+        return `${(value / 5280).toFixed(2)} miles`;
+      case "smallDistance":
+        return `${value} inches`;
+      case "height":
+        return `${value} feet`;
     }
-    setGameState((prev) => ({
-      ...prev,
-      isRidingToy: true,
-      toyCurrentPage: 0,
-      isToyReady: false,
-      choices: null
-    }));
-    speech.speak(
-      "You hop onto the pink poodle rocker! You are now interacting with the Story Book! Press Arrow Right to start reading. Use up or down to rock.",
-      "EN_US"
-    );
-    audio2.playSqueak();
   } else {
-    setGameState((prev) => ({ ...prev, isToyReady: false, choices: null }));
-    speech.speak("You decide not to interact for now.", "EN_US");
-  }
-}
-function executeToyInput(key, currentState, setGameState, audio2, speech) {
-  if (!currentState.isRidingToy) return;
-  if (key === "ArrowRight" || key === "d") {
-    const nextPage = currentState.toyCurrentPage + 1;
-    if (nextPage < STORY_BOOK_PAGES.length) {
-      setGameState((prev) => ({ ...prev, toyCurrentPage: nextPage, isToyRocking: false }));
-      speech.speak(STORY_BOOK_PAGES[nextPage].text, "EN_US");
-      audio2.playPageTurn();
-    } else {
-      setGameState((prev) => ({ ...prev, isRidingToy: false, isToyRocking: false }));
-      speech.speak(
-        "You've reached the end of the book. You hop off the rocker and return to your poodle.",
-        "EN_US"
-      );
-      audio2.playPointEarned();
-    }
-  } else if (key === "ArrowLeft" || key === "a") {
-    if (currentState.toyCurrentPage > 0) {
-      const prevPage = currentState.toyCurrentPage - 1;
-      setGameState((prev) => ({ ...prev, toyCurrentPage: prevPage, isToyRocking: false }));
-      speech.speak(STORY_BOOK_PAGES[prevPage].text, "EN_US");
-      audio2.playPageTurn();
-    }
-  } else if (key === "ArrowUp" || key === "ArrowDown" || key === "w" || key === "s") {
-    setGameState((prev) => ({ ...prev, isToyRocking: true }));
-    speech.speak("Squeak! The toy rocks back and forth. This is fun!", "EN_US");
-    audio2.playSqueak();
-    setTimeout(() => {
-      setGameState((prev) => ({ ...prev, isToyRocking: false }));
-    }, 500);
-  } else if (key === "x" || key === "f" || key === "Escape") {
-    setGameState((prev) => ({ ...prev, isRidingToy: false, isToyRocking: false }));
-    speech.speak("You stop the interaction and return to your poodle.", "EN_US");
-    audio2.playPassSound();
-  }
-}
-function generateObstacles(area, length) {
-  const obstacles = [];
-  if (area === "HedgePath") {
-    const distances = [328, 656, 1312, 2624];
-    let currentDist = 500;
-    for (let i = 0; i < 22; i++) {
-      const step = distances[Math.floor(Math.random() * distances.length)];
-      currentDist += step;
-      if (currentDist < length) {
-        obstacles.push({
-          id: `bush-${i}`,
-          type: "Bush",
-          distance: currentDist,
-          isJumped: false
-        });
-      }
-    }
-  } else if (area === "RastafariCave") {
-    let currentDist = 800 * 3.28;
-    for (let i = 0; i < 10; i++) {
-      obstacles.push({
-        id: `rock-${i}`,
-        type: "Rock",
-        distance: currentDist,
-        isJumped: false
-      });
-      currentDist += (800 + Math.random() * 400) * 3.28;
-      if (currentDist >= length) break;
-    }
-  } else if (area === "Overpass") {
-    let currentDist = 1e3;
-    for (let i = 0; i < 5; i++) {
-      obstacles.push({
-        id: `wheat-${i}`,
-        type: "Wheat",
-        distance: currentDist,
-        isJumped: false
-      });
-      currentDist += 2e3 + Math.random() * 1e3;
-      if (currentDist >= length) break;
+    switch (type) {
+      case "distance":
+        return `${(value * 0.3048).toFixed(2)} meters`;
+      case "longDistance":
+        return `${(value * 160934e-8).toFixed(2)} kilometers`;
+      case "smallDistance":
+        return `${(value * 2.54).toFixed(2)} centimeters`;
+      case "height":
+        return `${(value * 0.3048).toFixed(2)} meters`;
     }
   }
-  return obstacles;
+  return `${value}`;
 }
-function checkObstacleCollision(state, obstacles) {
-  const currentDist = state.gridY;
-  const range = 10;
-  for (const obstacle of obstacles) {
-    if (!obstacle.isJumped && Math.abs(currentDist - obstacle.distance) < range) {
-      if (state.isJumping) {
-        return { collision: false, obstacle };
-      } else {
-        return { collision: true, obstacle };
-      }
-    }
+function getSpeedDescription(unitsPerSecond, system) {
+  if (system === "Imperial") {
+    const mph = unitsPerSecond * 0.681818;
+    return `${mph.toFixed(3)} mph`;
+  } else {
+    const kmh = unitsPerSecond * 1.09728;
+    return `${kmh.toFixed(3)} km/h`;
   }
-  return { collision: false, obstacle: null };
 }
-function getObstacleBeepInterval(state, obstacles) {
-  const currentDist = state.gridY;
-  const nextObstacle = obstacles.find((o) => !o.isJumped && o.distance > currentDist);
-  if (!nextObstacle) return null;
-  const distToObstacle = nextObstacle.distance - currentDist;
-  if (distToObstacle < 100) return 100;
-  if (distToObstacle < 300) return 300;
-  if (distToObstacle < 600) return 600;
-  return null;
+function convertText(text, system) {
+  if (system === "Imperial") return text;
+  let processed = text.replace(/(\d+(\.\d+)?)\s*(x|by)\s*(\d+(\.\d+)?)\s*(-?\s*(feet|foot))/gi, (match, w, wd, sep, h, hd, unit) => {
+    const width = parseFloat(w);
+    const height = parseFloat(h);
+    const wMeters = (width * 0.3048).toFixed(2);
+    const hMeters = (height * 0.3048).toFixed(2);
+    const hasHyphen = match.includes("-");
+    return `${wMeters} by ${hMeters}${hasHyphen ? "-" : " "}meters`;
+  });
+  return processed.replace(/(\d+(\.\d+)?)\s*(-?\s*(feet|foot))/gi, (match, val, decimal, unit) => {
+    const feet = parseFloat(val);
+    const meters = (feet * 0.3048).toFixed(2);
+    const hasHyphen = match.includes("-");
+    return `${meters}${hasHyphen ? "-" : " "}meters`;
+  });
+}
+class MathMeasurement {
+  constructor() {
+    console.log("Scientific Mathematics Measurement Initialized");
+  }
+  convertUnits(value, from, to) {
+    return value;
+  }
+}
+new MathMeasurement();
+function getRelativePosition(x, y, originX, originY) {
+  return {
+    dx: x - originX,
+    dy: y - originY
+  };
+}
+function getRelativePositionDescription(x, y, originX, originY) {
+  const relPos = getRelativePosition(x, y, originX, originY);
+  const dxFeet = getFootage(relPos.dx);
+  const dyFeet = getFootage(relPos.dy);
+  return `Relative to origin: ${dxFeet} East, ${dyFeet} North.`;
+}
+const POODLE_CORE$3 = {
+  identity: {
+    name: "Abigay Rose Kone",
+    description: "Core Feature: Abigay, a massive white poodle standing 6 feet tall at the shoulder (with her iconic larger head perched on top of her neck reaching 9 feet, and a total height of 10 feet including her enlarged tiara), designed for riding with the power of science, not pseudoscience! She is a majestic, living masterpiece of 3D craftsmanship.",
+    rastafarian: "Core Feature: She's surprisingly Rastafarian, embracing a spirit of peace, love, and natural living!",
+    opposesBabylon: "Core Feature: She Opposes Babylon, rejecting artificial constraints and embracing the freedom of the open path.",
+    onlyDog: "Core Feature: She's an only dog who can't be walked with a 'Babylonian leash', only for riding. This emphasizes her unique role as a partner and steed.",
+    ageGroup: "Core Feature: This poodle is for everyone of any age who wished to ride Abigay, a massive white poodle, not for little kids (because a definition of a kid is a baby goat!). It's a sophisticated adventure for the young at heart."
+  },
+  design: {
+    appearance: "Abigay has a massive white coat, a cartoon pink button round nose (warm and dry with a horizontal oval shape and no nostrils), and shiny blue eyes. Her iconic larger head is perched on top of her neck. Her skin is a refined peach color. She wears a pink collar with horizontal white diamonds and a large diamond charm, and an enlarged pink tiara with a 4-inch heart-shaped gem. Her body is 50 inches wide and 8 feet long, appearing as two spheres connected by thick fur. Your legs are molded into her fur, creating a fused appearance. Her paws have rounded toes and pink pads. Her tail is 3 feet long, standing diagonally at an acute angle with an enlarged furry ball tip.",
+    size: "Core Feature: A poodle this large (8 feet long) is large enough for me to ride, I can go anywhere (#1 on my wish list!!)",
+    height: "Core Feature: She stands 6 feet tall at the shoulder; her iconic larger head is perched on top of her neck at 9 feet, and her enlarged tiara reaches a total height of 10 feet. This makes her a truly massive and majestic poodle, perfectly sized for riding.",
+    dimensions: {
+      shoulderHeightFeet: 6,
+      headHeightFeet: 9,
+      headWidthInches: 56.25
+    }
+  },
+  rider: {
+    role: "Me (as a rider) - Core Feature as a partner who rides his poodle!"
+  },
+  environment: {
+    checkedFlooring: "Core Feature: Pink and white checked ceramic flooring design, creating a vibrant and clean aesthetic.",
+    grandTapestry: "Core Feature: A grand, hand-woven tapestry depicting history, adding a sense of depth and heritage to the foyer.",
+    artwork: "Core Feature: Embossed artwork and carvings that can be felt, providing a tactile dimension to the environment.",
+    ambientSound: "Core Feature: Ambient sound of the streets from the north doors, grounding the adventure in a living world.",
+    gardenAndFoyer: "Core Feature: The 2000x2000 feet foyer and garden are expansive areas designed for ease of expansion and exploration.",
+    nightSky: "Core Feature: Ultra Black night sky with a vibrant array of stars and a majestic, glowing moon.",
+    lighting: "Core Feature: Gentle Glow lighting that adapts to the time of day, creating a warm and inviting atmosphere even at night."
+  },
+  mechanics: {
+    gallopRhythm: "Core Feature: Iconic 1-2-3 gallop rhythm pattern (400ms).",
+    screenReaderFirst: "Core Feature: Screen-Reader First Approach (Prioritized as a core priority).",
+    glassBarrierTip: "Core Tip: An ability to effortlessly go around the glass barrier of an upper foyer."
+  },
+  developerComments: {
+    dream: "Is a game what I make as a game what I dreamed to play!",
+    role: "I am Aaron Johnson (nickname: 'Fairy-Rider'), a core developer, and a core artist!",
+    status: "Masterpiece Finalized & Hardened: Abigay stands at her ultimate scale of 10 feet tall (including tiara). All core features, including her iconic larger head and 4-inch heart gem, are now hardened and centralized within the Primary_Characters directory for maximum performance.",
+    gameDescription: "Poodle Ride Adventure is an immersive, accessible adventure where you, the Fairy-Rider, ride Abigay Rose Kone, a massive white poodle standing 6 feet at the shoulder with her iconic larger head perched on top of her neck reaching 9 feet. This masterpiece is officially Babylon-free, using vintage 3D craftsmanship for maximum efficiency and a high-quality experience."
+  }
+};
+const GAME_CORE_FEATURES = {
+  notifications: {
+    barkToggle: "Core Feature: Pressing 1 to toggle a notification for 'The poodle barks elegantly' (Off by default).",
+    directionToggle: "Core Feature: Pressing 4 to truncate direction notifications (On by default).",
+    jumpNotifications: "Core Feature: Jump Notifications (Experimental Feature still in the works for the future...)"
+  },
+  controls: {
+    barkS: "Poodle's elegant bark: Always available with an 'S' key. Press for single bark, hold for gallop pattern.",
+    loveH: "Pressing 'H' to confirm there's love."
+  },
+  physics: {
+    runningJump: "Core Feature: Iconic running jump refined to stick with her gallop for precision, reducing sound bloat and ensuring a smooth, rhythmic experience.",
+    gallopPhysics: "Core Feature: Physics-based gallop that responds to terrain, providing a realistic feel of weight and momentum."
+  }
+};
+function drawRiderLegs(ctx, centerX, bottomY, leanOffset) {
+  const legGrad = ctx.createLinearGradient(centerX - 80, bottomY - 140 + leanOffset, centerX - 20, bottomY - 20 + leanOffset);
+  legGrad.addColorStop(0, "#ffffff");
+  legGrad.addColorStop(1, "#d0d0d0");
+  ctx.fillStyle = legGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX - 50, bottomY - 80 + leanOffset, 30, 60, Math.PI / 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(centerX + 50, bottomY - 80 + leanOffset, 30, 60, -Math.PI / 8, 0, Math.PI * 2);
+  ctx.fill();
+}
+function drawRiderHands(ctx, centerX, bottomY, leanOffset) {
+  const handGrad = ctx.createRadialGradient(centerX - 85, bottomY - 135 + leanOffset, 5, centerX - 80, bottomY - 130 + leanOffset, 22);
+  handGrad.addColorStop(0, "#3b2219");
+  handGrad.addColorStop(1, "#2a1811");
+  ctx.fillStyle = handGrad;
+  ctx.beginPath();
+  ctx.arc(centerX - 80, bottomY - 130 + leanOffset, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(centerX + 80, bottomY - 130 + leanOffset, 22, 0, Math.PI * 2);
+  ctx.fill();
 }
 const _DiagnosticManager = class _DiagnosticManager {
   /**
@@ -46807,3330 +46819,2679 @@ _DiagnosticManager.logs = [];
 _DiagnosticManager.maxLogs = 2e3;
 _DiagnosticManager.frameTimes = [];
 let DiagnosticManager = _DiagnosticManager;
-function executePoodleJump(context) {
-  const {
-    gameStateRef,
-    keysPressed,
-    setGameState,
-    audio: audio2,
-    speak: speak2,
-    announceToScreenReader,
-    checkCollision: checkCollision2,
-    bark: bark2,
-    mt
-  } = context;
-  const state = gameStateRef.current;
-  if (state.showDiagnostics) {
-    DiagnosticManager.logInteraction("Jump");
+let lastLogTime$3 = 0;
+const LOG_INTERVAL$3 = 5e3;
+const FUR_RANDOM_VALUES = Array.from({ length: 100 }, () => ({
+  angle: Math.random() * Math.PI * 2,
+  r: 40 + Math.random() * 25,
+  r2: 70 + Math.random() * 25
+}));
+const ABIGAY_FUR_RANDOM = FUR_RANDOM_VALUES;
+const drawPaw = (ctx, x, y) => {
+  const pawGrad = ctx.createRadialGradient(x - 5, y - 5, 5, x, y, 25);
+  pawGrad.addColorStop(0, "#ffffff");
+  pawGrad.addColorStop(1, "#dcdcdc");
+  ctx.fillStyle = pawGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, 25, 0, Math.PI * 2);
+  ctx.fill();
+  const padGrad = ctx.createRadialGradient(x, y, 2, x, y, 12);
+  padGrad.addColorStop(0, "#ffc0cb");
+  padGrad.addColorStop(1, "#ffb6c1");
+  ctx.fillStyle = padGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(x - 15 + i * 15, y - 15, 8, 0, Math.PI * 2);
+    ctx.fill();
   }
-  if (state.isJumping) return;
-  const isRunning = keysPressed.current.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyW") || state.targetSpeed > 0;
-  const { area, level, direction, gridX, gridY, rotation } = state;
-  const isInsideElevator = (area === "LobbyStairwayAndRamps" || area === "SouthwestMezzanineStairwayAndRamps" || area === "RastaManor2ndFloor" || area === "Cellar") && gridX >= 980 && gridX <= 1e3 && gridY >= 980 && gridY <= 1e3;
-  if (isInsideElevator) {
-    audio2.playElevatorButtonIntersection(gridX, gridY);
-    speak2("Elevator button clicked.", "EN_US");
-    setGameState((prev) => ({ ...prev, isJumping: true }));
-    setTimeout(() => {
-      setGameState((prev) => ({ ...prev, isJumping: false }));
-    }, 500);
-    return;
-  }
-  if (state.ridingAnimal === "Olga-Olivia" || state.ridingAnimal === "Chloe Joseph Gray-Michaels" || state.ridingAnimal === "Priscilla") {
-    speak2("Babylonian characters cannot use elegant jump maneuvers.", "EN_US");
-    audio2.playNoInteractionSound();
-    return;
-  }
-  const jumpingStateProps = { isJumping: true, isRunningJump: isRunning };
-  if (isRunning) {
-    audio2.playRunningJumpSound(area, 0, 0, 0, state.ridingAnimal);
-    const jumpDistance = 35;
-    let nextX = gridX;
-    let nextY = gridY;
-    const is3D = state.visualPrefs === "3D" || state.visualPrefs === "3DPlus" || state.visualPrefs === "Super3D";
-    if (is3D || state.keyboardLayout === "Arden Denis" || state.keyboardLayout === "Cedella") {
-      const moveAngle = rotation * Math.PI / 180;
-      nextX += jumpDistance * Math.sin(moveAngle);
-      nextY += jumpDistance * Math.cos(moveAngle);
+};
+function drawPoodleRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isUmbrellaEquipped = false, isUmbrellaOpen = false, isPetting = false, lastPetTime = 0) {
+  const centerX = width / 2;
+  const bottomY = height - 50;
+  ctx.save();
+  if (isUmbrellaEquipped) {
+    const umbrellaY = bottomY - 380 + (isLeaning ? 50 : 0);
+    const umbrellaX = centerX - 40;
+    ctx.strokeStyle = "#silver";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(umbrellaX, umbrellaY);
+    ctx.lineTo(umbrellaX, umbrellaY - 150);
+    ctx.stroke();
+    if (isUmbrellaOpen) {
+      const canopyWidth = 200;
+      const canopyHeight = 80;
+      const umbrellaGrad = ctx.createLinearGradient(umbrellaX - canopyWidth / 2, umbrellaY - 150, umbrellaX + canopyWidth / 2, umbrellaY - 150);
+      umbrellaGrad.addColorStop(0, "#white");
+      umbrellaGrad.addColorStop(0.5, "#ffc0cb");
+      umbrellaGrad.addColorStop(1, "#white");
+      ctx.fillStyle = umbrellaGrad;
+      ctx.beginPath();
+      ctx.ellipse(umbrellaX, umbrellaY - 150, canopyWidth / 2, canopyHeight / 2, 0, Math.PI, 0);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.1)";
+      ctx.lineWidth = 1;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(umbrellaX, umbrellaY - 150);
+        ctx.lineTo(umbrellaX + i * 40, umbrellaY - 150 + canopyHeight / 4);
+        ctx.stroke();
+      }
     } else {
-      switch (direction) {
-        case "North":
-          nextY += jumpDistance;
-          break;
-        case "South":
-          nextY -= jumpDistance;
-          break;
-        case "East":
-          nextX += jumpDistance;
-          break;
-        case "West":
-          nextX -= jumpDistance;
-          break;
-      }
+      ctx.fillStyle = "#ffc0cb";
+      ctx.beginPath();
+      ctx.ellipse(umbrellaX, umbrellaY - 170, 15, 60, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
-    const collision = checkCollision2(
-      gridX,
-      gridY,
-      nextX,
-      nextY,
-      level,
-      area,
-      direction,
-      state.doorwayStep,
-      state
-    );
-    const jumpObstacleResult = checkObstacleCollision(
-      { ...state, gridX: collision.nextX, gridY: collision.nextY, isJumping: true },
-      state.obstacles
-    );
-    if (collision.shouldBark) {
-      bark2(collision.barkMsg, true, collision.barkCount);
+  }
+  const gallopTime = time2 * 1e3 % 400;
+  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 5;
+  const leanOffset = isLeaning ? 50 : 0;
+  const poodleYOffset = gallopBounce;
+  const riderYOffset = leanOffset + gallopBounce;
+  const now2 = Date.now();
+  if (now2 - lastLogTime$3 > LOG_INTERVAL$3) {
+    DiagnosticManager.logGraphics("PoodleRenderer (2-D)", `Rendering Abigay 2-D View. Bounce: ${poodleYOffset.toFixed(1)}, Lean: ${isLeaning}`);
+    lastLogTime$3 = now2;
+  }
+  const breathing = Math.sin(time2 * 3) * 5;
+  const frontGrad = ctx.createRadialGradient(centerX - 40, bottomY - 180 + poodleYOffset, 20, centerX, bottomY - 160 + poodleYOffset, 150 + breathing);
+  frontGrad.addColorStop(0, "#ffffff");
+  frontGrad.addColorStop(1, "#e0e0e0");
+  ctx.fillStyle = frontGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 160 + poodleYOffset, 120 + breathing * 0.5, 110 + breathing * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const backGrad = ctx.createRadialGradient(centerX - 30, bottomY - 140 + poodleYOffset, 20, centerX, bottomY - 120 + poodleYOffset, 140 + breathing);
+  backGrad.addColorStop(0, "#ffffff");
+  backGrad.addColorStop(1, "#d0d0d0");
+  ctx.fillStyle = backGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 120 + poodleYOffset, 110 + breathing * 0.4, 100 + breathing * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 80; i++) {
+    const { angle, r } = FUR_RANDOM_VALUES[i % 100];
+    const offsetY = i < 40 ? -160 : -120;
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * r, bottomY + offsetY + poodleYOffset + Math.sin(angle) * r);
+    ctx.lineTo(centerX + Math.cos(angle) * (r + 15), bottomY + offsetY + poodleYOffset + Math.sin(angle) * (r + 15));
+    ctx.stroke();
+  }
+  const riderY = bottomY - 220 + riderYOffset;
+  const riderWidth = 80;
+  const riderHeight = 100;
+  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
+  riderGrad.addColorStop(0, "#00008b");
+  riderGrad.addColorStop(0.5, "#0000ff");
+  riderGrad.addColorStop(1, "#00008b");
+  ctx.fillStyle = riderGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3b2219";
+  ctx.beginPath();
+  ctx.arc(centerX, riderY - 65, 22, 0, Math.PI * 2);
+  ctx.fill();
+  drawRiderLegs(ctx, centerX, bottomY, riderYOffset);
+  const headScale = 1.25;
+  const headY = bottomY - 340 + poodleYOffset;
+  const headRadius = 75 * headScale;
+  const headGrad = ctx.createRadialGradient(centerX - 20 * headScale, headY - 20 * headScale, 10 * headScale, centerX, headY, headRadius);
+  headGrad.addColorStop(0, "#ffffff");
+  headGrad.addColorStop(1, "#f0f0f0");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+  ctx.fill();
+  const earSway = Math.sin(time2 * 2) * 0.05;
+  const earWidth = 45 * headScale;
+  const earHeight = 100 * headScale;
+  ctx.fillStyle = "#f5f5f5";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 80 * headScale, headY + 20, earWidth, earHeight, Math.PI / 12 + earSway, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(centerX + 80 * headScale, headY + 20, earWidth, earHeight, -Math.PI / 12 - earSway, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#0000ff";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 25 * headScale, headY - 10, 8 * headScale, 10 * headScale, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX + 25 * headScale, headY - 10, 8 * headScale, 10 * headScale, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(centerX - 28 * headScale, headY - 13, 3 * headScale, 0, Math.PI * 2);
+  ctx.arc(centerX + 22 * headScale, headY - 13, 3 * headScale, 0, Math.PI * 2);
+  ctx.fill();
+  const noseY = headY + 25;
+  const noseWidth = 14 * headScale;
+  const noseHeight = 9 * headScale;
+  const noseGrad = ctx.createRadialGradient(centerX - 3 * headScale, noseY - 2 * headScale, 2 * headScale, centerX, noseY, noseWidth);
+  noseGrad.addColorStop(0, "#ffc0cb");
+  noseGrad.addColorStop(0.7, "#ffb6c1");
+  noseGrad.addColorStop(1, "#ff69b4");
+  ctx.fillStyle = noseGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 5 * headScale, noseY - 3 * headScale, 6 * headScale, 3 * headScale, -Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.beginPath();
+  ctx.arc(centerX - 7 * headScale, noseY - 4 * headScale, 1.5 * headScale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(centerX + 4 * headScale, noseY + 2 * headScale, 3 * headScale, 1.5 * headScale, Math.PI / 4, 0, Math.PI * 2);
+  ctx.fill();
+  const tiaraWidth = 55 * headScale;
+  const tiaraY = headY - 90;
+  const tiaraGrad = ctx.createLinearGradient(centerX - tiaraWidth, tiaraY - 50, centerX + tiaraWidth, tiaraY);
+  tiaraGrad.addColorStop(0, "#ff1493");
+  tiaraGrad.addColorStop(0.5, "#ff69b4");
+  tiaraGrad.addColorStop(1, "#ff1493");
+  ctx.fillStyle = tiaraGrad;
+  ctx.beginPath();
+  ctx.moveTo(centerX - tiaraWidth, tiaraY);
+  ctx.lineTo(centerX, tiaraY - 50);
+  ctx.lineTo(centerX + tiaraWidth, tiaraY);
+  ctx.closePath();
+  ctx.fill();
+  const gemPulse = Math.sin(time2 * 4) * 0.5;
+  const gemRadius = 4;
+  const gemGrad = ctx.createRadialGradient(centerX - 1, tiaraY - 32, 0.5, centerX, tiaraY - 30, gemRadius + gemPulse);
+  gemGrad.addColorStop(0, "#ffffff");
+  gemGrad.addColorStop(0.3, "#ff1493");
+  gemGrad.addColorStop(1, "#8b0000");
+  ctx.fillStyle = gemGrad;
+  ctx.beginPath();
+  ctx.arc(centerX, tiaraY - 30, gemRadius + gemPulse, 0, Math.PI * 2);
+  ctx.fill();
+  const tailWagSpeed = isPetting ? 12 : 5;
+  const tailWagRange = isPetting ? 0.4 : 0.2;
+  const tailAngle = -Math.PI / 4 + Math.sin(time2 * tailWagSpeed) * tailWagRange;
+  const tailX = centerX + 100;
+  const tailY = bottomY - 120 + poodleYOffset;
+  const stemGrad = ctx.createLinearGradient(tailX - 5, tailY, tailX + 5, tailY);
+  stemGrad.addColorStop(0, "#d0d0d0");
+  stemGrad.addColorStop(0.5, "#ffffff");
+  stemGrad.addColorStop(1, "#d0d0d0");
+  ctx.strokeStyle = stemGrad;
+  ctx.lineWidth = 12;
+  ctx.beginPath();
+  ctx.moveTo(tailX, tailY);
+  ctx.lineTo(tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90);
+  ctx.stroke();
+  const ballSize = 38;
+  const ballGrad = ctx.createRadialGradient(tailX + Math.cos(tailAngle) * 90 - 8, tailY + Math.sin(tailAngle) * 90 - 8, 8, tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90, ballSize);
+  ballGrad.addColorStop(0, "#ffffff");
+  ballGrad.addColorStop(1, "#e0e0e0");
+  ctx.fillStyle = ballGrad;
+  ctx.beginPath();
+  ctx.arc(tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90, ballSize, 0, Math.PI * 2);
+  ctx.fill();
+  if (isGraspingCollar) {
+    drawRiderHands(ctx, centerX, bottomY, riderYOffset);
+    const collarY = bottomY - 145 + poodleYOffset;
+    const collarGrad = ctx.createLinearGradient(centerX - 70, collarY, centerX - 70, collarY + 25);
+    collarGrad.addColorStop(0, "#c71585");
+    collarGrad.addColorStop(0.5, "#ff69b4");
+    collarGrad.addColorStop(1, "#c71585");
+    ctx.fillStyle = collarGrad;
+    ctx.fillRect(centerX - 70, collarY, 140, 25);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.moveTo(centerX - 55 + i * 28, collarY + 12);
+      ctx.lineTo(centerX - 50 + i * 28, collarY + 6);
+      ctx.lineTo(centerX - 45 + i * 28, collarY + 12);
+      ctx.lineTo(centerX - 50 + i * 28, collarY + 18);
+      ctx.closePath();
+      ctx.fill();
     }
-    setGameState((prev) => {
-      let nextObstacles = prev.obstacles;
-      if (jumpObstacleResult.obstacle) {
-        audio2.playPointEarned();
-        nextObstacles = prev.obstacles.map(
-          (o) => o.id === jumpObstacleResult.obstacle.id ? { ...o, isJumped: true } : o
-        );
-        speak2(`You jumped over a ${jumpObstacleResult.obstacle.type}! +10 points.`, "EN_US");
-      }
-      return {
-        ...prev,
-        ...jumpingStateProps,
-        gridX: collision.nextX,
-        gridY: collision.nextY,
-        area: collision.nextArea,
-        level: collision.nextLevel,
-        doorwayStep: collision.nextDoorwayStep,
-        isLevelComplete: collision.isLevelComplete || false,
-        score: jumpObstacleResult.obstacle ? prev.score + 10 : prev.score,
-        obstaclesJumped: jumpObstacleResult.obstacle ? prev.obstaclesJumped + 1 : prev.obstaclesJumped,
-        obstacles: nextObstacles
-      };
-    });
-    if (collision.isBlocked && collision.wallDesc) {
-      speak2(mt(collision.wallDesc), "EN_US");
-      announceToScreenReader(mt(collision.wallDesc));
-      audio2.playWallHit(area);
-    }
+    const charmShimmer = Math.sin(time2 * 3) * 0.5 + 0.5;
+    const charmGrad = ctx.createRadialGradient(centerX - 5, collarY + 35, 2, centerX, collarY + 40, 15 + charmShimmer * 2);
+    charmGrad.addColorStop(0, "#ffffff");
+    charmGrad.addColorStop(0.5, "#e0ffff");
+    charmGrad.addColorStop(1, "#afeeee");
+    ctx.fillStyle = charmGrad;
+    ctx.beginPath();
+    ctx.moveTo(centerX, collarY + 25);
+    ctx.lineTo(centerX - 15, collarY + 40);
+    ctx.lineTo(centerX, collarY + 55);
+    ctx.lineTo(centerX + 15, collarY + 40);
+    ctx.closePath();
+    ctx.fill();
+  } else if (isPetting) {
+    const petDuration = 0.7;
+    const elapsedTime = time2 - lastPetTime / 1e3;
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = tiaraY;
+    const endY = headY + 40;
+    const currentY = startY + (endY - startY) * progress2;
+    const handX = centerX - 45;
+    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
+    handGrad.addColorStop(0, "#3b2219");
+    handGrad.addColorStop(1, "#2a1811");
+    ctx.fillStyle = handGrad;
+    ctx.beginPath();
+    ctx.arc(handX, currentY, 22, 0, Math.PI * 2);
+    ctx.fill();
+    const handY = bottomY - 110 + riderYOffset;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(centerX + 50, handY, 18, 0, Math.PI * 2);
+    ctx.fill();
   } else {
-    setGameState((prev) => ({ ...prev, ...jumpingStateProps }));
-    audio2.playJumpSound(area, 0, 0, 0, state.ridingAnimal);
-    if (state.notifications.jump) {
-      announceToScreenReader("Jump Notification");
-    }
+    const handY = bottomY - 110 + riderYOffset;
+    const handGrad = ctx.createRadialGradient(centerX - 55, handY, 5, centerX - 50, handY + 5, 20);
+    handGrad.addColorStop(0, "#3b2219");
+    handGrad.addColorStop(1, "#2a1811");
+    ctx.fillStyle = handGrad;
+    ctx.beginPath();
+    ctx.arc(centerX - 50, handY, 18, 0, Math.PI * 2);
+    ctx.arc(centerX + 50, handY, 18, 0, Math.PI * 2);
+    ctx.fill();
   }
-  if (area === "Foyer") {
-    const ceilingMsg = level === "Sky" ? mt("You jump high into the 20-foot space above the walkway.") : mt("You jump high towards the 45-foot vaulted ceiling.");
-    announceToScreenReader(ceilingMsg);
-  }
-  const jumpDuration = isRunning ? 800 : 500;
-  setTimeout(() => {
-    audio2.playPoodleThump(area);
-    setGameState((prev) => ({ ...prev, isJumping: false, isRunningJump: false }));
-  }, jumpDuration);
+  drawPaw(ctx, centerX - 100, bottomY - 20 + poodleYOffset);
+  drawPaw(ctx, centerX + 100, bottomY - 20 + poodleYOffset);
+  ctx.restore();
 }
-const _DOMEngineGeneral = class _DOMEngineGeneral {
-  /**
-   * Fast element lookup with caching and LRU bound eviction to prevent memory spikes.
-   */
-  static getElementFast(id2) {
-    if (this.elementCache.has(id2)) {
-      const cached = this.elementCache.get(id2);
-      if (document.body.contains(cached)) {
-        return cached;
-      }
-      this.elementCache.delete(id2);
+function drawRiderPOV(ctx, centerX, centerY, isGraspingCollar, isPetting = false, lastPetTime = 0, time2 = 0, ridingAnimal = "Abigay Rose Kone") {
+  let leftHandY = isGraspingCollar ? centerY - 100 : centerY + 50;
+  const rightHandY = isGraspingCollar ? centerY - 100 : centerY + 50;
+  if (isPetting) {
+    const petDuration = 0.7;
+    const elapsedTime = Math.max(0, time2 - lastPetTime / 1e3);
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = leftHandY;
+    let peakY = centerY - 280;
+    let strokeEndY = centerY - 150;
+    if (ridingAnimal === "Abigail Marigold Kenyatta" || ridingAnimal === "Dymond Daisy Qin-Reynolds") {
+      peakY = centerY - 210;
+      strokeEndY = centerY - 100;
     }
-    const el = document.getElementById(id2);
-    if (el) {
-      if (this.elementCache.size >= this.maxCacheSize) {
-        const firstKey = this.elementCache.keys().next().value;
-        if (firstKey) this.elementCache.delete(firstKey);
-      }
-      this.elementCache.set(id2, el);
-    }
-    return el;
-  }
-  /**
-   * Clears all cached DOM elements and target memoizations
-   */
-  static clearCache() {
-    this.elementCache.clear();
-    this.interactiveTargetCache = /* @__PURE__ */ new WeakMap();
-  }
-  /**
-   * High-performance WeakMap-memoized check if an event target is interactive.
-   * Eliminates querySelector/closest CPU overhead on rapid keydown events.
-   */
-  static isMenuOrUIInteractive(target) {
-    if (!target || !(target instanceof HTMLElement)) return false;
-    if (this.interactiveTargetCache.has(target)) {
-      return this.interactiveTargetCache.get(target);
-    }
-    const result = this.computeIsInteractive(target);
-    this.interactiveTargetCache.set(target, result);
-    return result;
-  }
-  static computeIsInteractive(target) {
-    const interactiveTags = ["BUTTON", "INPUT", "SELECT", "TEXTAREA", "A"];
-    if (interactiveTags.includes(target.tagName)) return true;
-    if (target.isContentEditable) return true;
-    const role = target.getAttribute("role");
-    if (role === "button" || role === "menuitem" || role === "menu" || role === "menubar" || role === "option") {
-      return true;
-    }
-    if (target.closest('[role="menu"]') !== null || target.closest('[role="menubar"]') !== null || target.closest("#play-area-menu-bar") !== null || target.closest("#collapsed-menu-trigger") !== null || target.closest("#cozy-floating-menu-wrapper") !== null || target.closest("#comfortable-top-hud-bar") !== null) {
-      return true;
-    }
-    return false;
-  }
-  /**
-   * Schedules a DOM read task in the RAF pipeline to avoid forced sync reflow.
-   */
-  static scheduleRead(fn) {
-    this.readQueue.push(fn);
-    this.requestFrameFlush();
-  }
-  /**
-   * Schedules a DOM write task in the RAF pipeline to batch style/layout changes.
-   */
-  static scheduleWrite(fn) {
-    this.writeQueue.push(fn);
-    this.requestFrameFlush();
-  }
-  static requestFrameFlush() {
-    if (this.isRafScheduled) return;
-    this.isRafScheduled = true;
-    requestAnimationFrame(() => this.flushQueues());
-  }
-  static flushQueues() {
-    this.isRafScheduled = false;
-    const reads = this.readQueue;
-    this.readQueue = [];
-    for (let i = 0; i < reads.length; i++) {
-      try {
-        reads[i]();
-      } catch (err) {
-        console.error("DOMEngine read task error:", err);
-      }
-    }
-    const writes = this.writeQueue;
-    this.writeQueue = [];
-    for (let i = 0; i < writes.length; i++) {
-      try {
-        writes[i]();
-      } catch (err) {
-        console.error("DOMEngine write task error:", err);
-      }
+    if (progress2 < 0.2) {
+      leftHandY = startY + (peakY - startY) * (progress2 / 0.2);
+    } else {
+      const strokeProgress = (progress2 - 0.2) / 0.8;
+      leftHandY = peakY + (strokeEndY - peakY) * strokeProgress;
     }
   }
-  /**
-   * Ensures aria-label is set on canvas element for accessibility without redundant DOM mutations.
-   */
-  static ensureCanvasAccessibility(canvasId = "game-canvas", label = "Poodle Ride Adventure Play Area") {
-    const canvas = this.getElementFast(canvasId);
-    if (!canvas) return;
-    if (canvas.getAttribute("aria-label") !== label) {
-      canvas.setAttribute("aria-label", label);
+  const leftHandGrad = ctx.createRadialGradient(centerX - 90, leftHandY + 20, 5, centerX - 87, leftHandY + 25, 30);
+  leftHandGrad.addColorStop(0, "#3b2219");
+  leftHandGrad.addColorStop(1, "#2a1811");
+  const rightHandGrad = ctx.createRadialGradient(centerX + 85, rightHandY + 20, 5, centerX + 88, rightHandY + 25, 30);
+  rightHandGrad.addColorStop(0, "#3b2219");
+  rightHandGrad.addColorStop(1, "#2a1811");
+  ctx.fillStyle = leftHandGrad;
+  ctx.fillRect(centerX - 110, leftHandY, 45, 110);
+  ctx.fillStyle = rightHandGrad;
+  ctx.fillRect(centerX + 65, rightHandY, 45, 110);
+  const leftSleeveGrad = ctx.createLinearGradient(centerX - 120, leftHandY + 50, centerX - 55, leftHandY + 50);
+  leftSleeveGrad.addColorStop(0, "#00008b");
+  leftSleeveGrad.addColorStop(0.5, "#0000ff");
+  leftSleeveGrad.addColorStop(1, "#00008b");
+  const rightSleeveGrad = ctx.createLinearGradient(centerX + 55, rightHandY + 50, centerX + 120, rightHandY + 50);
+  rightSleeveGrad.addColorStop(0, "#00008b");
+  rightSleeveGrad.addColorStop(0.5, "#0000ff");
+  rightSleeveGrad.addColorStop(1, "#00008b");
+  ctx.fillStyle = leftSleeveGrad;
+  ctx.fillRect(centerX - 120, leftHandY + 50, 65, 160);
+  ctx.fillStyle = rightSleeveGrad;
+  ctx.fillRect(centerX + 55, rightHandY + 50, 65, 160);
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(centerX - 115 + i * 10, leftHandY + 60);
+    ctx.lineTo(centerX - 115 + i * 10, leftHandY + 200);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(centerX + 70 + i * 10, rightHandY + 60);
+    ctx.lineTo(centerX + 70 + i * 10, rightHandY + 200);
+    ctx.stroke();
+  }
+}
+function drawPoodlePOV(ctx, GAME_WIDTH2, GAME_HEIGHT2, isJumping, isLeaning, isGraspingCollar, time2, ridingAnimal = "Abigay Rose Kone", isPetting = false, lastPetTime = 0) {
+  ctx.save();
+  const centerX = GAME_WIDTH2 / 2;
+  const centerY = GAME_HEIGHT2 - 100 + (isJumping ? -50 : 0) + (isLeaning ? 50 : 0);
+  const isAnninneAmelia = ridingAnimal === "Anninne-Amelia Rose Julisus";
+  const headScale = isLeaning ? 1.1 : 1;
+  const headOffset = isLeaning ? 20 : 0;
+  const headColor = isAnninneAmelia ? "#ffffff" : "#ffffff";
+  const earColor = isAnninneAmelia ? "#ff8c00" : "#f5f5f5";
+  const tiaraColor = isAnninneAmelia ? "#ffd700" : "#c71585";
+  const noseColor = isAnninneAmelia ? "#ff6347" : "#ffc0cb";
+  const collarColor = isAnninneAmelia ? "#ffd700" : "#c71585";
+  const gallopTime = time2 * 1e3 % 400;
+  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 3;
+  const poodleYOffset = (isJumping ? -50 : 0) + gallopBounce;
+  const breathing = Math.sin(time2 * 3) * 2;
+  const bodyGrad = ctx.createRadialGradient(centerX - 30, centerY + 30 + poodleYOffset, 10, centerX, centerY + 50 + poodleYOffset, 120 + breathing);
+  bodyGrad.addColorStop(0, "#ffffff");
+  bodyGrad.addColorStop(1, "#e0e0e0");
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY + 50 + poodleYOffset, 100 + breathing * 0.5, 80 + breathing * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const shimmer = Math.sin(time2 * 2) * 0.1 + 0.5;
+  ctx.strokeStyle = `rgba(255, 255, 255, ${shimmer})`;
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 40; i++) {
+    const { angle, r2 } = ABIGAY_FUR_RANDOM[i % 100];
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * r2, centerY + 50 + poodleYOffset + Math.sin(angle) * r2);
+    ctx.lineTo(centerX + Math.cos(angle) * (r2 + 12), centerY + 50 + poodleYOffset + Math.sin(angle) * (r2 + 12));
+    ctx.stroke();
+  }
+  const neckWidth = 80 * headScale;
+  const neckGrad = ctx.createLinearGradient(centerX - neckWidth / 2, centerY - 160 + headOffset + poodleYOffset, centerX + neckWidth / 2, centerY - 160 + headOffset + poodleYOffset);
+  neckGrad.addColorStop(0, "#e0e0e0");
+  neckGrad.addColorStop(0.5, "#ffffff");
+  neckGrad.addColorStop(1, "#e0e0e0");
+  ctx.fillStyle = neckGrad;
+  ctx.fillRect(centerX - neckWidth / 2, centerY - 160 + headOffset + poodleYOffset, neckWidth, 110 * headScale);
+  const headRadius = 85 * headScale;
+  const headY = centerY - 210 + headOffset + poodleYOffset;
+  const headGrad = ctx.createRadialGradient(centerX - 20 * headScale, headY - 15 * headScale, 5 * headScale, centerX, headY, headRadius);
+  headGrad.addColorStop(0, headColor);
+  headGrad.addColorStop(1, isAnninneAmelia ? "#f5f5f5" : "#f0f0f0");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+  ctx.fill();
+  const earSway = Math.sin(time2 * 2) * 0.05 + (isJumping ? Math.sin(time2 * 10) * 0.1 : 0);
+  const leftEarX = centerX - 85 * headScale;
+  const leftEarY = centerY - 190 + headOffset + poodleYOffset;
+  const leftEarGrad = ctx.createRadialGradient(leftEarX, leftEarY, 5 * headScale, leftEarX, leftEarY, 95 * headScale);
+  leftEarGrad.addColorStop(0, earColor);
+  leftEarGrad.addColorStop(1, isAnninneAmelia ? "#e67e22" : "#f5f5f5");
+  ctx.fillStyle = leftEarGrad;
+  ctx.beginPath();
+  ctx.ellipse(leftEarX, leftEarY, 40 * headScale, 90 * headScale, Math.PI / 12 + earSway, 0, Math.PI * 2);
+  ctx.fill();
+  const rightEarX = centerX + 85 * headScale;
+  const rightEarY = centerY - 190 + headOffset + poodleYOffset;
+  const rightEarGrad = ctx.createRadialGradient(rightEarX, rightEarY, 5 * headScale, rightEarX, rightEarY, 95 * headScale);
+  rightEarGrad.addColorStop(0, earColor);
+  rightEarGrad.addColorStop(1, isAnninneAmelia ? "#e67e22" : "#f5f5f5");
+  ctx.fillStyle = rightEarGrad;
+  ctx.beginPath();
+  ctx.ellipse(rightEarX, rightEarY, 40 * headScale, 90 * headScale, -Math.PI / 12 - earSway, 0, Math.PI * 2);
+  ctx.fill();
+  const tiaraWidth = 55 * headScale;
+  const tiaraY = centerY - 270 + headOffset + poodleYOffset;
+  const tiaraGrad = ctx.createLinearGradient(centerX - tiaraWidth, tiaraY - 50 * headScale, centerX + tiaraWidth, tiaraY);
+  tiaraGrad.addColorStop(0, tiaraColor);
+  tiaraGrad.addColorStop(0.5, isAnninneAmelia ? "#fffacd" : "#ff69b4");
+  tiaraGrad.addColorStop(1, tiaraColor);
+  ctx.fillStyle = tiaraGrad;
+  ctx.beginPath();
+  ctx.moveTo(centerX - tiaraWidth, tiaraY);
+  ctx.lineTo(centerX, tiaraY - 50 * headScale);
+  ctx.lineTo(centerX + tiaraWidth, tiaraY);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 2 * headScale;
+  ctx.stroke();
+  const gemPulse = Math.sin(time2 * 4) * 0.5;
+  const gemY = tiaraY - 30 * headScale;
+  const gemRadius = 3.2 * headScale;
+  if (isAnninneAmelia) {
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.moveTo(centerX, gemY - 20 * headScale - gemPulse);
+    ctx.lineTo(centerX + 12 * headScale, gemY);
+    ctx.lineTo(centerX, gemY + 20 * headScale + gemPulse);
+    ctx.lineTo(centerX - 12 * headScale, gemY);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    const gemGrad = ctx.createRadialGradient(centerX - 1 * headScale, gemY - 1 * headScale, 0.5 * headScale, centerX, gemY, gemRadius + gemPulse);
+    gemGrad.addColorStop(0, "#ff69b4");
+    gemGrad.addColorStop(1, "#ff1493");
+    ctx.fillStyle = gemGrad;
+    ctx.beginPath();
+    ctx.arc(centerX, gemY, gemRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const blink = Math.sin(time2 * 0.5) > 0.98 ? 0.1 : 1;
+  ctx.fillStyle = "#0000ff";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 25 * headScale, centerY - 220 + headOffset + poodleYOffset, 8 * headScale, 8 * headScale * blink, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX + 25 * headScale, centerY - 220 + headOffset + poodleYOffset, 8 * headScale, 8 * headScale * blink, 0, 0, Math.PI * 2);
+  ctx.fill();
+  if (blink > 0.5) {
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(centerX - 28 * headScale, centerY - 223 + headOffset + poodleYOffset, 3 * headScale, 0, Math.PI * 2);
+    ctx.arc(centerX + 22 * headScale, centerY - 223 + headOffset + poodleYOffset, 3 * headScale, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const noseY = centerY - 200 + headOffset + poodleYOffset;
+  const noseWidth = 12 * headScale;
+  const noseHeight = 8 * headScale;
+  const noseGrad = ctx.createRadialGradient(centerX - 3 * headScale, noseY - 2 * headScale, 2 * headScale, centerX, noseY, noseWidth);
+  noseGrad.addColorStop(0, noseColor);
+  noseGrad.addColorStop(0.7, isAnninneAmelia ? "#ff7f50" : "#ffb6c1");
+  noseGrad.addColorStop(1, isAnninneAmelia ? "#ff4500" : "#ff69b4");
+  ctx.fillStyle = noseGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 4 * headScale, noseY - 3 * headScale, 5 * headScale, 3 * headScale, -Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.beginPath();
+  ctx.arc(centerX + 4 * headScale, noseY + 2 * headScale, 2 * headScale, 0, Math.PI * 2);
+  ctx.fill();
+  const collarY = centerY - 110 + headOffset * 0.5 + poodleYOffset;
+  const collarGrad = ctx.createLinearGradient(centerX - 45 * headScale, collarY, centerX - 45 * headScale, collarY + 25 * headScale);
+  collarGrad.addColorStop(0, collarColor);
+  collarGrad.addColorStop(0.5, isAnninneAmelia ? "#fffacd" : "#ff69b4");
+  collarGrad.addColorStop(1, collarColor);
+  ctx.fillStyle = collarGrad;
+  ctx.fillRect(centerX - 45 * headScale, collarY, 90 * headScale, 25 * headScale);
+  const sparkle = Math.sin(time2 * 5) * 0.2 + 0.8;
+  ctx.fillStyle = `rgba(255, 255, 255, ${sparkle})`;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(centerX - (30 - i * 30) * headScale, collarY + 12 * headScale);
+    ctx.lineTo(centerX - (25 - i * 30) * headScale, collarY + 6 * headScale);
+    ctx.lineTo(centerX - (20 - i * 30) * headScale, collarY + 12 * headScale);
+    ctx.lineTo(centerX - (25 - i * 30) * headScale, collarY + 18 * headScale);
+    ctx.closePath();
+    ctx.fill();
+  }
+  const charmY = collarY + 35 * headScale;
+  const charmSparkle = Math.cos(time2 * 4) * 0.3 + 0.7;
+  const charmGrad = ctx.createRadialGradient(centerX - 5 * headScale, charmY - 5 * headScale, 2 * headScale, centerX, charmY, 15 * headScale);
+  charmGrad.addColorStop(0, `rgba(255, 255, 255, ${charmSparkle})`);
+  charmGrad.addColorStop(0.5, isAnninneAmelia ? "#e0ffff" : "#e0ffff");
+  charmGrad.addColorStop(1, isAnninneAmelia ? "#afeeee" : "#afeeee");
+  ctx.fillStyle = charmGrad;
+  if (isAnninneAmelia) {
+    ctx.beginPath();
+    ctx.moveTo(centerX - 25 * headScale, charmY);
+    ctx.lineTo(centerX, charmY - 15 * headScale);
+    ctx.lineTo(centerX + 25 * headScale, charmY);
+    ctx.lineTo(centerX, charmY + 15 * headScale);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(centerX, charmY - 10 * headScale);
+    ctx.lineTo(centerX - 15 * headScale, charmY + 5 * headScale);
+    ctx.lineTo(centerX, charmY + 20 * headScale);
+    ctx.lineTo(centerX + 15 * headScale, charmY + 5 * headScale);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  drawRiderPOV(ctx, centerX, centerY, isGraspingCollar, isPetting, lastPetTime, time2, ridingAnimal);
+  ctx.restore();
+}
+let lastLogTime$2 = 0;
+const LOG_INTERVAL$2 = 5e3;
+const rotateY = (p, angle) => {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return {
+    x: p.x * cos - p.z * sin,
+    y: p.y,
+    z: p.x * sin + p.z * cos
+  };
+};
+const renderSphere3D = (ctx, sphere, rotation, viewWidth, viewHeight, fov = 800) => {
+  const rotatedCenter = rotateY(sphere.center, rotation);
+  const scale2 = fov / (fov + rotatedCenter.z);
+  const projX = viewWidth / 2 + rotatedCenter.x * scale2;
+  const projY = viewHeight / 2 + rotatedCenter.y * scale2;
+  const projRadius = sphere.radius * scale2;
+  if (projRadius <= 0) return;
+  ctx.save();
+  const gradX = projX - projRadius * 0.3;
+  const gradY = projY - projRadius * 0.3;
+  const gradR = projRadius * 0.1;
+  const grad = ctx.createRadialGradient(gradX, gradY, gradR, projX, projY, projRadius);
+  if (sphere.gradient) {
+    grad.addColorStop(0, sphere.gradient.stop0);
+    grad.addColorStop(1, sphere.gradient.stop1);
+  } else {
+    grad.addColorStop(0, "#ffffff");
+    grad.addColorStop(1, sphere.color);
+  }
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(projX, projY, projRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+};
+function drawPoodle3D(ctx, width, height, time2, angleY = 0) {
+  const breathing = Math.sin(time2 * 2.5) * 3;
+  const gallopBounce = Math.sin(time2 * 15.7) * 4;
+  const components = [
+    {
+      center: { x: 0, y: 100 + gallopBounce, z: 80 },
+      radius: 110 + breathing,
+      color: "#d0d0d0",
+      gradient: { stop0: "#ffffff", stop1: "#d0d0d0" }
+    },
+    {
+      center: { x: 0, y: 80 + gallopBounce, z: -80 },
+      radius: 120 + breathing * 1.2,
+      color: "#e0e0e0",
+      gradient: { stop0: "#ffffff", stop1: "#e0e0e0" }
+    },
+    {
+      center: { x: 0, y: -120 + gallopBounce, z: -150 },
+      radius: 95,
+      color: "#f0f0f0",
+      gradient: { stop0: "#ffffff", stop1: "#f0f0f0" }
+    },
+    {
+      center: { x: -100, y: -100 + gallopBounce, z: -140 },
+      radius: 50,
+      color: "#f5f5f5"
+    },
+    {
+      center: { x: 100, y: -100 + gallopBounce, z: -140 },
+      radius: 50,
+      color: "#f5f5f5"
+    },
+    {
+      center: { x: 0, y: 50 + gallopBounce + Math.sin(time2 * 5) * 20, z: 220 },
+      radius: 38,
+      color: "#e0e0e0"
     }
-    if (canvas.getAttribute("role") !== "application") {
-      canvas.setAttribute("role", "application");
-    }
-    if (canvas.tabIndex < 0) {
-      canvas.tabIndex = 0;
+  ];
+  const sortedComponents = components.map((c) => ({ ...c, rotatedZ: rotateY(c.center, angleY).z })).sort((a, b) => b.rotatedZ - a.rotatedZ);
+  const now2 = Date.now();
+  if (now2 - lastLogTime$2 > LOG_INTERVAL$2) {
+    DiagnosticManager.logGraphics("Poodle3DRenderer", `Rendering Abigay 3-D. Angle: ${angleY.toFixed(1)}`);
+    lastLogTime$2 = now2;
+  }
+  sortedComponents.forEach((sphere) => {
+    renderSphere3D(ctx, sphere, angleY, width, height);
+  });
+}
+const POODLE_CORE$2 = {
+  identity: {
+    name: "Anninne-Amelia Rose Julisus",
+    description: "Anninne-Amelia is a massive 9.5-foot tall red-orange poodle standing 6 feet at the shoulder (9.5 feet total without her tiara, and 10.5 feet including her 12-inch golden tiara). She is a majestic masterpiece of red-orange beauty."
+  },
+  design: {
+    appearance: "Anninne-Amelia stands 6 feet at the shoulder. She has a red-orange rounded nose (warm and dry with a mirror shine), shiny blue eyes, and a girl-like head form (with dimensions excluding ears/hair) with long thick wavy red-orange hair. Her ears are not visible or present. Her neck never leans forward, and her head is always perched on top of her neck. Her skin is a shiny tan color. She wears a gold collar with horizontal green and red diamonds with rainbow borders and a horizontal diamond charm. Her golden tiara features a large vertical diamond-shaped gem at its center. Her body is 56 inches wide and 8 feet long, appearing as two spheres connected by thick fur. Your legs are molded into her fur, creating a fused appearance. Her paws have rounded paws with dark red-orange pads. Her tail is 3 feet long, standing at a precise 45-degree angle, with an enlarged ball tip.",
+    dimensions: {
+      shoulderHeightFeet: 6,
+      headWidthInches: 46,
+      // Excludes ears (precision update)
+      headHeightInches: 43
     }
   }
 };
-_DOMEngineGeneral.elementCache = /* @__PURE__ */ new Map();
-_DOMEngineGeneral.interactiveTargetCache = /* @__PURE__ */ new WeakMap();
-_DOMEngineGeneral.maxCacheSize = 256;
-_DOMEngineGeneral.readQueue = [];
-_DOMEngineGeneral.writeQueue = [];
-_DOMEngineGeneral.isRafScheduled = false;
-let DOMEngineGeneral = _DOMEngineGeneral;
-class GeneralDOM {
-  static getElement(id2) {
-    return DOMEngineGeneral.getElementFast(id2);
+const FUR_RANDOM_VALUES_AA = Array.from({ length: 150 }, () => ({
+  angle: Math.random() * Math.PI * 2,
+  r: 45 + Math.random() * 30,
+  r2: 80 + Math.random() * 30
+}));
+let lastLogTime$1 = 0;
+const LOG_INTERVAL$1 = 5e3;
+const drawAnninneAmeliaPaw = (ctx, x, y) => {
+  const pawGrad = ctx.createRadialGradient(x - 5, y - 5, 5, x, y, 30);
+  pawGrad.addColorStop(0, "#ff7f50");
+  pawGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = pawGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, 30, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y - 8, 12, 6, -Math.PI / 4, 0, Math.PI * 2);
+  ctx.fill();
+  const padGrad = ctx.createRadialGradient(x, y, 2, x, y, 15);
+  padGrad.addColorStop(0, "#8b0000");
+  padGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = padGrad;
+  ctx.beginPath();
+  ctx.arc(x, y, 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ff4500";
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(x - 18 + i * 18, y - 18, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+    ctx.beginPath();
+    ctx.arc(x - 20 + i * 18, y - 20, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ff4500";
   }
-  static addClass(id2, className) {
-    const el = this.getElement(id2);
-    if (el && !el.classList.contains(className)) {
-      el.classList.add(className);
+};
+function drawAnninneAmeliaRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isUmbrellaEquipped = false, isUmbrellaOpen = false, isPetting = false, lastPetTime = 0) {
+  const centerX = width / 2;
+  const bottomY = height - 50;
+  ctx.save();
+  if (isUmbrellaEquipped) {
+    const umbrellaY = bottomY - 420 + (isLeaning ? 60 : 0);
+    const umbrellaX = centerX - 45;
+    ctx.strokeStyle = "#silver";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(umbrellaX, umbrellaY);
+    ctx.lineTo(umbrellaX, umbrellaY - 160);
+    ctx.stroke();
+    if (isUmbrellaOpen) {
+      const canopyWidth = 220;
+      const canopyHeight = 90;
+      const umbrellaGrad = ctx.createLinearGradient(umbrellaX - canopyWidth / 2, umbrellaY - 160, umbrellaX + canopyWidth / 2, umbrellaY - 160);
+      umbrellaGrad.addColorStop(0, "#white");
+      umbrellaGrad.addColorStop(0.5, "#ffc0cb");
+      umbrellaGrad.addColorStop(1, "#white");
+      ctx.fillStyle = umbrellaGrad;
+      ctx.beginPath();
+      ctx.ellipse(umbrellaX, umbrellaY - 160, canopyWidth / 2, canopyHeight / 2, 0, Math.PI, 0);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = "#ffc0cb";
+      ctx.beginPath();
+      ctx.ellipse(umbrellaX, umbrellaY - 180, 18, 70, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
-  static removeClass(id2, className) {
-    const el = this.getElement(id2);
-    if (el && el.classList.contains(className)) {
-      el.classList.remove(className);
-    }
+  const gallopTime = time2 * 1e3 % 400;
+  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 7;
+  const leanOffset = isLeaning ? 60 : 0;
+  const poodleYOffset = gallopBounce;
+  const riderYOffset = leanOffset + gallopBounce;
+  const breathing = Math.sin(time2 * 2.5) * 6;
+  const now2 = Date.now();
+  if (now2 - lastLogTime$1 > LOG_INTERVAL$1) {
+    DiagnosticManager.logGraphics("AnninneAmeliaRenderer (2-D)", `Rendering Anninne-Amelia 2-D. Bounce: ${poodleYOffset.toFixed(1)}`);
+    lastLogTime$1 = now2;
   }
-  /**
-   * Focuses an element by ID.
-   */
-  static focusElement(id2) {
-    const el = this.getElement(id2);
-    if (el && typeof el.focus === "function") {
-      el.focus();
-    }
+  const frontGrad = ctx.createRadialGradient(centerX - 50, bottomY - 200 + poodleYOffset, 25, centerX, bottomY - 180 + poodleYOffset, 180 + breathing);
+  frontGrad.addColorStop(0, "#ff7f50");
+  frontGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = frontGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 180 + poodleYOffset, 140 + breathing * 0.5, 125 + breathing * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 60, bottomY - 220 + poodleYOffset, 40, 20, -Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+  const backGrad = ctx.createRadialGradient(centerX - 40, bottomY - 160 + poodleYOffset, 25, centerX, bottomY - 140 + poodleYOffset, 170 + breathing);
+  backGrad.addColorStop(0, "#ff6347");
+  backGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = backGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 140 + poodleYOffset, 130 + breathing * 0.4, 120 + breathing * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 127, 80, 0.5)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 120; i++) {
+    const { angle, r } = FUR_RANDOM_VALUES_AA[i % 150];
+    const offsetY = i < 60 ? -180 : -140;
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * r, bottomY + offsetY + poodleYOffset + Math.sin(angle) * r);
+    ctx.lineTo(centerX + Math.cos(angle) * (r + 18), bottomY + offsetY + poodleYOffset + Math.sin(angle) * (r + 18));
+    ctx.stroke();
   }
-  /**
-   * Triggers focus mode for screen readers by focusing a container with role="application".
-   * [SCIENTIFIC FOCUS MANAGEMENT: ENSURES ACCESSIBILITY WITHOUT ARBITRARY ANNOUNCEMENTS]
-   */
-  static triggerFocusMode(id2) {
-    const el = this.getElement(id2);
-    if (el) {
-      if (el.getAttribute("role") !== "application") {
-        el.setAttribute("role", "application");
-      }
-      if (el.tabIndex < 0 && el.tabIndex !== -1) {
-        el.tabIndex = 0;
-      }
-      if (document.activeElement !== el) {
-        el.blur();
-        setTimeout(() => {
-          el.focus({ preventScroll: true });
-          if (document.activeElement !== el) {
-            el.focus({ preventScroll: true });
-          }
-        }, 10);
-      }
-    }
+  const riderY = bottomY - 250 + riderYOffset;
+  const riderWidth = 85;
+  const riderHeight = 110;
+  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
+  riderGrad.addColorStop(0, "#00008b");
+  riderGrad.addColorStop(0.5, "#0000ff");
+  riderGrad.addColorStop(1, "#00008b");
+  ctx.fillStyle = riderGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3b2219";
+  ctx.beginPath();
+  ctx.arc(centerX, riderY - 70, 24, 0, Math.PI * 2);
+  ctx.fill();
+  drawRiderLegs(ctx, centerX, bottomY, riderYOffset);
+  const headW = 100;
+  const headH = 95;
+  const headY = bottomY - 380 + poodleYOffset;
+  const headGrad = ctx.createRadialGradient(centerX - 30, headY - 30, 15, centerX, headY, headW * 1.2);
+  headGrad.addColorStop(0, "#ff8c00");
+  headGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, headY, headW, headH, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ff7f50";
+  for (let i = 0; i < 14; i++) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const verticalSpread = Math.floor(i / 2);
+    const wave = Math.sin(time2 * 2 + verticalSpread) * 8;
+    const horizontalOpening = verticalSpread === 0 ? 20 : 0;
+    const x = centerX + side * (85 + horizontalOpening) + wave;
+    const y = headY + verticalSpread * 35 + 5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 77, 105, side * Math.PI / 10 + wave * 0.02, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.beginPath();
+    ctx.ellipse(x - side * 20, y - 30, 22, 44, side * Math.PI / 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ff7f50";
   }
+  ctx.fillStyle = "#0000ff";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 35, headY - 15, 12, 16, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX + 35, headY - 15, 12, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  ctx.arc(centerX - 40, headY - 22, 6, 0, Math.PI * 2);
+  ctx.arc(centerX + 30, headY - 22, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.beginPath();
+  ctx.arc(centerX - 32, headY - 8, 3, 0, Math.PI * 2);
+  ctx.arc(centerX + 38, headY - 8, 3, 0, Math.PI * 2);
+  ctx.fill();
+  const noseY = headY + 35;
+  const noseGrad = ctx.createRadialGradient(centerX - 5, noseY - 4, 3, centerX, noseY, 20);
+  noseGrad.addColorStop(0, "#ff6347");
+  noseGrad.addColorStop(1, "#8b0000");
+  ctx.fillStyle = noseGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, noseY, 20, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 6, noseY - 4, 8, 4, -Math.PI / 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+  ctx.beginPath();
+  ctx.arc(centerX - 9, noseY - 6, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+  ctx.beginPath();
+  ctx.ellipse(centerX + 6, noseY + 4, 4, 2, Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+  const tiaraY = headY - 110;
+  const tiaraGrad = ctx.createLinearGradient(centerX - 60, tiaraY - 60, centerX + 60, tiaraY);
+  tiaraGrad.addColorStop(0, "#ffd700");
+  tiaraGrad.addColorStop(0.5, "#fffacd");
+  tiaraGrad.addColorStop(1, "#ffd700");
+  ctx.fillStyle = tiaraGrad;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 65, tiaraY);
+  ctx.lineTo(centerX, tiaraY - 70);
+  ctx.lineTo(centerX + 65, tiaraY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 12, tiaraY - 55);
+  ctx.lineTo(centerX, tiaraY - 75);
+  ctx.lineTo(centerX + 12, tiaraY - 55);
+  ctx.fill();
+  const gemPulse = Math.sin(time2 * 5) * 1;
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.moveTo(centerX, tiaraY - 55 - gemPulse);
+  ctx.lineTo(centerX + 15, tiaraY - 33);
+  ctx.lineTo(centerX, tiaraY - 11 + gemPulse);
+  ctx.lineTo(centerX - 15, tiaraY - 33);
+  ctx.closePath();
+  ctx.fill();
+  const tailWagSpeed = isPetting ? 12 : 4;
+  const tailWagRange = isPetting ? 0.3 : 0.1;
+  const tailAngle = -Math.PI / 4 + Math.sin(time2 * tailWagSpeed) * tailWagRange;
+  const tailX = centerX + 120;
+  const tailY = bottomY - 140 + poodleYOffset;
+  ctx.strokeStyle = "#ff7f50";
+  ctx.lineWidth = 15;
+  ctx.beginPath();
+  ctx.moveTo(tailX, tailY);
+  ctx.lineTo(tailX + Math.cos(tailAngle) * 120, tailY + Math.sin(tailAngle) * 120);
+  ctx.stroke();
+  const ballX = tailX + Math.cos(tailAngle) * 120;
+  const ballY = tailY + Math.sin(tailAngle) * 120;
+  const ballGrad = ctx.createRadialGradient(ballX - 10, ballY - 10, 10, ballX, ballY, 45);
+  ballGrad.addColorStop(0, "#ff8c00");
+  ballGrad.addColorStop(1, "#ff4500");
+  ctx.fillStyle = ballGrad;
+  ctx.beginPath();
+  ctx.arc(ballX, ballY, 45, 0, Math.PI * 2);
+  ctx.fill();
+  if (isGraspingCollar) {
+    drawRiderHands(ctx, centerX, bottomY, riderYOffset);
+    const collarY = bottomY - 165 + poodleYOffset;
+    ctx.fillStyle = "#ffd700";
+    ctx.fillRect(centerX - 80, collarY, 160, 30);
+    for (let i = 0; i < 5; i++) {
+      const x = centerX - 65 + i * 32;
+      ctx.fillStyle = i % 2 === 0 ? "#00ff00" : "#ff0000";
+      ctx.beginPath();
+      ctx.moveTo(x, collarY + 15);
+      ctx.lineTo(x + 10, collarY + 5);
+      ctx.lineTo(x + 20, collarY + 15);
+      ctx.lineTo(x + 10, collarY + 25);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.5)";
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#e0ffff";
+    ctx.beginPath();
+    ctx.moveTo(centerX - 25, collarY + 50);
+    ctx.lineTo(centerX, collarY + 35);
+    ctx.lineTo(centerX + 25, collarY + 50);
+    ctx.lineTo(centerX, collarY + 65);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.beginPath();
+    ctx.arc(centerX - 5, collarY + 45, 4, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (isPetting) {
+    const petDuration = 0.7;
+    const elapsedTime = time2 - lastPetTime / 1e3;
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = tiaraY;
+    const endY = headY + 50;
+    const currentY = startY + (endY - startY) * progress2;
+    const handX = centerX - 40;
+    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
+    handGrad.addColorStop(0, "#3b2219");
+    handGrad.addColorStop(1, "#2a1811");
+    ctx.fillStyle = handGrad;
+    ctx.beginPath();
+    ctx.arc(handX, currentY, 25, 0, Math.PI * 2);
+    ctx.fill();
+    const rightHandY = bottomY - 120 + riderYOffset;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(centerX + 60, rightHandY, 20, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    const handY = bottomY - 120 + riderYOffset;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(centerX - 60, handY, 20, 0, Math.PI * 2);
+    ctx.arc(centerX + 60, handY, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  drawAnninneAmeliaPaw(ctx, centerX - 120, bottomY - 25 + poodleYOffset);
+  drawAnninneAmeliaPaw(ctx, centerX + 120, bottomY - 25 + poodleYOffset);
+  ctx.restore();
 }
-const STORY_PAGES = [
+const POODLE_CORE$1 = {
+  identity: {
+    name: "Abigail Marigold Kenyatta",
+    description: "Abigail Marigold Kenyatta is an elegant ally poodle standing 5 feet 3 inches at the shoulder and 7 feet long. She is a refined masterpiece with a slender athletic form."
+  },
+  design: {
+    appearance: "Abigail has a refined cream or marigold shaded coat, a slender athletic head form (excluding ears), a warm dry pink nose with a mirror shine and no nostrils, and royal blue eyes. Her skin is a peach color. She wears a magnificent rose-gold tiara adorned with floral white decorations and a pink flower-shaped gem at its center. She wears a luxurious rose-gold collar with an embossed diamond pattern. Your legs are molded into her fur, creating a fused appearance. Her tail is 3 feet long and she is designed only for riding.",
+    dimensions: {
+      shoulderHeightFeet: 5.25,
+      headWidthInches: 41.5,
+      // Slender athletic head, excludes ears (precision update)
+      headHeightInches: 38
+    }
+  }
+};
+let lastLogTime = 0;
+const LOG_INTERVAL = 5e3;
+Array.from({ length: 80 }, () => ({
+  angle: Math.random() * Math.PI * 2,
+  r: 35 + Math.random() * 20
+}));
+const ABIGAIL_DIMENSIONS = {
+  headWidth: 100.8,
+  // Excludes ears (precision update)
+  headHeight: 86.4,
+  // Excludes ears (precision update) 
+  headScale: 1.15
+};
+function drawAbigailRiderView(ctx, width, height, isLeaning, time2, isPetting = false, lastPetTime = 0) {
+  const centerX = width / 2;
+  const bottomY = height - 50;
+  ctx.save();
+  const gallopTime = time2 * 1e3 % 300;
+  const gallopBounce = Math.sin(gallopTime / 300 * Math.PI) * 4;
+  const leanOffset = isLeaning ? 45 : 0;
+  const poodleYOffset = gallopBounce;
+  const riderYOffset = leanOffset + gallopBounce;
+  const now2 = Date.now();
+  if (now2 - lastLogTime > LOG_INTERVAL) {
+    DiagnosticManager.logGraphics("AbigailRenderer", `Rendering Abigail. Gallop (300ms) Bounce: ${poodleYOffset.toFixed(1)}`);
+    lastLogTime = now2;
+  }
+  const breathing = Math.sin(time2 * 3.5) * 4;
+  const bodyY = bottomY - 150 + poodleYOffset;
+  const bodyRadius = 110 + breathing * 0.4;
+  const bodyGradFront = ctx.createRadialGradient(centerX - 35, bodyY - 20, 15, centerX, bodyY, bodyRadius);
+  bodyGradFront.addColorStop(0, "#fffaf0");
+  bodyGradFront.addColorStop(1, "#fdf5e6");
+  ctx.fillStyle = bodyGradFront;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bodyY, bodyRadius, 100 + breathing * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const backY = bodyY + 30;
+  const backRadius = 100 + breathing * 0.3;
+  const bodyGradBack = ctx.createRadialGradient(centerX - 30, backY - 15, 10, centerX, backY, backRadius);
+  bodyGradBack.addColorStop(0, "#fffaf0");
+  bodyGradBack.addColorStop(1, "#f5f5dc");
+  ctx.fillStyle = bodyGradBack;
+  ctx.beginPath();
+  ctx.ellipse(centerX, backY, backRadius, 90 + breathing * 0.3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 200; i++) {
+    const isFront = i < 120;
+    const angle = i / 200 * Math.PI * 2;
+    const currentY = isFront ? bodyY : backY;
+    const currentRadius = isFront ? bodyRadius : backRadius;
+    const r = currentRadius * (0.1 + Math.random() * 0.9);
+    const fx2 = centerX + Math.cos(angle) * r;
+    const fy2 = currentY + Math.sin(angle) * r * 0.9;
+    ctx.beginPath();
+    ctx.moveTo(fx2, fy2);
+    ctx.lineTo(fx2 + Math.cos(angle) * 5, fy2 + Math.sin(angle) * 5);
+    ctx.stroke();
+  }
+  const riderY = bottomY - 210 + riderYOffset;
+  const riderWidth = 70;
+  const riderHeight = 90;
+  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
+  riderGrad.addColorStop(0, "#00008b");
+  riderGrad.addColorStop(0.5, "#0000ff");
+  riderGrad.addColorStop(1, "#00008b");
+  ctx.fillStyle = riderGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3b2219";
+  ctx.beginPath();
+  ctx.arc(centerX, riderY - 60, 20, 0, Math.PI * 2);
+  ctx.fill();
+  const legFusionDepth = 25;
+  ctx.save();
+  ctx.translate(0, legFusionDepth);
+  const legGrad = ctx.createLinearGradient(centerX - 80, bottomY - 140 + riderYOffset, centerX - 20, bottomY - 20 + riderYOffset);
+  legGrad.addColorStop(0, "#00008b");
+  legGrad.addColorStop(1, "#000044");
+  ctx.fillStyle = legGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX - 42, bottomY - 80 + riderYOffset, 25, 55, Math.PI / 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(centerX + 42, bottomY - 80 + riderYOffset, 25, 55, -Math.PI / 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  const headRadiusX = ABIGAIL_DIMENSIONS.headWidth / 2;
+  const headRadiusY = ABIGAIL_DIMENSIONS.headHeight / 2;
+  const headY = bottomY - 187.2 + poodleYOffset;
+  const hScale = ABIGAIL_DIMENSIONS.headScale;
+  ctx.save();
+  ctx.strokeStyle = "rgba(253, 245, 230, 0.8)";
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 60; i++) {
+    const hairX = centerX - 90 + Math.random() * 180;
+    const hairY = headY - 40 + Math.random() * 20;
+    const hairLen = 120 + Math.random() * 40;
+    ctx.beginPath();
+    ctx.moveTo(hairX, hairY);
+    ctx.bezierCurveTo(hairX + 20, hairY + hairLen / 2, hairX - 20, hairY + hairLen, hairX, hairY + hairLen);
+    ctx.stroke();
+  }
+  ctx.restore();
+  const headGrad = ctx.createRadialGradient(centerX - 15 * hScale, headY - 15 * hScale, 10 * hScale, centerX, headY, headRadiusX);
+  headGrad.addColorStop(0, "#fffaf0");
+  headGrad.addColorStop(1, "#faf0e6");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, headY, headRadiusX, headRadiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const tiaraY = headY - headRadiusY - 15;
+  ctx.fillStyle = "#b76e79";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 60, tiaraY);
+  ctx.quadraticCurveTo(centerX, tiaraY - 40, centerX + 60, tiaraY);
+  ctx.lineTo(centerX + 60, tiaraY + 15);
+  ctx.quadraticCurveTo(centerX, tiaraY - 25, centerX - 60, tiaraY + 15);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = -2; i <= 2; i++) {
+    const fx2 = centerX + i * 25;
+    const fy2 = tiaraY - 5 - (Math.abs(i) === 0 ? 10 : 0);
+    ctx.fillStyle = "#fffaf0";
+    for (let p = 0; p < 5; p++) {
+      const pa = p / 5 * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(fx2 + Math.cos(pa) * 6, fy2 + Math.sin(pa) * 6, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#ffdb58";
+    ctx.beginPath();
+    ctx.arc(fx2, fy2, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const fx = centerX;
+  const fy = tiaraY - 15;
+  ctx.fillStyle = "#ffb6c1";
+  for (let p = 0; p < 6; p++) {
+    const pa = p / 6 * Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(fx + Math.cos(pa) * 15, fy + Math.sin(pa) * 15, 12, 8, pa, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const gemGrad = ctx.createRadialGradient(fx - 5, fy - 5, 2, fx, fy, 15);
+  gemGrad.addColorStop(0, "#ffffff");
+  gemGrad.addColorStop(0.3, "#ff69b4");
+  gemGrad.addColorStop(1, "#c71585");
+  ctx.fillStyle = gemGrad;
+  ctx.beginPath();
+  ctx.arc(fx, fy, 12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  ctx.arc(fx - 4, fy - 4, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 165, 0, 0.15)";
+  ctx.beginPath();
+  ctx.ellipse(centerX + 20, headY - 30, 40, 20, Math.PI / 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#4169e1";
+  ctx.beginPath();
+  ctx.arc(centerX - 25 * hScale, headY - 5, 7 * hScale, 0, Math.PI * 2);
+  ctx.arc(centerX + 25 * hScale, headY - 5, 7 * hScale, 0, Math.PI * 2);
+  ctx.fill();
+  const noseY = headY + 25;
+  const noseWidth = 14 * hScale;
+  const noseHeight = 9 * hScale;
+  const noseGrad = ctx.createRadialGradient(centerX - 3 * hScale, noseY - 2 * hScale, 2 * hScale, centerX, noseY, noseWidth);
+  noseGrad.addColorStop(0, "#ffc0cb");
+  noseGrad.addColorStop(0.7, "#ffb6c1");
+  noseGrad.addColorStop(1, "#ff69b4");
+  ctx.fillStyle = noseGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 5 * hScale, noseY - 3 * hScale, 6 * hScale, 3 * hScale, -Math.PI / 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.beginPath();
+  ctx.arc(centerX - 7 * hScale, noseY - 4 * hScale, 1.5 * hScale, 0, Math.PI * 2);
+  ctx.fill();
+  const collarY = bottomY - 135 + poodleYOffset;
+  ctx.fillStyle = "#b76e79";
+  ctx.beginPath();
+  if (ctx.roundRect) {
+    ctx.roundRect(centerX - 65, collarY, 130, 25, 5);
+  } else {
+    ctx.rect(centerX - 65, collarY, 130, 25);
+  }
+  ctx.fill();
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const dx = centerX - 50 + i * 25;
+    ctx.beginPath();
+    ctx.moveTo(dx, collarY + 5);
+    ctx.lineTo(dx + 10, collarY + 12.5);
+    ctx.lineTo(dx, collarY + 20);
+    ctx.lineTo(dx - 10, collarY + 12.5);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(224, 255, 255, 0.9)";
+    ctx.beginPath();
+    ctx.moveTo(dx, collarY + 8);
+    ctx.lineTo(dx + 5, collarY + 12.5);
+    ctx.lineTo(dx, collarY + 17);
+    ctx.lineTo(dx - 5, collarY + 12.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.arc(dx - 2, collarY + 10, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (isPetting) {
+    const petDuration = 0.7;
+    const elapsedTime = time2 - lastPetTime / 1e3;
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = headY + 20;
+    const endY = headY + 120;
+    const currentY = startY + (endY - startY) * progress2;
+    const handX = centerX - 55;
+    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
+    handGrad.addColorStop(0, "#3b2219");
+    handGrad.addColorStop(1, "#2a1811");
+    ctx.fillStyle = handGrad;
+    ctx.beginPath();
+    ctx.arc(handX, currentY, 24, 0, Math.PI * 2);
+    ctx.fill();
+    const rightHandY = bottomY - 100 + riderYOffset;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(centerX + 60, rightHandY, 20, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    const handY = bottomY - 100 + riderYOffset;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(centerX - 60, handY, 20, 0, Math.PI * 2);
+    ctx.arc(centerX + 60, handY, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+const POODLE_CORE = {
+  identity: {
+    name: "Dymond Daisy Qin-Reynolds",
+    description: "Dymond Daisy Qin-Reynolds is a special course poodle. She is a light-yellow poodle standing 5 feet 5 inches at the shoulder and 7 feet long. She is a specialized masterpiece for the Story Book courses."
+  },
+  design: {
+    appearance: "Dymond is a light-yellow poodle with green eyes, a warm dry dark-pink nose with a mirror shine and no nostrils, and peach skin with a 10% yellowish undertone. Her girl-like head (excluding ears) is perched slightly on top of her neck. She wears a dynamic color collar with a horizontal diamond charm and a tiara with a glowing heart gem. Her body is 7 feet long and 5 feet 5 inches tall at the shoulder, appearing as two fused spheres. Your legs are molded into her fur. Her paws have rounded toes and dark-pink pads. Her tail is 38 inches long with a 24-inch diameter ball tip.",
+    dimensions: {
+      shoulderHeightFeet: 5.416,
+      headWidthInches: 45,
+      // Excludes ears (precision update)
+      headHeightInches: 40
+      // Excludes ears (precision update)
+    }
+  }
+};
+const CRAFTED_POODLES = [
   {
-    title: "Page 1",
-    content: [
-      "[Graphic: A majestic stone manor with a large wooden door.]",
-      "The sun sets over Rasta Manor, casting long shadows across the rugged play field.",
-      "Abigay Rose Kone trots gracefully, her nose warm and dry, catching the scent of the evening dew.",
-      "[Graphic: A close-up of Abigay's shiny nose.]",
-      "[List Item: North Wall - Main Entrance]",
-      "[List Item: South Wall - Garden Access]",
-      "The air is cool, carrying the promise of a peaceful night in the kennel."
-    ]
+    id: "abigay_rose_kone",
+    name: "Abigay Rose Kone",
+    description: POODLE_CORE$3.identity.description,
+    category: "Crafted",
+    color: "#FFD1DC",
+    // Pastel Pink / White
+    supportsBarkToggle: true,
+    barkTypes: ["Classic", "Generic", "BOW"]
   },
   {
-    title: "Page 2",
-    content: [
-      "Wait, what's that sound?",
-      "Abigay's ears perk up. A soft yip echoes through the foyer.",
-      "[Graphic: Abigay looking towards the elevator.]",
-      "The interactive steel doors hum slightly as the elevator descends.",
-      "Everything is peaceful in Rasta Manor today."
-    ]
+    id: "anninne_amelia_rose_julisus",
+    name: "Anninne-Amelia Rose Julisus",
+    description: POODLE_CORE$2.identity.description,
+    category: "Crafted",
+    color: "#D2B48C",
+    // Tan
+    supportsBarkToggle: true,
+    barkTypes: ["Classic", "Generic", "BOW"]
   },
   {
-    title: "Page 3",
-    content: [
-      "The lift stops at Level 0.",
-      "A familiar scent fills the air. It's Empress Abigay's favorite treat!",
-      "She wags her tail at a 45-degree angle, showing her excitement."
-    ]
+    id: "dymond_daisy_qin_reynolds",
+    name: "Dymond Daisy Qin-Reynolds",
+    description: POODLE_CORE.identity.description,
+    category: "Crafted",
+    color: "#E0B0FF",
+    // Mauve/Lavender
+    supportsBarkToggle: true,
+    barkTypes: ["Classic", "Generic", "BOW"]
   },
   {
-    title: "Page 4",
-    content: [
-      "The adventure continues into the simulated garden area.",
-      "Flowers bloom in vibrant colors, despite being underground.",
-      "The warm and dry nose of Abigay nudges a nearby blossom."
-    ]
+    id: "abigail_marigold_kenyatta",
+    name: "Abigail Marigold Kenyatta",
+    description: POODLE_CORE$1.identity.description,
+    category: "Crafted",
+    color: "#F5DEB3",
+    // Wheat/Marigold
+    supportsBarkToggle: true,
+    barkTypes: ["Classic", "Generic", "BOW"]
   }
 ];
-const InventoryMenu = ({ state }) => {
-  var _a2, _b, _c, _d;
-  if (!state.isInventoryOpen) return null;
-  const tabs = ["Items", "Heart", "Map", "Storybook", "Exit"];
-  const actions = ["Use", "Check", "Combine", "Equip"];
-  const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-  const storybookItems = ["Reading", "Layout", "Theme"];
-  const themes = ["White", "Cream", "Night"];
-  const layouts = ["Webpage", "Emulated"];
-  const pages = STORY_PAGES.map((p) => p.title);
-  const getStorybookContent = () => {
-    var _a3;
-    const item = storybookItems[state.selectedStorybookItemIndex];
-    const mode = state.storybookMenuMode;
-    if (item === "Reading") {
-      if (mode === "Selection") {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Reading Menu" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: 'Select "Reading" and press Enter to browse pages.' }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center text-3xl", children: "📖" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 space-y-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white font-bold", children: "The Grand Manor Adventure" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-zinc-500 uppercase tracking-widest", children: "Storybook Collection" })
-            ] })
-          ] })
-        ] });
-      } else if (mode === "Pages") {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Select a Page" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2 max-h-48 overflow-y-auto scrollbar-hide p-1", children: pages.map((p, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              id: `storybook-page-${i}`,
-              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.selectedStorybookPageListIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
-              children: p
-            },
-            p
-          )) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-zinc-500 uppercase tracking-widest", children: "Select a page to read its contents" })
-        ] });
-      } else if (mode === "PageContent") {
-        const isWebpage = state.storybookLayoutMode === "Webpage";
-        const pageContentLines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_a3 = STORY_PAGES[state.storybookPage]) == null ? void 0 : _a3.content) || [];
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: isWebpage ? "Storybook Webpage View" : `Reading: Page ${state.storybookPage + 1}` }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white/5 rounded-xl p-4 border border-white/10 max-h-40 overflow-y-auto scrollbar-hide space-y-2", children: pageContentLines.map((line, i) => {
-            const isHeading = line.startsWith("[Heading:");
-            const isGraphic = line.startsWith("[Graphic:");
-            const cleanLine = line.replace(/^\[Heading: /, "").replace(/\]$/, "").replace(/^\[Graphic: /, "").replace(/\]$/, "");
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                id: `storybook-content-line-${i}`,
-                className: `p-2 rounded-lg transition-all text-sm leading-relaxed ${state.selectedStorybookContentIndex === i ? "bg-white text-black font-medium" : "text-zinc-300 opacity-60"} ${isHeading ? "text-lg font-black text-orange-400 mt-4 border-b border-orange-500/30" : ""} ${isGraphic ? "italic text-zinc-400 border-l-2 border-zinc-700 pl-4" : ""}`,
-                children: [
-                  isHeading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mr-2", children: "📄" }),
-                  isGraphic && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mr-2", children: "🖼️" }),
-                  cleanLine
-                ]
-              },
-              i
-            );
-          }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-zinc-500 uppercase tracking-widest font-bold", children: isWebpage ? "End of Storybook Webpage" : "End of Page Content" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-orange-500 font-black", children: isWebpage ? "X: Back to menu" : "X: Back to pages" })
-          ] })
-        ] });
-      }
-    } else if (item === "Layout") {
-      if (mode === "Selection") {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Layout Settings" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: "Configure how the storybook looks." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-white/5 rounded-xl border border-white/10", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-zinc-500 uppercase tracking-widest block mb-1", children: "Active Layout" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-black text-lg", children: state.storybookLayoutMode })
-          ] })
-        ] });
+const CLASSIC_POODLES = [
+  {
+    id: "white_poodle",
+    name: "White Poodle",
+    description: "The default classic companion poodle. Sized conventionally with standard elegant white coat.",
+    category: "Classic",
+    color: "#F8F8FF",
+    // Ghost White
+    supportsBarkToggle: false,
+    barkTypes: ["Classic"]
+  },
+  {
+    id: "olga_olivia",
+    name: "Olga-Olivia",
+    description: "A Babylonian companion with chaotic, jerky 2-D movements and unique petting sounds. Expressive and vanity-focused.",
+    category: "Classic",
+    color: "#708090",
+    // Slate Grey
+    supportsBarkToggle: false,
+    barkTypes: ["Classic"]
+  }
+];
+const POODLES = [
+  ...CRAFTED_POODLES,
+  ...CLASSIC_POODLES
+];
+const handleAbigayRoseKoneAboutAI = (speak2) => {
+  const { identity, design } = POODLE_CORE$3;
+  const d = design.dimensions;
+  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightFeet} feet tall. ${design.appearance}`;
+  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
+};
+const handleAnninneAmeliaRoseJulisusAboutAI = (speak2) => {
+  const { identity, design } = POODLE_CORE$2;
+  const d = design.dimensions;
+  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
+  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
+};
+const handleDymondDaisyQinReynoldsAboutAI = (speak2) => {
+  const { identity, design } = POODLE_CORE;
+  const d = design.dimensions;
+  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
+  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
+};
+const handleAbigailMarigoldKenyattaAboutAI = (speak2) => {
+  const { identity, design } = POODLE_CORE$1;
+  const d = design.dimensions;
+  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
+  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
+};
+const handlePoodleAboutAI = (id2, speak2) => {
+  switch (id2) {
+    case "abigay_rose_kone":
+      handleAbigayRoseKoneAboutAI(speak2);
+      break;
+    case "anninne_amelia_rose_julisus":
+      handleAnninneAmeliaRoseJulisusAboutAI(speak2);
+      break;
+    case "dymond_daisy_qin_reynolds":
+      handleDymondDaisyQinReynoldsAboutAI(speak2);
+      break;
+    case "abigail_marigold_kenyatta":
+      handleAbigailMarigoldKenyattaAboutAI(speak2);
+      break;
+    default:
+      speak2("A majestic poodle companion.", "EN_US");
+      break;
+  }
+};
+const General = ({ state, setGameState, speak: speak2, audio: audio2 }) => {
+  const currentArea = state.area;
+  const [activeTab, setActiveTab] = reactExports.useState("Crafted");
+  const [activeFocus, setActiveFocus] = reactExports.useState("Tabs");
+  const allAvailablePoodles = POODLES.filter((p) => {
+    var _a2;
+    return !p.isSpecial || ((_a2 = p.requiredArea) == null ? void 0 : _a2.includes(currentArea));
+  });
+  const availablePoodles = allAvailablePoodles.filter((p) => p.category === activeTab);
+  const { selectedPoodleIndex, poodleMenuMode, selectedPoodleActionIndex, poodleBarkType } = state;
+  const validSelectedIndex = selectedPoodleIndex >= -1 && selectedPoodleIndex < availablePoodles.length ? selectedPoodleIndex : -1;
+  const selectedPoodle = availablePoodles[validSelectedIndex];
+  const actions = ["Ride Now", "About"];
+  if (selectedPoodle && selectedPoodle.supportsBarkToggle !== false) {
+    actions.push("Bark Type");
+  }
+  actions.push("Go Back");
+  const handleSelection = () => {
+    if (activeFocus === "Tabs") {
+      setActiveFocus("Grid");
+      setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
+      speak2("Go Back");
+      return;
+    }
+    if (poodleMenuMode === "Selection") {
+      if (validSelectedIndex === -1) {
+        setActiveFocus("Tabs");
+        speak2(activeTab);
       } else {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Choose Layout" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: layouts.map((l, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              id: `storybook-layout-option-${i}`,
-              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.storybookSecondaryIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
-              children: [
-                l,
-                " Mode ",
-                state.storybookLayoutMode === l ? "(Current)" : ""
-              ]
-            },
-            l
-          )) })
-        ] });
+        setGameState((prev) => ({ ...prev, poodleMenuMode: "Action", selectedPoodleActionIndex: 0 }));
+        speak2("Ride Now");
       }
-    } else if (item === "Theme") {
-      if (mode === "Selection") {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Theme Settings" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: "Personalize the artistic colors." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-white/5 rounded-xl border border-white/10", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-zinc-500 uppercase tracking-widest block mb-1", children: "Active Theme" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-black text-lg", children: state.storybookTheme })
-          ] })
-        ] });
-      } else {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Select Theme" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: themes.map((t, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              id: `storybook-theme-option-${i}`,
-              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.storybookSecondaryIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
-              children: [
-                t,
-                " Theme ",
-                state.storybookTheme === t ? "(Current)" : ""
-              ]
-            },
-            t
-          )) })
-        ] });
+    } else {
+      const poodle = availablePoodles[validSelectedIndex];
+      const isCurrentlyRiding = poodle.name === state.ridingAnimal;
+      const currentAction = actions[selectedPoodleActionIndex];
+      switch (currentAction) {
+        case "Ride Now":
+          if (isCurrentlyRiding) {
+            speak2(`Already riding ${poodle.name}`);
+          } else {
+            handleRideNow(poodle.name);
+          }
+          break;
+        case "About":
+          handlePoodleAboutAI(poodle.id, speak2);
+          break;
+        case "Bark Type":
+          if (poodle.supportsBarkToggle && poodle.barkTypes && poodle.barkTypes.length > 0) {
+            const currentTypeIdx = poodle.barkTypes.indexOf(poodleBarkType);
+            const nextType = poodle.barkTypes[(currentTypeIdx + 1) % poodle.barkTypes.length];
+            setGameState((prev) => ({ ...prev, poodleBarkType: nextType }));
+            const displayName = nextType === "Generic" ? "Classic" : nextType;
+            speak2(displayName);
+          } else {
+            speak2("Classic");
+          }
+          break;
+        case "Go Back":
+          setGameState((prev) => ({ ...prev, poodleMenuMode: "Selection" }));
+          speak2(poodle.name);
+          break;
       }
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    motion.div,
-    {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      className: "absolute inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-sm pointer-events-none",
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center gap-4 p-4", children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            id: `inventory-tab-${tab.toLowerCase()}`,
-            className: `px-6 py-2 rounded-full font-black tracking-widest text-sm transition-all shadow-lg ${state.inventoryTab === tab ? state.inventoryFocus === "Tabs" ? "bg-white text-black scale-110 ring-4 ring-orange-500" : "bg-white text-black scale-110" : "bg-zinc-900/80 text-zinc-500"}`,
-            children: tab.toUpperCase()
-          },
-          tab
-        )) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex-1 flex p-8 gap-8 items-end transition-opacity ${state.inventoryFocus === "Content" ? "opacity-100" : "opacity-60"}`, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 h-72 bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col justify-center", children: [
-            state.inventoryTab === "Items" && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: state.isWalletOpen ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Wallet Contents" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-zinc-300 leading-relaxed", children: [
-                "Viewing: ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-bold", children: walletItems[state.selectedWalletIndex] }),
-                ". Press O to read more about this item. Press X to return."
-              ] })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: ((_a2 = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _a2.name) || "No Item Selected" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed", children: ((_b = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _b.description) || "Select an item to see its details." }),
-              ((_c = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _c.id) === "wallet" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-zinc-500 italic", children: "Press O to view contents." })
-            ] }) }),
-            state.inventoryTab === "Storybook" && getStorybookContent(),
-            state.inventoryTab === "Heart" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-red-500 font-black text-xl uppercase tracking-tighter", children: "Heart Meter Status" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: (state.characterName === "Priscilla" ? [
-                { label: "Kindness Level", value: "Empty" },
-                { label: "Heart Count", value: "0 Hearts" },
-                { label: "Recent Deeds", value: "Vain posturing, collecting possessions." }
-              ] : [
-                { label: "Kindness Level", value: state.heartMeter > 5 ? "Saintly" : "Developing" },
-                { label: "Heart Count", value: `${state.heartMeter} Hearts` },
-                { label: "Recent Deeds", value: "Helped a poodle navigate the manor." }
-              ]).map((detail, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
-                {
-                  className: `p-2 rounded-lg transition-all ${state.selectedHeartDetailIndex === i ? "bg-red-600/20 border-l-4 border-red-600 pl-4" : "opacity-60"}`,
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-red-400 uppercase tracking-widest block", children: detail.label }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-medium", children: detail.value })
-                  ]
-                },
-                detail.label
-              )) })
+  const handleRideNow = (name) => {
+    audio2.playMagicWand();
+    setTimeout(() => {
+      setGameState((prev) => ({
+        ...prev,
+        ridingAnimal: name,
+        isPoodleSelectionOpen: false,
+        poodleMenuMode: "Selection"
+      }));
+      speak2(`${name} is now ready to ride!`);
+    }, 2e3);
+  };
+  reactExports.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!state.isPoodleSelectionOpen) return;
+      e.stopPropagation();
+      const isSelectKey = e.code === "Enter" || e.code === "Space" || state.keyboardLayout === "Cedella" && e.code === "KeyO" || state.keyboardLayout === "Arden Denis" && e.code === "KeyE";
+      const isBackKey = e.code === "Escape" || state.keyboardLayout === "Cedella" && e.code === "KeyX" || state.keyboardLayout === "Arden Denis" && e.code === "KeyF";
+      const isUpKey = e.code === "ArrowUp" || state.keyboardLayout === "Arden Denis" && e.code === "KeyW";
+      const isDownKey = e.code === "ArrowDown" || state.keyboardLayout === "Arden Denis" && e.code === "KeyS";
+      const isLeftKey = e.code === "ArrowLeft" || state.keyboardLayout === "Arden Denis" && e.code === "KeyA";
+      const isRightKey = e.code === "ArrowRight" || state.keyboardLayout === "Arden Denis" && e.code === "KeyD";
+      if (activeFocus === "Tabs") {
+        if (isLeftKey || isRightKey) {
+          e.preventDefault();
+          const newTab = activeTab === "Crafted" ? "Classic" : "Crafted";
+          setActiveTab(newTab);
+          speak2(newTab);
+        } else if (isSelectKey) {
+          e.preventDefault();
+          setActiveFocus("Grid");
+          setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
+          speak2("Go Back");
+        } else if (isBackKey) {
+          e.preventDefault();
+          setGameState((prev) => ({ ...prev, isPoodleSelectionOpen: false }));
+          speak2("Closing");
+        }
+        return;
+      }
+      if (isUpKey) {
+        e.preventDefault();
+        if (poodleMenuMode === "Selection") {
+          if (validSelectedIndex > -1) {
+            const next = validSelectedIndex - 1;
+            setGameState((prev) => ({ ...prev, selectedPoodleIndex: next }));
+            speak2(next === -1 ? "Go Back" : availablePoodles[next].name);
+          }
+        } else {
+          if (selectedPoodleActionIndex > 0) {
+            const next = selectedPoodleActionIndex - 1;
+            setGameState((prev) => ({ ...prev, selectedPoodleActionIndex: next }));
+            speak2(actions[next]);
+          }
+        }
+      } else if (isDownKey) {
+        e.preventDefault();
+        if (poodleMenuMode === "Selection") {
+          if (validSelectedIndex < availablePoodles.length - 1) {
+            const next = validSelectedIndex + 1;
+            setGameState((prev) => ({ ...prev, selectedPoodleIndex: next }));
+            speak2(availablePoodles[next].name);
+          }
+        } else {
+          if (selectedPoodleActionIndex < actions.length - 1) {
+            const next = selectedPoodleActionIndex + 1;
+            setGameState((prev) => ({ ...prev, selectedPoodleActionIndex: next }));
+            speak2(actions[next]);
+          }
+        }
+      } else if (isLeftKey || isRightKey) {
+        e.preventDefault();
+      } else if (isSelectKey) {
+        e.preventDefault();
+        handleSelection();
+      } else if (isBackKey) {
+        e.preventDefault();
+        if (poodleMenuMode === "Action") {
+          setGameState((prev) => ({ ...prev, poodleMenuMode: "Selection" }));
+          speak2(availablePoodles[validSelectedIndex].name);
+        } else if (poodleMenuMode === "Selection") {
+          setActiveFocus("Tabs");
+          speak2(activeTab);
+        }
+      } else {
+        if (["ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(e.code)) {
+          e.preventDefault();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [state.isPoodleSelectionOpen, poodleMenuMode, validSelectedIndex, selectedPoodleActionIndex, poodleBarkType, activeFocus, activeTab, actions]);
+  const tabs = ["Crafted", "Classic"];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-8", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4 mb-4", children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: `px-8 py-3 rounded-t-xl border-4 text-2xl font-bold uppercase transition-all duration-300 shadow-xl ${activeTab === tab ? "bg-neutral-800 border-pink-500 text-pink-400" : "bg-neutral-900 border-neutral-700 text-neutral-500 opacity-50"} ${activeFocus === "Tabs" && activeTab === tab ? "ring-4 ring-pink-500/50 scale-105" : ""}`,
+        children: tab
+      },
+      tab
+    )) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      motion.div,
+      {
+        initial: { opacity: 0, scale: 0.9 },
+        animate: { opacity: 1, scale: 1 },
+        exit: { opacity: 0, scale: 0.9 },
+        className: `w-full max-w-5xl h-[70vh] bg-neutral-900 border-4 border-neutral-700 rounded-3xl overflow-hidden flex shadow-2xl relative ${activeFocus === "Grid" ? "ring-inset ring-4 ring-pink-500/50" : ""}`,
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/2 border-r-4 border-neutral-700 flex flex-col", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 bg-neutral-800 border-b-4 border-neutral-700", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-3xl font-bold text-white flex items-center gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-8 h-8 bg-pink-500 rounded-full animate-pulse" }),
+                "POODLE SELECTION"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 mt-2 text-lg", children: "Use Up/Down to navigate. Press Select to choose." })
             ] }),
-            state.inventoryTab === "Map" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-blue-500 font-black text-xl uppercase tracking-tighter", children: "Area Map" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [
-                { label: "Current Building", value: state.area.includes("Manor") ? "Allison's Manor" : "Rasta Manor" },
-                { label: "Nearby Landmarks", value: "The grand foyer and the north ramps." },
-                { label: "Area Description", value: `You are currently in the ${state.area}.` }
-              ].map((detail, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-6 overflow-y-auto space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
                 {
-                  className: `p-2 rounded-lg transition-all ${state.selectedMapDetailIndex === i ? "bg-blue-600/20 border-l-4 border-blue-600 pl-4" : "opacity-60"}`,
+                  className: `w-full p-6 rounded-2xl text-left transition-all flex items-center gap-4 ${validSelectedIndex === -1 && activeFocus === "Grid" ? "bg-white text-black scale-[1.02]" : "bg-neutral-800 text-neutral-400"}`,
+                  onClick: () => {
+                    setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
+                    setActiveFocus("Grid");
+                  },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-blue-400 uppercase tracking-widest block", children: detail.label }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-medium", children: detail.value })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-12 h-12 rounded-full flex items-center justify-center border-2 ${validSelectedIndex === -1 ? "border-black" : "border-neutral-600"}`, children: "←" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xl font-bold uppercase tracking-widest", children: "Go Back" })
                   ]
-                },
-                detail.label
-              )) })
+                }
+              ),
+              availablePoodles.map((poodle, idx) => {
+                const isCurrentlyRiding = poodle.name === state.ridingAnimal;
+                const isSelected = validSelectedIndex === idx && activeFocus === "Grid";
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    className: `w-full p-6 rounded-2xl text-left transition-all flex items-center gap-4 ${isSelected ? "bg-white text-black scale-[1.02]" : "bg-neutral-800 text-neutral-400"} ${isCurrentlyRiding ? "opacity-40 grayscale-[0.5]" : ""}`,
+                    onClick: () => {
+                      setGameState((prev) => ({ ...prev, selectedPoodleIndex: idx }));
+                      setActiveFocus("Grid");
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "div",
+                        {
+                          className: "w-12 h-12 rounded-full border-2 border-current shadow-inner flex-shrink-0",
+                          style: { backgroundColor: poodle.color }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xl font-bold uppercase tracking-tight", children: poodle.name }),
+                        isCurrentlyRiding && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] uppercase font-black tracking-widest opacity-60", children: "Currently Riding" }),
+                        isSelected && poodleMenuMode === "Action" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex gap-2", children: actions.map((action, i) => {
+                          let label = action;
+                          if (action === "Ride Now") {
+                            label = isCurrentlyRiding ? "Currently Riding" : "Ride";
+                          } else if (action === "About") {
+                            label = "Info";
+                          } else if (action === "Bark Type") {
+                            if (!poodle.supportsBarkToggle) {
+                              label = "Bark: Classic";
+                            } else {
+                              label = `Bark: ${poodleBarkType === "Generic" ? "Classic" : "BOW"}`;
+                            }
+                          } else if (action === "Go Back") {
+                            label = "Exit";
+                          }
+                          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 text-xs rounded border ${selectedPoodleActionIndex === i ? "bg-black text-white" : "border-neutral-500"}`, children: label }, action);
+                        }) })
+                      ] })
+                    ]
+                  },
+                  poodle.id
+                );
+              })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-80 space-y-4", children: [
-            state.inventoryTab === "Items" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-4 shadow-2xl", children: state.isWalletOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-2", children: walletItems.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                id: `wallet-item-${index2}`,
-                className: `p-3 rounded-xl font-bold transition-all ${state.selectedWalletIndex === index2 ? "bg-white text-black translate-x-2" : "text-zinc-500"}`,
-                children: item
-              },
-              item
-            )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-2", children: state.inventory.items.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "div",
-              {
-                id: `inventory-item-${index2}`,
-                className: `p-3 rounded-xl font-bold flex justify-between items-center transition-all ${state.selectedInventoryIndex === index2 ? "bg-orange-600 text-white translate-x-2" : "bg-zinc-800/50 text-zinc-400"}`,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.name }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs opacity-50", children: [
-                    "x",
-                    item.quantity
-                  ] })
-                ]
-              },
-              item.id
-            )) }) }),
-            state.inventoryTab === "Storybook" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-4 shadow-2xl space-y-2", children: storybookItems.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                id: `storybook-item-${index2}`,
-                className: `p-3 rounded-xl font-bold transition-all ${state.selectedStorybookItemIndex === index2 ? "bg-orange-600 text-white translate-x-2" : "bg-zinc-800/50 text-zinc-400"}`,
-                children: item
-              },
-              item
-            )) }),
-            state.inventoryMenuMode === "Action" && !state.isWalletOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
-              motion.div,
-              {
-                initial: { x: 20, opacity: 0 },
-                animate: { x: 0, opacity: 1 },
-                className: "bg-white text-black rounded-2xl p-4 shadow-2xl space-y-1",
-                children: (((_d = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _d.id) === "umbrella" ? state.isUmbrellaEquipped ? ["Unequip", "Open", "Close", "Check"] : ["Equip", "Check"] : actions).map((action, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: `p-2 rounded-lg font-black text-center uppercase tracking-tighter text-sm ${state.selectedActionIndex === index2 ? "bg-black text-white" : "text-zinc-400"}`,
-                    children: action
-                  },
-                  action
-                ))
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-black/40 text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex justify-center gap-8", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Arrows: Navigate / Tabs" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "O: Select / Action" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "X: Back / Exit" })
-        ] })
-      ]
-    }
-  );
-};
-function addItemToInventory(state, item) {
-  const existingItemIndex = state.inventory.items.findIndex((i) => i.id === item.id);
-  if (existingItemIndex !== -1) {
-    const newItems = [...state.inventory.items];
-    newItems[existingItemIndex] = {
-      ...newItems[existingItemIndex],
-      quantity: newItems[existingItemIndex].quantity + 1
-    };
-    return {
-      ...state,
-      inventory: {
-        ...state.inventory,
-        items: newItems
-      }
-    };
-  } else {
-    if (state.inventory.items.length >= state.inventory.maxItems) {
-      return state;
-    }
-    return {
-      ...state,
-      inventory: {
-        ...state.inventory,
-        items: [...state.inventory.items, { ...item, quantity: 1 }]
-      }
-    };
-  }
-}
-const UMBRELLA_ITEM_ID = "umbrella";
-const UMBRELLA_METADATA = {
-  id: UMBRELLA_ITEM_ID,
-  actions: ["Open", "Close", "Check", "Combine", "Equip"]
-};
-const WALLET_ITEM_ID = "wallet";
-const WALLET_METADATA = {
-  id: WALLET_ITEM_ID
-};
-const PHOTO_OF_ABIGAY_DESCRIPTION = "A beautiful picture of your massive white poodle partner Abigay.";
-const INVENTORY_ITEMS_REGISTRY = {
-  umbrella: UMBRELLA_METADATA,
-  wallet: WALLET_METADATA,
-  photoOfAbigay: {
-    description: PHOTO_OF_ABIGAY_DESCRIPTION
-  }
-};
-const HEART_METER_DETAILS = [
-  {
-    id: "kindness",
-    title: "Kindness Level",
-    description: "Tracks your overall benevolence and gentle care during your poodle rides."
-  },
-  {
-    id: "hearts",
-    title: "Heart Count",
-    description: "The number of pure hearts you have earned. Keep petting and loving your poodles."
-  },
-  {
-    id: "deeds",
-    title: "Recent Deeds",
-    description: "A summary of your latest actions reflecting your connection with your animal friends."
-  }
-];
-const HEART_METER_TITLES = HEART_METER_DETAILS.map((d) => d.title);
-const MAPS_DETAILS = [
-  {
-    id: "building",
-    title: "Current Building",
-    description: "Displays the name and level of the grand structure or estate you are currently traversing."
-  },
-  {
-    id: "landmarks",
-    title: "Nearby Landmarks",
-    description: "Lists architectural, floral, or geographic markers of significance in your immediate vicinity."
-  },
-  {
-    id: "description",
-    title: "Area Description",
-    description: "Provides a rich acoustic and spatial summary of the current play space."
-  }
-];
-const MAPS_TITLES = MAPS_DETAILS.map((d) => d.title);
-const STORYBOOK_MAIN_OPTIONS = ["Reading", "Layout", "Theme"];
-const STORYBOOK_LAYOUT_OPTIONS = ["Webpage", "Emulated"];
-const STORYBOOK_THEME_OPTIONS = ["White", "Cream", "Night"];
-const STORYBOOK_REGISTRY = {
-  main: STORYBOOK_MAIN_OPTIONS,
-  layouts: STORYBOOK_LAYOUT_OPTIONS,
-  themes: STORYBOOK_THEME_OPTIONS
-};
-const handleCommonInventoryKeys = (e, ctx) => {
-  var _a2, _b, _c, _d;
-  const { gameState: state, setGameState, audio: audio2, speak: speak2 } = ctx;
-  const isShift = e.shiftKey;
-  if (!state.isInventoryOpen) return false;
-  if (e.code === "Space" || e.code === "Escape") {
-    return true;
-  }
-  if (isShift && e.code === "KeyM") return false;
-  const tabs = ["Items", "Heart", "Map", "Storybook", "Exit"];
-  if (state.inventoryFocus === "Tabs") {
-    if (e.code === "ArrowRight") {
-      const currentIndex = tabs.indexOf(state.inventoryTab);
-      const nextIndex = (currentIndex + 1) % tabs.length;
-      setGameState((prev) => ({ ...prev, inventoryTab: tabs[nextIndex] }));
-      speak2(`Tab: ${tabs[nextIndex]}`, "EN_US");
-      return true;
-    }
-    if (e.code === "ArrowLeft") {
-      const currentIndex = tabs.indexOf(state.inventoryTab);
-      const nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-      setGameState((prev) => ({ ...prev, inventoryTab: tabs[nextIndex] }));
-      speak2(`Tab: ${tabs[nextIndex]}`, "EN_US");
-      return true;
-    }
-    if (e.code === "ArrowDown") {
-      if (state.inventoryTab === "Exit") return true;
-      setGameState((prev) => ({ ...prev, inventoryFocus: "Content" }));
-      speak2("Focus moved to content area.", "EN_US");
-      return true;
-    }
-    if (e.code === "Enter" || e.code === "KeyO" || e.code === "KeyE") {
-      if (state.inventoryTab === "Exit") {
-        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
-        speak2("Inventory closed.", "EN_US");
-      } else {
-        setGameState((prev) => ({ ...prev, inventoryFocus: "Content" }));
-        speak2(`Focus moved to ${state.inventoryTab} content area.`, "EN_US");
-      }
-      return true;
-    }
-    if (e.code === "KeyX" || e.code === "KeyF") {
-      setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
-      speak2("Inventory closed.", "EN_US");
-      return true;
-    }
-    return true;
-  }
-  if (state.inventoryFocus === "Content") {
-    if (e.code === "ArrowUp") {
-      if (state.inventoryTab === "Items") {
-        if (state.isWalletOpen) {
-          const wLength = state.characterName === "Priscilla" ? 2 : 4;
-          const nextIndex = (state.selectedWalletIndex - 1 + wLength) % wLength;
-          setGameState((prev) => ({ ...prev, selectedWalletIndex: nextIndex }));
-          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-          speak2(walletItems[nextIndex], "EN_US");
-        } else if (state.inventoryMenuMode === "Selection") {
-          const nextIndex = Math.max(0, state.selectedInventoryIndex - 1);
-          setGameState((prev) => ({ ...prev, selectedInventoryIndex: nextIndex }));
-          speak2(((_a2 = state.inventory.items[nextIndex]) == null ? void 0 : _a2.name) || "Empty", "EN_US");
-        } else {
-          const item = state.inventory.items[state.selectedInventoryIndex];
-          const actionCount = (item == null ? void 0 : item.id) === "umbrella" ? 5 : 4;
-          const nextIndex = (state.selectedActionIndex - 1 + actionCount) % actionCount;
-          setGameState((prev) => ({ ...prev, selectedActionIndex: nextIndex }));
-          let actions = ["Use", "Check", "Combine", "Equip"];
-          if ((item == null ? void 0 : item.id) === "umbrella") actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
-          speak2(actions[nextIndex], "EN_US");
-        }
-      } else if (state.inventoryTab === "Heart") {
-        const nextIndex = (state.selectedHeartDetailIndex - 1 + HEART_METER_TITLES.length) % HEART_METER_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
-        speak2(HEART_METER_TITLES[nextIndex], "EN_US");
-      } else if (state.inventoryTab === "Map") {
-        const nextIndex = (state.selectedMapDetailIndex - 1 + MAPS_TITLES.length) % MAPS_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
-        speak2(MAPS_TITLES[nextIndex], "EN_US");
-      } else if (state.inventoryTab === "Storybook") {
-        const mode = state.storybookMenuMode;
-        if (mode === "Selection") {
-          const nextIndex = (state.selectedStorybookItemIndex - 1 + STORYBOOK_REGISTRY.main.length) % STORYBOOK_REGISTRY.main.length;
-          setGameState((prev) => ({ ...prev, selectedStorybookItemIndex: nextIndex }));
-          speak2(STORYBOOK_REGISTRY.main[nextIndex], "EN_US");
-        } else if (mode === "Pages") {
-          const nextIndex = (state.selectedStorybookPageListIndex - 1 + STORY_PAGES.length) % STORY_PAGES.length;
-          setGameState((prev) => ({ ...prev, selectedStorybookPageListIndex: nextIndex }));
-          speak2(STORY_PAGES[nextIndex].title, "EN_US");
-        } else if (mode === "PageContent") {
-          const isWebpage = state.storybookLayoutMode === "Webpage";
-          const lines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_b = STORY_PAGES[state.storybookPage]) == null ? void 0 : _b.content) || [];
-          const nextIndex = Math.max(0, state.selectedStorybookContentIndex - 1);
-          if (nextIndex === state.selectedStorybookContentIndex && state.selectedStorybookContentIndex === 0) {
-            speak2("Beginning of content.", "EN_US");
-          } else {
-            setGameState((prev) => ({ ...prev, selectedStorybookContentIndex: nextIndex }));
-            speak2(lines[nextIndex], "EN_US");
-          }
-        } else if (mode === "Layouts" || mode === "Themes") {
-          const limit = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts.length : STORYBOOK_REGISTRY.themes.length;
-          const nextIndex = (state.storybookSecondaryIndex - 1 + limit) % limit;
-          setGameState((prev) => ({ ...prev, storybookSecondaryIndex: nextIndex }));
-          const options = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts : STORYBOOK_REGISTRY.themes;
-          speak2(options[nextIndex], "EN_US");
-        }
-      }
-      return true;
-    }
-    if (e.code === "ArrowDown") {
-      if (state.inventoryTab === "Items") {
-        if (state.isWalletOpen) {
-          const wLength = state.characterName === "Priscilla" ? 2 : 4;
-          const nextIndex = (state.selectedWalletIndex + 1) % wLength;
-          setGameState((prev) => ({ ...prev, selectedWalletIndex: nextIndex }));
-          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-          speak2(walletItems[nextIndex], "EN_US");
-        } else if (state.inventoryMenuMode === "Selection") {
-          const nextIndex = (state.selectedInventoryIndex + 1) % Math.max(1, state.inventory.items.length);
-          setGameState((prev) => ({ ...prev, selectedInventoryIndex: nextIndex }));
-          speak2(((_c = state.inventory.items[nextIndex]) == null ? void 0 : _c.name) || "Empty", "EN_US");
-        } else {
-          const item = state.inventory.items[state.selectedInventoryIndex];
-          const actionCount = (item == null ? void 0 : item.id) === "umbrella" ? 5 : 4;
-          const nextIndex = (state.selectedActionIndex + 1) % actionCount;
-          setGameState((prev) => ({ ...prev, selectedActionIndex: nextIndex }));
-          let actions = ["Use", "Check", "Combine", "Equip"];
-          if ((item == null ? void 0 : item.id) === "umbrella") actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
-          speak2(actions[nextIndex], "EN_US");
-        }
-      } else if (state.inventoryTab === "Heart") {
-        const nextIndex = (state.selectedHeartDetailIndex + 1) % HEART_METER_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
-        speak2(HEART_METER_TITLES[nextIndex], "EN_US");
-      } else if (state.inventoryTab === "Map") {
-        const nextIndex = (state.selectedMapDetailIndex + 1) % MAPS_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
-        speak2(MAPS_TITLES[nextIndex], "EN_US");
-      } else if (state.inventoryTab === "Storybook") {
-        const mode = state.storybookMenuMode;
-        if (mode === "Selection") {
-          const nextIndex = (state.selectedStorybookItemIndex + 1) % STORYBOOK_REGISTRY.main.length;
-          setGameState((prev) => ({ ...prev, selectedStorybookItemIndex: nextIndex }));
-          speak2(STORYBOOK_REGISTRY.main[nextIndex], "EN_US");
-        } else if (mode === "Pages") {
-          const nextIndex = (state.selectedStorybookPageListIndex + 1) % STORY_PAGES.length;
-          setGameState((prev) => ({ ...prev, selectedStorybookPageListIndex: nextIndex }));
-          speak2(STORY_PAGES[nextIndex].title, "EN_US");
-        } else if (mode === "PageContent") {
-          const isWebpage = state.storybookLayoutMode === "Webpage";
-          const lines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_d = STORY_PAGES[state.storybookPage]) == null ? void 0 : _d.content) || [];
-          const nextIndex = Math.min(lines.length - 1, state.selectedStorybookContentIndex + 1);
-          if (nextIndex === state.selectedStorybookContentIndex && lines.length > 0) {
-            speak2("End of content.", "EN_US");
-          } else {
-            setGameState((prev) => ({ ...prev, selectedStorybookContentIndex: nextIndex }));
-            speak2(lines[nextIndex], "EN_US");
-          }
-        } else if (mode === "Layouts" || mode === "Themes") {
-          const limit = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts.length : STORYBOOK_REGISTRY.themes.length;
-          const nextIndex = (state.storybookSecondaryIndex + 1) % limit;
-          setGameState((prev) => ({ ...prev, storybookSecondaryIndex: nextIndex }));
-          const options = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts : STORYBOOK_REGISTRY.themes;
-          speak2(options[nextIndex], "EN_US");
-        }
-      }
-      return true;
-    }
-    if (e.code === "ArrowRight" || e.code === "ArrowLeft") {
-      if (state.inventoryTab === "Storybook") {
-        const mode = state.storybookMenuMode;
-        if (mode === "PageContent") {
-          speak2("Horizontal navigation not active in page content mode. Use up and down arrows.", "EN_US");
-        } else {
-          speak2("Use up and down arrows to browse items. Use Action Key to activate.", "EN_US");
-        }
-        return true;
-      }
-      if (state.inventoryTab === "Items" && state.inventoryMenuMode === "Selection" && !state.isWalletOpen) {
-        speak2("Navigating within items area.");
-      } else if (state.inventoryTab === "Heart") {
-        speak2("Cycling through heart meter items.");
-        const nextIndex = (state.selectedHeartDetailIndex + (e.code === "ArrowRight" ? 1 : -1) + HEART_METER_TITLES.length) % HEART_METER_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
-        speak2(HEART_METER_TITLES[nextIndex]);
-      } else if (state.inventoryTab === "Map") {
-        speak2("Cycling through map information.");
-        const nextIndex = (state.selectedMapDetailIndex + (e.code === "ArrowRight" ? 1 : -1) + MAPS_TITLES.length) % MAPS_TITLES.length;
-        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
-        speak2(MAPS_TITLES[nextIndex]);
-      }
-      return true;
-    }
-    if (e.code === "Enter" || e.code === "KeyO" || e.code === "KeyE") {
-      if (state.inventoryTab === "Items") {
-        if (state.isWalletOpen) {
-          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-          const item = walletItems[state.selectedWalletIndex];
-          let desc = "A very important item kept safely in your wallet.";
-          if (state.characterName === "Priscilla") {
-            if (item === "Priscilla ID Card") {
-              desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
-            } else if (item === "Priscilla Gold Card") {
-              desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
-            }
-          } else {
-            if (item === "Photo of Abigay") {
-              desc = INVENTORY_ITEMS_REGISTRY.photoOfAbigay.description;
-            } else if (item === "ID Card") {
-              desc = "This is your ID Card proving you are a certified poodle rider.";
-            } else if (item === "Credit Card") {
-              desc = "A golden card with infinite credit for elite canine styling.";
-            } else if (item === "Library Card") {
-              desc = "A laminated card allowing you to borrow books from the manor libraries.";
-            }
-          }
-          speak2(`Description of ${item}: ${desc}`);
-          return true;
-        }
-        if (state.inventoryMenuMode === "Selection") {
-          const item = state.inventory.items[state.selectedInventoryIndex];
-          if ((item == null ? void 0 : item.id) === INVENTORY_ITEMS_REGISTRY.wallet.id) {
-            setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
-            speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
-            return true;
-          }
-          if (item) {
-            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
-            const actionMsg = item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
-            speak2(actionMsg);
-          }
-        } else {
-          const item = state.inventory.items[state.selectedInventoryIndex];
-          if (item) {
-            let actions = ["Use", "Check", "Combine", "Equip"];
-            if (item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id) actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
-            const action = actions[state.selectedActionIndex];
-            if (item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id) {
-              if (action === "Equip") {
-                const nextEquipped = !state.isUmbrellaEquipped;
-                setGameState((prev) => ({
-                  ...prev,
-                  isUmbrellaEquipped: nextEquipped,
-                  inventoryMenuMode: "Selection"
-                }));
-                const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
-                speak2(msg);
-              } else if (action === "Open" || action === "Close") {
-                if (!state.isUmbrellaEquipped) {
-                  speak2("You must equip the umbrella first before you can open or close it.");
-                } else {
-                  const nextOpen = action === "Open";
-                  setGameState((prev) => ({
-                    ...prev,
-                    isUmbrellaOpen: nextOpen,
-                    inventoryMenuMode: "Selection"
-                  }));
-                  speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1/2 bg-neutral-950 flex flex-col p-12 relative overflow-hidden", children: validSelectedIndex !== -1 && availablePoodles[validSelectedIndex] ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-0 right-0 p-8 opacity-10 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-9xl font-black text-white uppercase rotate-90 origin-top-right whitespace-nowrap", children: availablePoodles[validSelectedIndex].name }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center text-center space-y-8 z-10", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "w-64 h-64 rounded-full shadow-2xl border-8 border-white/10 flex items-center justify-center",
+                  style: { backgroundColor: availablePoodles[validSelectedIndex].color },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-8xl", children: "🐩" })
                 }
-              } else {
-                speak2(`${action}ing ${item.name}`);
-                setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-              }
-            } else {
-              speak2(`${action}ing ${item.name}`);
-              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-            }
-          }
-        }
-      } else if (state.inventoryTab === "Heart") {
-        speak2(`Viewing Heart status: ${HEART_METER_TITLES[state.selectedHeartDetailIndex]}.`);
-      } else if (state.inventoryTab === "Map") {
-        speak2(`Viewing Map status: ${MAPS_TITLES[state.selectedMapDetailIndex]}.`);
-      } else if (state.inventoryTab === "Storybook") {
-        const mode = state.storybookMenuMode;
-        if (mode === "Selection") {
-          const items = STORYBOOK_REGISTRY.main;
-          const selected = items[state.selectedStorybookItemIndex];
-          if (selected === "Reading") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages", selectedStorybookPageListIndex: 0 }));
-            speak2("Story pages list. Use up and down arrows to browse.");
-          } else if (selected === "Layout") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Layouts", storybookSecondaryIndex: 0 }));
-            speak2("Select layout layout: Webpage, or Emulated.");
-          } else if (selected === "Theme") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Themes", storybookSecondaryIndex: 0 }));
-            speak2("Select theme: White, Cream, or Night.");
-          }
-        } else if (mode === "Pages") {
-          setGameState((prev) => ({
-            ...prev,
-            storybookMenuMode: "PageContent",
-            storybookPage: state.selectedStorybookPageListIndex,
-            selectedStorybookContentIndex: 0
-          }));
-          speak2(`Opened chapter: ${STORY_PAGES[state.selectedStorybookPageListIndex].title}. Reading content.`);
-        } else if (mode === "Layouts") {
-          const layouts = STORYBOOK_REGISTRY.layouts;
-          const chosen = layouts[state.storybookSecondaryIndex];
-          setGameState((prev) => ({ ...prev, storybookLayoutMode: chosen, storybookMenuMode: "Selection" }));
-          speak2(`Layout changed to ${chosen}.`);
-        } else if (mode === "Themes") {
-          const themes = STORYBOOK_REGISTRY.themes;
-          const chosen = themes[state.storybookSecondaryIndex];
-          setGameState((prev) => ({ ...prev, storybookTheme: chosen, storybookMenuMode: "Selection" }));
-          speak2(`Theme changed to ${chosen}.`);
-        }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-4xl font-black text-white tracking-tighter uppercase italic", children: availablePoodles[validSelectedIndex].name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 text-lg leading-relaxed max-w-md mx-auto line-clamp-4", children: availablePoodles[validSelectedIndex].description })
+              ] })
+            ] })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center text-center z-10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl font-black text-white/20", children: "BACK" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 text-lg mt-4", children: "Select to close the menu." })
+          ] }) })
+        ]
       }
-      return true;
-    }
-    if (e.code === "KeyX" || e.code === "KeyF") {
-      if (state.isWalletOpen) {
-        setGameState((prev) => ({ ...prev, isWalletOpen: false }));
-        speak2("Back to items list.");
-      } else if (state.inventoryMenuMode === "Action") {
-        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-        speak2("Back to item selection.");
-      } else if (state.inventoryTab === "Storybook") {
-        if (state.storybookMenuMode === "PageContent") {
-          setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
-          speak2("Back to pages list.");
-        } else if (state.storybookMenuMode !== "Selection") {
-          setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
-          speak2("Back to storybook menu.");
-        } else {
-          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-          speak2("Back to tabs navigation.");
-        }
-      } else {
-        setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-        speak2("Back to tabs navigation.");
-      }
-      return true;
-    }
-    return true;
-  }
-  return false;
+    )
+  ] });
 };
-const MANOR_OBJECTS = [
-  {
-    id: "fairy_queen_figurine",
-    name: "Brass figurine of a fairy queen",
-    area: "AllisonsRooftop",
-    x: 900,
-    y: 100,
-    width: 2,
-    height: 2,
-    type: "item",
-    description: "A beautiful brass figurine of a fairy queen.",
-    onInteract: (state) => {
-      return state;
+const PoodleSelectionMenu = (props) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(General, { ...props });
+};
+function drawDymondRiderView(ctx, width, height, state, time2) {
+  const scale2 = Math.min(width, height) / 100;
+  ctx.save();
+  ctx.translate(width / 2, height / 2 + 20 * scale2);
+  const gallopTime = time2 * 1e3 % 400;
+  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 7;
+  const leanOffset = state.isLeaning ? 50 : 0;
+  const breathing = Math.sin(time2 / 1e3) * 1.5;
+  const poodleYOffset = gallopBounce;
+  const riderYOffset = leanOffset + gallopBounce;
+  ctx.translate(0, poodleYOffset);
+  ctx.fillStyle = "#fffff0";
+  ctx.beginPath();
+  ctx.arc(-10 * scale2, 0, 15 * scale2 + breathing, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.save();
+  ctx.translate(-25 * scale2, -5 * scale2);
+  const tailWagSpeed = state.isPetting ? 12 : 5;
+  const tailAngle = Math.PI / 4 + Math.sin(time2 / 1e3 * tailWagSpeed) * 0.2;
+  ctx.rotate(tailAngle);
+  ctx.fillRect(0, 0, -8 * scale2, 2 * scale2);
+  ctx.beginPath();
+  ctx.arc(-8 * scale2, 1 * scale2, 5 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(10 * scale2, -5 * scale2, 18 * scale2 + breathing, 0, Math.PI * 2);
+  ctx.fill();
+  const riderY = -25 * scale2 + (riderYOffset - poodleYOffset);
+  if (state.isPetting) {
+    const petDuration = 0.7;
+    const elapsedTime = time2 / 1e3 - state.lastPetTime / 1e3;
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = riderY - 10 * scale2;
+    const endY = riderY + 15 * scale2;
+    const currentY = startY + (endY - startY) * progress2;
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(8 * scale2, currentY, 5 * scale2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(-5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.fillStyle = "#3b2219";
+    ctx.beginPath();
+    ctx.arc(-5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
+    ctx.arc(5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#00008b";
+  ctx.beginPath();
+  ctx.ellipse(0, riderY, 15 * scale2, 22 * scale2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3b2219";
+  ctx.beginPath();
+  ctx.arc(0, riderY - 25 * scale2, 10 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.translate(20 * scale2, -25 * scale2);
+  ctx.fillStyle = "#fffff0";
+  ctx.beginPath();
+  ctx.arc(0, 0, 12 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#228B22";
+  ctx.beginPath();
+  ctx.arc(-4 * scale2, -2 * scale2, 2 * scale2, 0, Math.PI * 2);
+  ctx.arc(4 * scale2, -2 * scale2, 2 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath();
+  ctx.arc(-3.5 * scale2, -2.5 * scale2, 0.5 * scale2, 0, Math.PI * 2);
+  ctx.arc(4.5 * scale2, -2.5 * scale2, 0.5 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ff1493";
+  ctx.beginPath();
+  ctx.ellipse(0, 3 * scale2, 3 * scale2, 2 * scale2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const gradient = ctx.createRadialGradient(-1 * scale2, 2 * scale2, 0.5 * scale2, 0, 3 * scale2, 2 * scale2);
+  gradient.addColorStop(0, "rgba(255,255,255,0.8)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.fillStyle = "#fffff0";
+  ctx.beginPath();
+  ctx.ellipse(-10 * scale2, 0, 6 * scale2, 15 * scale2, 0.2, 0, Math.PI * 2);
+  ctx.ellipse(10 * scale2, 0, 6 * scale2, 15 * scale2, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#00ffff";
+  ctx.beginPath();
+  ctx.moveTo(0, 15 * scale2);
+  ctx.lineTo(5 * scale2, 18 * scale2);
+  ctx.lineTo(0, 21 * scale2);
+  ctx.lineTo(-5 * scale2, 18 * scale2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+function playDymondBow(ctx, sfxGain, createPanner, x = 0, y = 0, z = 0, disableInternalEcho = false, isInternalReverbEnabled2 = false) {
+  const now2 = ctx.currentTime;
+  const duration = 0.15;
+  const volume = 0.53;
+  const playSingleBow = (delay2, baseVol) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const panner = createPanner(x, y, z);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(564.5, now2 + delay2);
+    osc.frequency.exponentialRampToValueAtTime(1042.2, now2 + delay2 + 0.03);
+    osc.frequency.exponentialRampToValueAtTime(304, now2 + delay2 + 0.13);
+    const filter2 = ctx.createBiquadFilter();
+    filter2.type = "bandpass";
+    filter2.frequency.setValueAtTime(1215.9, now2 + delay2);
+    filter2.Q.setValueAtTime(4, now2 + delay2);
+    gain.gain.setValueAtTime(0, now2 + delay2);
+    gain.gain.linearRampToValueAtTime(baseVol, now2 + delay2 + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.01, now2 + delay2 + 0.13);
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(1129, now2 + delay2);
+    osc2.frequency.exponentialRampToValueAtTime(1650.1, now2 + delay2 + 0.03);
+    osc2.frequency.exponentialRampToValueAtTime(416.9, now2 + delay2 + 0.13);
+    gain2.gain.setValueAtTime(0, now2 + delay2);
+    gain2.gain.linearRampToValueAtTime(baseVol * 0.45, now2 + delay2 + 0.015);
+    gain2.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.13);
+    osc.connect(filter2);
+    filter2.connect(gain);
+    gain.connect(panner);
+    osc2.connect(gain2);
+    gain2.connect(panner);
+    panner.connect(sfxGain);
+    osc.start(now2 + delay2);
+    osc2.start(now2 + delay2);
+    osc.stop(now2 + delay2 + duration);
+    osc2.stop(now2 + delay2 + duration);
+  };
+  playSingleBow(0, volume);
+  if (!disableInternalEcho) {
+    const echoVolume = isInternalReverbEnabled2 ? volume * 0.6 : volume * 0.4;
+    playSingleBow(0.15, echoVolume);
+    playSingleBow(0.3, echoVolume * 0.5);
+  }
+}
+function playElegantBark(ctx, sfxGainOrConnector, createPanner, x = 0, y = 0, z = 0, disableInternalEcho = false, isInternalReverbEnabled2 = false, type = "Generic", disableDescendingPitch = false) {
+  const now2 = ctx.currentTime;
+  if (createPanner) {
+    if (type === "BOW") {
+      playDymondBow(ctx, sfxGainOrConnector, createPanner, x, y, z, disableInternalEcho, isInternalReverbEnabled2);
+      return;
     }
-  },
-  {
-    id: "manor_key",
-    name: "Manor Key",
-    area: "Allisons2ndFloor",
-    x: 800,
-    // East end
-    y: 350,
-    width: 2,
-    height: 2,
-    type: "item",
-    description: "A shiny key found on a table.",
-    onInteract: (state) => {
-      return state;
+    const createYip = (delay2, pitch, volume, isEcho = false) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const panner = createPanner(x, y, z);
+      const jitter = (Math.random() - 0.5) * (pitch * 25e-4);
+      const naturalPitch = pitch + jitter;
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(naturalPitch, now2 + delay2);
+      osc.frequency.exponentialRampToValueAtTime(naturalPitch * 0.7, now2 + delay2 + 0.08);
+      gain.gain.setValueAtTime(0, now2 + delay2);
+      gain.gain.linearRampToValueAtTime(isEcho ? volume * 0.5 : volume, now2 + delay2 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.08);
+      const filter2 = ctx.createBiquadFilter();
+      filter2.type = "bandpass";
+      filter2.frequency.setValueAtTime(pitch, now2 + delay2);
+      filter2.Q.setValueAtTime(2, now2 + delay2);
+      const warmFilter = ctx.createBiquadFilter();
+      warmFilter.type = "lowpass";
+      warmFilter.frequency.setValueAtTime(pitch * 1.5, now2 + delay2);
+      osc.connect(filter2);
+      filter2.connect(warmFilter);
+      warmFilter.connect(gain);
+      gain.connect(panner);
+      panner.connect(sfxGainOrConnector);
+      osc.start(now2 + delay2);
+      osc.stop(now2 + delay2 + 0.08);
+    };
+    const p1 = 868.5;
+    const p2 = 820.25;
+    createYip(0, p1, 0.4846);
+    createYip(0.01, p2, 0.4307);
+    if (!disableInternalEcho) {
+      const echoVolume = isInternalReverbEnabled2 ? 0.3229 : 0.2152;
+      createYip(0.15, p1, echoVolume, true);
+      createYip(0.3, p1, echoVolume * 0.5, true);
     }
-  },
-  {
-    id: "wall_lever_3rd_floor",
-    name: "Pull-down wall lever",
-    area: "Allisons3rdFloor",
-    x: 50,
-    // West room
-    y: 350,
-    width: 5,
-    height: 10,
-    type: "lever",
-    state: "up",
-    description: "A yellow-bordered vertical rectangle with a red-violet interior and a white lever.",
-    onInteract: (state) => {
-      state.isLeverDown ? "up" : "down";
-      return { ...state, isLeverDown: !state.isLeverDown };
+  } else {
+    if (type === "BOW") {
+      const dummyPanner = (px2, py, pz) => {
+        const p = ctx.createPanner();
+        p.panningModel = "HRTF";
+        p.distanceModel = "inverse";
+        p.refDistance = 10;
+        p.maxDistance = 1e4;
+        p.rolloffFactor = 1;
+        p.positionX.setValueAtTime(px2, now2);
+        p.positionY.setValueAtTime(py, now2);
+        p.positionZ.setValueAtTime(pz, now2);
+        return p;
+      };
+      const dummyGain = ctx.createGain();
+      playDymondBow(ctx, dummyGain, dummyPanner, x, y, z, disableInternalEcho, isInternalReverbEnabled2);
+      sfxGainOrConnector(dummyGain, false);
+      return;
     }
-  },
-  ...Array.from({ length: 32 }).map((_, i) => ({
-    id: `rainbow_coin_${i}`,
-    name: "Rainbow Coin",
-    area: "AllisonsPorch",
-    // Scattered
-    x: 100 + i * 25,
-    y: 100 + i * 15,
-    width: 2,
-    height: 2,
-    type: "item",
-    description: "A shiny coin that shimmers with all the colors of the rainbow.",
-    onInteract: (state) => {
-      return { ...state, rainbowCoins: state.rainbowCoins + 1 };
+    const createYipLegacy = (delay2, pitch, volume, isEcho = false) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const jitter = (Math.random() - 0.5) * (pitch * 25e-4);
+      const naturalPitch = pitch + jitter;
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(naturalPitch, now2 + delay2);
+      osc.frequency.exponentialRampToValueAtTime(naturalPitch * 0.7, now2 + delay2 + 0.08);
+      gain.gain.setValueAtTime(0, now2 + delay2);
+      gain.gain.linearRampToValueAtTime(isEcho ? volume * 0.5 : volume, now2 + delay2 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.08);
+      const filter2 = ctx.createBiquadFilter();
+      filter2.type = "bandpass";
+      filter2.frequency.setValueAtTime(pitch, now2 + delay2);
+      filter2.Q.setValueAtTime(2, now2 + delay2);
+      const warmFilter = ctx.createBiquadFilter();
+      warmFilter.type = "lowpass";
+      warmFilter.frequency.setValueAtTime(pitch * 1.5, now2 + delay2);
+      osc.connect(filter2);
+      filter2.connect(warmFilter);
+      warmFilter.connect(gain);
+      sfxGainOrConnector(gain, false);
+      osc.start(now2 + delay2);
+      osc.stop(now2 + delay2 + 0.08);
+    };
+    const p1_legacy = 868.5;
+    const p2_legacy = 820.25;
+    createYipLegacy(0, p1_legacy, 0.4846);
+    createYipLegacy(0.01, p2_legacy, 0.4307);
+    if (!disableInternalEcho) {
+      createYipLegacy(0.15, p1_legacy, 0.1615, true);
+      createYipLegacy(0.3, p1_legacy, 0.0808, true);
     }
-  })),
-  {
-    id: "tea_room_key",
-    name: "Tea Room Key",
-    area: "Allisons2ndFloor",
-    x: 950,
-    // East end of table
-    y: 150,
-    width: 5,
-    height: 5,
-    type: "item",
-    description: "A small silver key found on the tea table. It has a delicate floral pattern.",
-    onInteract: (state) => state
-  },
-  {
-    id: "statue_boy_dog",
-    name: "Statue of Boy and Dog",
-    area: "Allisons2ndFloor",
-    x: 900,
-    y: 700,
-    width: 20,
-    height: 20,
-    type: "item",
-    description: "A beautiful statue of a boy riding a white dog-like creature with a pink nose and blue eyes. The boy wears a yellow onesie.",
-    onInteract: (state) => state
-  },
-  {
-    id: "wallet",
-    name: "Wallet",
-    area: "AllisonsFoyer",
-    x: 100,
-    y: 100,
-    width: 5,
-    height: 5,
-    type: "item",
-    description: "A high-quality leather wallet. It contains your ID and some cards. Press O to view contents.",
-    onInteract: (state) => state
-  },
-  {
-    id: "umbrella",
-    name: "Umbrella",
-    area: "AllisonsFoyer",
-    x: 120,
-    y: 100,
-    width: 5,
-    height: 5,
-    type: "item",
-    description: "A sturdy umbrella with a curved handle. Useful for rainy days.",
-    onInteract: (state) => state
-  },
-  ...Array.from({ length: 10 }).map((_, i) => ({
-    id: `tea_coin_${i}`,
-    name: "Rainbow Coin",
-    area: "Allisons2ndFloor",
-    // Tea Room perimeter
-    x: 800 + i * 20,
-    y: 50 + (i % 2 === 0 ? 0 : 250),
-    width: 2,
-    height: 2,
-    type: "item",
-    description: "A shiny coin that shimmers with all the colors of the rainbow.",
-    onInteract: (state) => {
-      return { ...state, rainbowCoins: state.rainbowCoins + 1 };
+  }
+}
+const index$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  POODLE_CORE,
+  drawDymondRiderView,
+  playElegantBark
+}, Symbol.toStringTag, { value: "Module" }));
+function drawWorldObjects(ctx, width, height, state, time2) {
+  const objects = [];
+  if (state.area === "Foyer") {
+    objects.push({ x: 200, y: 300, type: "fountain" });
+    objects.push({ x: 600, y: 500, type: "statue" });
+  } else if (state.area === "HedgePath") {
+    for (let i = 0; i < 10; i++) {
+      objects.push({ x: 10, y: i * 100 + 50, type: "bush" });
     }
-  }))
+  } else if (state.area === "Suburb") {
+    for (let i = 0; i < 5; i++) {
+      objects.push({ x: 20, y: i * 400 + 100, type: "rock" });
+    }
+  } else if (state.area === "OpenTrench") {
+    for (let i = 0; i < 5; i++) {
+      objects.push({ x: 20, y: i * 1e3 + 500, type: "trench" });
+    }
+  }
+  if (state.coins) {
+    state.coins.forEach((c) => {
+      if (!c.isCollected && c.area === state.area) {
+        objects.push({ x: c.x, y: c.y, type: "coin", value: c.value });
+      }
+    });
+  }
+  if (state.opponents && state.opponents.length > 0) {
+    const adventureAreas = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench"];
+    if (adventureAreas.includes(state.area)) {
+      const areaIndex = adventureAreas.indexOf(state.area);
+      const opponentsInArea = state.opponents.slice(areaIndex * 20, (areaIndex + 1) * 20);
+      opponentsInArea.forEach((opp, idx) => {
+        objects.push({
+          x: 20 + idx % 3 * 10,
+          // Staggered x positions
+          y: (idx + 1) * 100,
+          // Spaced out along y
+          type: "opponent",
+          opponent: opp
+        });
+      });
+    }
+  }
+  const horizonY = height / 2;
+  objects.forEach((obj) => {
+    const dx = obj.x - state.gridX;
+    const dy = obj.y - state.gridY;
+    const angle = state.rotation * Math.PI / 180;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const localX = dx * cos - dy * sin;
+    const localY = dx * sin + dy * cos;
+    if (localY < 10) return;
+    const scale2 = 400 / (localY + 100);
+    const screenX = width / 2 + localX * scale2;
+    const screenY = horizonY + 100 * scale2;
+    if (screenX < -200 || screenX > width + 200) return;
+    ctx.save();
+    ctx.translate(screenX, screenY);
+    ctx.scale(scale2, scale2);
+    if (obj.type === "fountain") {
+      drawFountain(ctx, dy);
+    } else if (obj.type === "bush") {
+      drawBush(ctx);
+    } else if (obj.type === "rock") {
+      drawRock(ctx);
+    } else if (obj.type === "trench") {
+      drawTrench(ctx);
+    } else if (obj.type === "opponent" && obj.opponent) {
+      drawOpponent(ctx, dy, obj.opponent);
+    } else if (obj.type === "coin") {
+      drawWorldCoin(ctx, time2);
+    }
+    ctx.restore();
+  });
+}
+function drawWorldCoin(ctx, time2) {
+  const spin = Math.sin(time2 / 200) * 0.5 + 0.5;
+  ctx.fillStyle = "#ffd700";
+  ctx.strokeStyle = "#daa520";
+  ctx.beginPath();
+  ctx.ellipse(0, -10, 8 * spin, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+function drawOpponent(ctx, distance2, opponent) {
+  ctx.fillStyle = opponent.poodleColor.toLowerCase().includes("spotted") ? "#e0e0e0" : opponent.poodleColor.toLowerCase();
+  ctx.beginPath();
+  ctx.ellipse(0, -10, 20, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  if (opponent.poodleColor.toLowerCase().includes("spotted")) {
+    ctx.fillStyle = "#333";
+    ctx.beginPath();
+    ctx.arc(-10, -10, 3, 0, Math.PI * 2);
+    ctx.arc(5, -12, 4, 0, Math.PI * 2);
+    ctx.arc(12, -8, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = opponent.outfit.toLowerCase().includes("pink") ? "#ff69b4" : opponent.outfit.toLowerCase().includes("green") ? "#4caf50" : opponent.outfit.toLowerCase().includes("navy") ? "#000080" : "#888";
+  ctx.beginPath();
+  ctx.arc(0, -25, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(-5, -20, 10, 15);
+}
+function drawBush(ctx, distance2) {
+  ctx.fillStyle = "#2d5a27";
+  ctx.beginPath();
+  ctx.arc(0, 0, 30, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#3e7c36";
+  ctx.beginPath();
+  ctx.arc(-10, -10, 20, 0, Math.PI * 2);
+  ctx.fill();
+}
+function drawRock(ctx, distance2) {
+  ctx.fillStyle = "#7f8c8d";
+  ctx.beginPath();
+  ctx.moveTo(-30, 0);
+  ctx.lineTo(-20, -20);
+  ctx.lineTo(20, -25);
+  ctx.lineTo(35, 0);
+  ctx.closePath();
+  ctx.fill();
+}
+function drawTrench(ctx, distance2) {
+  ctx.fillStyle = "#34495e";
+  ctx.fillRect(-100, -10, 200, 20);
+  ctx.fillStyle = "#2980b9";
+  ctx.fillRect(-100, -5, 200, 10);
+}
+function drawFountain(ctx, distance2) {
+  if (distance2 > 400) {
+    ctx.fillStyle = "#4a90e2";
+    ctx.beginPath();
+    ctx.arc(0, 0, 40, 0, Math.PI, true);
+    ctx.fill();
+  } else if (distance2 > 150) {
+    ctx.fillStyle = "#357abd";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(-40, -20, 80, 20);
+  } else {
+    const basinGrad = ctx.createLinearGradient(-40, 0, 40, 0);
+    basinGrad.addColorStop(0, "#2c3e50");
+    basinGrad.addColorStop(0.5, "#34495e");
+    basinGrad.addColorStop(1, "#2c3e50");
+    ctx.fillStyle = basinGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    const waterGrad = ctx.createRadialGradient(0, -5, 2, 0, 0, 35);
+    waterGrad.addColorStop(0, "#ffffff");
+    waterGrad.addColorStop(0.4, "#4fc3f7");
+    waterGrad.addColorStop(1, "#0288d1");
+    ctx.fillStyle = waterGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, -2, 35, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -2, 30, -Math.PI / 4, -Math.PI / 2, true);
+    ctx.stroke();
+  }
+}
+const STORY_BOOK_PAGES = [
+  {
+    text: "Once upon a time, a group of poodles gathered for a special tea party.",
+    imageAlt: "Three poodles sitting at a wooden table with tea cups. One is blue, one is yellow, and one is green."
+  },
+  {
+    text: "They lived in a welcoming house with mirrored walls that reflected the beauty of the dream forest.",
+    imageAlt: "A cozy room with mirrors on the walls, reflecting a forest of blue and pink flowers."
+  },
+  {
+    text: "The sun was golden, and the river Nile flowed nearby, where elephants bathed peacefully.",
+    imageAlt: "A golden sun over a river. An elephant is in the background near some palm trees."
+  },
+  {
+    text: "And they all lived happily ever after in the world of dreams.",
+    imageAlt: "The poodles waving from their front porch under a rainbow sky."
+  }
 ];
-function handleInteraction(state, speak2, audio2) {
-  const { gridX, gridY, area } = state;
-  const nearbyObject = MANOR_OBJECTS.find(
-    (obj) => obj.area === area && Math.abs(obj.x - gridX) < 10 && Math.abs(obj.y - gridY) < 10
+function drawStoryBookDecisionZone(ctx, width, height, state, time2) {
+  const scale2 = width / 50;
+  ctx.fillStyle = "#8b4513";
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = "#5d2906";
+  for (let x = 0; x < 50; x += 5) {
+    ctx.beginPath();
+    ctx.moveTo(x * scale2, 0);
+    ctx.lineTo(x * scale2, height);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(25 * scale2, 25 * scale2, 18.75 * scale2, 0, Math.PI * 2);
+  ctx.fillStyle = "#0000ff";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(25 * scale2, 25 * scale2, 17 * scale2, 0, Math.PI * 2);
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.fillStyle = "#deb887";
+  ctx.fillRect(48 * scale2, 17.5 * scale2, 2 * scale2, 15 * scale2);
+  ctx.strokeStyle = "#8b4513";
+  ctx.strokeRect(48 * scale2, 17.5 * scale2, 2 * scale2, 15 * scale2);
+  ctx.fillStyle = "silver";
+  ctx.fillRect(48 * scale2, 18.5 * scale2, 1 * scale2, 13 * scale2);
+  ctx.fillStyle = "red";
+  ctx.font = "bold 8px Arial";
+  ctx.fillText("Welcome", 48.2 * scale2, 25 * scale2);
+  ctx.fillStyle = "#9370db";
+  ctx.fillRect(0, 20 * scale2, 2 * scale2, 10 * scale2);
+  ctx.strokeStyle = "#4b0082";
+  ctx.strokeRect(0, 20 * scale2, 2 * scale2, 10 * scale2);
+  const rockerX = 9 * scale2;
+  const rockerY = 49 * scale2;
+  const rockingAngle = state.isToyRocking ? Math.sin(time2 / 100) * 0.1 : 0;
+  ctx.save();
+  ctx.translate(rockerX, rockerY);
+  ctx.rotate(rockingAngle);
+  ctx.fillStyle = "#444";
+  ctx.fillRect(-4 * scale2, 0.5 * scale2, 8 * scale2, 0.2 * scale2);
+  ctx.fillStyle = "#ff69b4";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 3.475 * scale2, 1.5 * scale2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(3.475 * scale2, -1.5 * scale2, 1.2 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-3.475 * scale2, 0);
+  ctx.lineTo(-5 * scale2, -2 * scale2);
+  ctx.lineWidth = 0.5 * scale2;
+  ctx.strokeStyle = "#ff69b4";
+  ctx.stroke();
+  ctx.restore();
+  const bookX = 25 * scale2;
+  const bookY = 49.5 * scale2;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(bookX - 2 * scale2, bookY, 4 * scale2, 0.2 * scale2);
+  ctx.strokeStyle = "#000";
+  ctx.strokeRect(bookX - 2 * scale2, bookY, 4 * scale2, 0.2 * scale2);
+  const toy2X = 25 * scale2;
+  const toy2Y = 2 * scale2;
+  ctx.fillStyle = "#ffb6c1";
+  ctx.beginPath();
+  ctx.arc(toy2X, toy2Y, 1 * scale2, 0, Math.PI * 2);
+  ctx.fill();
+}
+function drawStoryBookCourse(ctx, width, height, state, time2) {
+  const scale2 = height / 50;
+  ctx.fillStyle = "#2d5a27";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "#9b7653";
+  ctx.fillRect(0, 15 * scale2, width, 20 * scale2);
+  const skyN = ctx.createLinearGradient(0, 0, 0, 5 * scale2);
+  skyN.addColorStop(0, "#87ceeb");
+  skyN.addColorStop(1, "rgba(135, 206, 235, 0)");
+  ctx.fillStyle = skyN;
+  ctx.fillRect(0, 0, width, 5 * scale2);
+  const skyS = ctx.createLinearGradient(0, height, 0, height - 5 * scale2);
+  skyS.addColorStop(0, "#87ceeb");
+  skyS.addColorStop(1, "rgba(135, 206, 235, 0)");
+  ctx.fillStyle = skyS;
+  ctx.fillRect(0, height - 5 * scale2, width, 5 * scale2);
+  for (let i = 0; i < 20; i++) {
+    const fx = ((i * 50 - state.gridX * 0.1) % (width * 2) + width * 2) % (width * 2) - width;
+    const fyN = (5 + Math.sin(i + time2 / 1e3) * 3) * scale2;
+    const fyS = (45 - Math.sin(i + time2 / 1e3) * 3) * scale2;
+    ctx.strokeStyle = "#32cd32";
+    ctx.lineWidth = 0.5 * scale2;
+    ctx.beginPath();
+    ctx.moveTo(fx, fyN);
+    ctx.lineTo(fx, fyN + 5 * scale2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(fx, fyS);
+    ctx.lineTo(fx, fyS - 5 * scale2);
+    ctx.stroke();
+    ctx.fillStyle = i % 2 === 0 ? "#ff69b4" : "#add8e6";
+    ctx.beginPath();
+    ctx.arc(fx, fyN, 1.2 * scale2, 0, Math.PI * 2);
+    ctx.arc(fx, fyS, 1.2 * scale2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${1.5 * scale2}px Arial`;
+  const dist = Math.floor(state.gridX);
+  if (dist % 100 < 5) {
+    ctx.fillText(`${dist} FEET`, 10 * scale2, 45 * scale2);
+  }
+  if (state.gridX > 100) {
+    const houseAlpha = Math.min(1, (state.gridX - 100) / 300);
+    ctx.save();
+    ctx.globalAlpha = houseAlpha;
+    const houseX2 = (400 - state.gridX) * (width / 400);
+    if (houseX2 < width) {
+      ctx.fillStyle = "#ff1493";
+      ctx.fillRect(houseX2, 0, 100 * scale2, height);
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(houseX2, 0);
+      ctx.lineTo(houseX2 - 20 * scale2, height / 2);
+      ctx.lineTo(houseX2, height);
+      ctx.fill();
+      ctx.save();
+      ctx.translate(houseX2 + 50 * scale2, 5 * scale2);
+      ctx.rotate(time2 / 1e3);
+      ctx.fillStyle = "#ddd";
+      for (let j = 0; j < 4; j++) {
+        ctx.rotate(Math.PI / 2);
+        ctx.fillRect(-1 * scale2, 0, 2 * scale2, 15 * scale2);
+      }
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+}
+function drawToyInterface(ctx, width, height, state, time2) {
+  const pageIndex = state.toyCurrentPage;
+  const page = STORY_BOOK_PAGES[pageIndex] || STORY_BOOK_PAGES[0];
+  const scale2 = width / 100;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(10 * scale2, 10 * scale2, 80 * scale2, 60 * scale2);
+  ctx.fillStyle = "#000";
+  ctx.font = `bold ${3 * scale2}px Arial`;
+  const lines = wrapText(ctx, page.text, 70 * scale2);
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 15 * scale2, 20 * scale2 + i * 5 * scale2);
+  });
+  ctx.fillStyle = "#f0f0f0";
+  ctx.fillRect(15 * scale2, 45 * scale2, 70 * scale2, 15 * scale2);
+  ctx.fillStyle = "#555";
+  ctx.font = `${2.5 * scale2}px Arial`;
+  ctx.fillText(page.imageAlt, 18 * scale2, 52 * scale2);
+  ctx.fillStyle = "#ff69b4";
+  ctx.font = `bold ${2 * scale2}px Arial`;
+  ctx.fillText(`Page ${pageIndex + 1} of ${STORY_BOOK_PAGES.length}`, 15 * scale2, 75 * scale2);
+  ctx.fillStyle = "#aaa";
+  ctx.fillText("Controls: Up/Down to rock, Right to turn page, Left for prev, F or X to exit.", 15 * scale2, 85 * scale2);
+}
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(" ");
+  const lines = [];
+  let currentLine = words[0];
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(currentLine + " " + word).width;
+    if (width < maxWidth) {
+      currentLine += " " + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
+}
+const MOTTLED_TEXTURE_OFFSETS_X = [
+  -30,
+  20,
+  -50,
+  45,
+  -15,
+  35,
+  -25,
+  10,
+  -40,
+  5,
+  25,
+  -5,
+  -35,
+  15,
+  -45,
+  30,
+  -20,
+  40,
+  -10,
+  50
+];
+const MOTTLED_TEXTURE_OFFSETS_Y = [
+  -10,
+  25,
+  40,
+  -35,
+  -15,
+  20,
+  30,
+  -45,
+  -5,
+  -20,
+  15,
+  45,
+  -30,
+  10,
+  5,
+  -25,
+  -40,
+  35,
+  20,
+  -15
+];
+function drawPriscillaJeansAndShoes(ctx, centerX, bottomY, leanOffset) {
+  ctx.fillStyle = "#111111";
+  ctx.beginPath();
+  ctx.ellipse(centerX - 35, bottomY - 32 + leanOffset, 11, 25, Math.PI / 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(centerX + 35, bottomY - 32 + leanOffset, 11, 25, -Math.PI / 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#f39c12";
+  ctx.strokeStyle = "#b77c0f";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(centerX - 38, bottomY - 8 + leanOffset, 16, 7, Math.PI / 24, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(centerX + 38, bottomY - 8 + leanOffset, 16, 7, -Math.PI / 24, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+function drawPriscillaDressSkirt(ctx, centerX, bottomY, leanOffset) {
+  ctx.save();
+  const createSkirtPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(centerX - 24, bottomY - 142 + leanOffset);
+    ctx.bezierCurveTo(
+      centerX - 75,
+      bottomY - 115 + leanOffset,
+      centerX - 92,
+      bottomY - 82 + leanOffset,
+      centerX - 88,
+      bottomY - 48 + leanOffset
+    );
+    ctx.bezierCurveTo(
+      centerX - 45,
+      bottomY - 40 + leanOffset,
+      centerX + 45,
+      bottomY - 40 + leanOffset,
+      centerX + 88,
+      bottomY - 48 + leanOffset
+    );
+    ctx.bezierCurveTo(
+      centerX + 92,
+      bottomY - 82 + leanOffset,
+      centerX + 75,
+      bottomY - 115 + leanOffset,
+      centerX + 24,
+      bottomY - 142 + leanOffset
+    );
+    ctx.closePath();
+  };
+  createSkirtPath();
+  ctx.fillStyle = "#ffd54f";
+  ctx.fill();
+  ctx.save();
+  ctx.clip();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 2.5;
+  for (let xOffset = -180; xOffset < 180; xOffset += 24) {
+    ctx.beginPath();
+    ctx.moveTo(centerX + xOffset - 40, bottomY - 200 + leanOffset);
+    ctx.lineTo(centerX + xOffset + 40, bottomY - 20 + leanOffset);
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.lineWidth = 3.5;
+  ctx.strokeStyle = "#7f8c8d";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 87, bottomY - 51 + leanOffset);
+  ctx.bezierCurveTo(
+    centerX - 45,
+    bottomY - 43 + leanOffset,
+    centerX + 45,
+    bottomY - 43 + leanOffset,
+    centerX + 87,
+    bottomY - 51 + leanOffset
   );
-  if (nearbyObject) {
-    if (nearbyObject.type === "item") {
-      if (nearbyObject.name === "Rainbow Coin") {
-        speak2("Collected a Rainbow Coin!", "EN_US");
-        audio2.playPointEarned();
-        return nearbyObject.onInteract(state);
-      }
-      speak2(`Picked up ${nearbyObject.name}.`, "EN_US");
-      let newState = addItemToInventory(state, {
-        id: nearbyObject.id,
-        name: nearbyObject.name,
-        description: nearbyObject.description,
-        type: "misc"
-      });
-      return newState;
-    }
-    if (nearbyObject.type === "lever") {
-      const isDown = !state.isLeverDown;
-      speak2(isDown ? "Pulled the lever down. A door opens at the second floor." : "Pushed the lever up. The door closes.", "EN_US");
-      audio2.playCustomBeep(isDown ? 440 : 220);
-      return { ...state, isLeverDown: isDown };
-    }
-  }
-  if (area === "ElevatedPath" && gridY > 980) {
-    const hasKey = state.inventory.items.some((i) => i.id === "barn_house_key");
-    if (hasKey) {
-      speak2("Using Barn House Key automatically. The door is now unlocked.", "EN_US");
-      audio2.playDoorOpen();
-      return state;
+  ctx.stroke();
+  ctx.strokeStyle = "#7b1fa2";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 88, bottomY - 48 + leanOffset);
+  ctx.bezierCurveTo(
+    centerX - 45,
+    bottomY - 40 + leanOffset,
+    centerX + 45,
+    bottomY - 40 + leanOffset,
+    centerX + 88,
+    bottomY - 48 + leanOffset
+  );
+  ctx.stroke();
+  ctx.restore();
+}
+function drawPriscillaPOVHands(ctx, centerX, centerY, isGraspingCollar, isPetting = false, lastPetTime = 0, time2 = 0) {
+  let leftHandY = isGraspingCollar ? centerY - 90 : centerY + 60;
+  const rightHandY = isGraspingCollar ? centerY - 90 : centerY + 60;
+  if (isPetting) {
+    const petDuration = 0.8;
+    const elapsedTime = Math.max(0, time2 - lastPetTime / 1e3);
+    const progress2 = Math.min(elapsedTime / petDuration, 1);
+    const startY = leftHandY;
+    const peakY = centerY - 180;
+    const strokeEndY = centerY - 90;
+    if (progress2 < 0.25) {
+      leftHandY = startY + (peakY - startY) * (progress2 / 0.25);
     } else {
-      speak2("The barn door is locked. You need the Barn House Key.", "EN_US");
-      return state;
+      const strokeProgress = (progress2 - 0.25) / 0.75;
+      leftHandY = peakY + (strokeEndY - peakY) * strokeProgress;
     }
   }
-  if (area === "MeditationHall" && gridY > 980 && gridX >= 980 && gridX <= 1020 || area === "SimulatedGardenArea" && gridY < 20 && gridX >= 980 && gridX <= 1020) {
-    const isOpening = !state.isSimulatedGardenDoorOpen;
-    speak2(isOpening ? "Opening the sliding door. It glides with a magical Tarsis shimmer." : "Closing the sliding door.", "EN_US");
-    audio2.playSimulatedGardenSlidingDoorSound(gridX, gridY);
-    return { ...state, isSimulatedGardenDoorOpen: isOpening };
+  const leftHandGrad = ctx.createRadialGradient(
+    centerX - 90,
+    leftHandY + 20,
+    5,
+    centerX - 87,
+    leftHandY + 25,
+    25
+  );
+  leftHandGrad.addColorStop(0, "#ffe4c4");
+  leftHandGrad.addColorStop(1, "#ebd0b0");
+  const rightHandGrad = ctx.createRadialGradient(
+    centerX + 85,
+    rightHandY + 20,
+    5,
+    centerX + 88,
+    rightHandY + 25,
+    25
+  );
+  rightHandGrad.addColorStop(0, "#ffe4c4");
+  rightHandGrad.addColorStop(1, "#ebd0b0");
+  ctx.fillStyle = leftHandGrad;
+  ctx.fillRect(centerX - 108, leftHandY, 40, 100);
+  ctx.fillStyle = rightHandGrad;
+  ctx.fillRect(centerX + 68, rightHandY, 40, 100);
+  const sleeveWidth = 60;
+  const sleeveHeight = 150;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(centerX - 118, leftHandY + 45, sleeveWidth, sleeveHeight);
+  ctx.clip();
+  ctx.fillStyle = "#ffd54f";
+  ctx.fill();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 2;
+  for (let offset = -40; offset < 100; offset += 20) {
+    ctx.beginPath();
+    ctx.moveTo(centerX - 118 + offset - 20, leftHandY + 40);
+    ctx.lineTo(centerX - 118 + offset + 20, leftHandY + 200);
+    ctx.stroke();
   }
-  const isNearElevatorDoor = (area === "LobbyStairwayAndRamps" || area === "SouthwestMezzanineStairwayAndRamps") && gridX >= 970 && gridX <= 985 && gridY >= 980 && gridY <= 1e3;
-  if (isNearElevatorDoor) {
-    const isOpening = !state.isElevatorDoorOpen;
-    speak2(isOpening ? "Opening the elevator door." : "Closing the elevator door.", "EN_US");
-    audio2.playElevatorButtonIntersection(gridX, gridY);
-    return { ...state, isElevatorDoorOpen: isOpening };
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(centerX + 58, rightHandY + 45, sleeveWidth, sleeveHeight);
+  ctx.clip();
+  ctx.fillStyle = "#ffd54f";
+  ctx.fill();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 2;
+  for (let offset = -40; offset < 100; offset += 20) {
+    ctx.beginPath();
+    ctx.moveTo(centerX + 58 + offset - 20, rightHandY + 40);
+    ctx.lineTo(centerX + 58 + offset + 20, rightHandY + 200);
+    ctx.stroke();
   }
-  speak2("Nothing to interact with here.", "EN_US");
-  return state;
-}
-const handleWorldInteraction = (ctx) => {
-  const { gameState: state, setGameState, speak: speak2, announceToScreenReader, audio: audio2 } = ctx;
-  const newState = handleInteraction(state, speak2, audio2);
-  if (newState !== state) {
-    setGameState(newState);
-  }
-  return true;
-};
-const MANORSVILLE_STREET_DESCRIPTION = "This is the street that enables you to go anywhere in this city. Each street has a name associated. If you are familiar with a city; each street is unique, so you can know where you are actually going.";
-const MANORSVILLE_PORCH_AHEAD_DESCRIPTION = "This is the front porch of your Rasta-Manor; it has a pink and white checked flooring, skylights that are located at the overhang of this porch, and it has a set of blue doors ahead.";
-const MANORSVILLE_PORCH_BEHIND_DESCRIPTION = "The front porch of your manor is behind you. You are currently on the sidewalk. The street is ahead of you.";
-const MANORSVILLE_STREET_EDGE_DESCRIPTION = "This is the edge of the sidewalk, the street is like any other street. However; this car-free street is wide enough to support use of public transit vehicles, trucks that deliver food and supplies,--and other gooes via delivery, and emergency vehicles.";
-const MANORSVILLE_STREET_BEHIND_DESCRIPTION = "The street is behind you, and you on an sidewalk.. Rasta-Manor is ahead of you.";
-const MANORSVILLE_SIDEWALK_GENERAL_DESCRIPTION = "This is the streets of manorsville. It's a 'car-free' community that is composed of super blocks. It has a subway to help reduce traffic, large gardens for growing plants, and they have lots of manors. Its called 'Manorsville' because, there are large manors in this community";
-function getManorsvilleStreetInfoDescription() {
-  return MANORSVILLE_STREET_DESCRIPTION;
-}
-function getManorsvilleSidewalkInfoDescription(sidewalkLength = 8e3) {
-  return MANORSVILLE_SIDEWALK_GENERAL_DESCRIPTION;
-}
-const SW_RECT_X_MAX = 20;
-const RAMP_Y_MIN$1 = 1e3;
-const RAMP_Y_MAX$1 = 2e3;
-function getWallInteractionDescription(state) {
-  const { area, gridX, gridY, direction, level } = state;
-  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
-  const isUpper = level === "Sky";
-  let desc = "";
-  if (area === "Foyer") {
-    if (gridY === 1980 && gridX <= 20 && direction === "South") {
-      desc += `${FOYER_DESCRIPTIONS.RHINO_BARRIER}. `;
-    } else if (level === "Sky" && gridX === 1 && gridY >= 1320 && gridY <= 1340 && direction === "West") {
-      desc += `${FOYER_DESCRIPTIONS.PLAYGROUND_ARCHWAY}. `;
-    }
-    if (gridX <= 10 && !desc) {
-      if (gridY >= 1 && gridY <= 7) {
-        desc += `West wall: ${FOYER_DESCRIPTIONS.LIONS_PICTURE}. `;
-      } else {
-        desc += level === "Sky" ? "West wall of the Sky Foyer. " : "West wall of the Floor Foyer. ";
-      }
-    }
-    if (gridX >= currentDims.width - 10 && !desc) {
-      desc += isUpper ? `East wall: ${FOYER_DESCRIPTIONS.TAPESTRY}. ` : "East wall. ";
-    }
-    if (gridX <= SW_RECT_X_MAX && gridY >= 1 && gridY <= 1320 && !desc) {
-      desc += `You are in the Southwest Rectangle. ${FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE}. `;
-    }
-    if (gridY >= currentDims.height - 36 && !desc) {
-      if (isUpper) {
-        if (gridX >= 300 && gridX <= 700) {
-          desc += `On the North wall of the Sky Foyer here is the ${FOYER_DESCRIPTIONS.LIONS_PICTURE}. `;
-        } else if (gridX >= 1300 && gridX <= 1700) {
-          desc += `On the North wall of the Sky Foyer here are the ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}. `;
-        } else {
-          desc += `North wall of the Sky Foyer: ${FOYER_DESCRIPTIONS.NORTH_DOOR}, ${FOYER_DESCRIPTIONS.NORTH_WINDOWS}, and relocated artwork nearby. `;
-        }
-      } else {
-        desc += `North wall: ${FOYER_DESCRIPTIONS.NORTH_DOOR} and ${FOYER_DESCRIPTIONS.NORTH_WINDOWS}. `;
-      }
-    }
-    if (gridY <= 36 && !desc) {
-      if (level === "Sky") {
-        desc += "South wall of the Sky Foyer. A solid wall high above the South doors. ";
-      } else {
-        desc += `South wall: ${FOYER_DESCRIPTIONS.SOUTH_DOOR} and ${FOYER_DESCRIPTIONS.SOUTH_WINDOWS}. `;
-      }
-    }
-    if (gridX <= SW_RECT_X_MAX && gridY >= 1820 && gridY <= 1835 && !desc) {
-      desc += `Cellar Door: ${FOYER_DESCRIPTIONS.CELLAR_DOOR}. `;
-    }
-    if (!desc) {
-      if (level === "Sky") {
-        const isNearInnerEdge = gridX === 90 || gridX === currentDims.width - 90 || gridY === 90 || gridY === currentDims.height - 90;
-        const isNearRhinoBarrier = gridY === RAMP_Y_MAX$1 && gridX >= 1 && gridX <= 8 || gridX === 8 && gridY >= RAMP_Y_MIN$1 && gridY <= RAMP_Y_MAX$1;
-        if (isNearRhinoBarrier) {
-          desc = FOYER_DESCRIPTIONS.RHINO_BARRIER;
-        } else if (isNearInnerEdge) {
-          desc = "You are at the inner edge of the sky foyer, 25 feet above the floor level. A glass barrier with a shiny brass rail prevents you from falling into the center of the foyer.";
-        } else if (gridY > currentDims.height - 90) {
-          desc = "You are at the North wall of the sky foyer. A grand window offers a view of the street below, far above the North door.";
-        } else if (gridY < 90) {
-          desc = "You are at the South wall of the sky foyer. A grand window offers a view of the garden below, far above the rainbow glass doors.";
-        } else if (gridX < 90) {
-          desc = "You are at the West wall of the sky foyer, 25 feet above the floor level.";
-        } else if (gridX > currentDims.width - 90) {
-          desc = "You are at the East wall of the sky foyer, 25 feet above the floor level.";
-        } else {
-          desc = "You are on the sky foyer perimeter walkway, elevated 25 feet high with a 20-foot ceiling above.";
-        }
-      } else {
-        desc = "You are in the grand foyer. The ceiling is a staggering 45 feet high and the floor is polished.";
-      }
-    }
-  } else if (area === "RuggedPlayField") {
-    if (gridY >= currentDims.height - 10) desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.NORTH_ARCHWAY;
-    else if (gridY <= 10) desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.SOUTH_DOORWAY;
-    else desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.MAIN;
-  } else if (area === "MeditationHall") {
-    if (gridY >= currentDims.height - 10) desc = MEDITATION_HALL_DESCRIPTIONS.NORTH_DOORWAY;
-    else if (gridY <= 10) desc = MEDITATION_HALL_DESCRIPTIONS.SOUTH_DOOR + " " + MEDITATION_HALL_DESCRIPTIONS.SOUTH_WINDOWS;
-    else desc = MEDITATION_HALL_DESCRIPTIONS.MAIN;
-  } else if (area === "Garden") {
-    if (gridX < currentDims.width * 0.2) {
-      desc = "You are at the West fence. It's a peaceful spot with a bench. Opossums are active here at night.";
-    } else if (gridY < currentDims.height * 0.2) {
-      desc = "You are at the South barrier. You can hear the rumble of the railway tracks below.";
-    } else if (gridY > currentDims.height * 0.8) {
-      desc = GARDEN_DESCRIPTIONS.NORTH_DOORS;
-    } else {
-      desc = GARDEN_DESCRIPTIONS.MAIN;
-    }
-  } else if (area === "CellarRamp") {
-    desc = CELLAR_DESCRIPTIONS.RAMP;
-  } else if (area === "Cellar") {
-    desc = CELLAR_DESCRIPTIONS.CELLAR;
-  } else if (area === "Sidewalk") {
-    let sidewalkInputDesc = "";
-    if (direction === "North") {
-      sidewalkInputDesc = "This is the north of 1900 block. 32,000 feet long. The AdventureHouse is located across the street. The brick sidewalk is red and its built with craftsmanship by everyday people. The sidewalk stretches from the east and west ends of this block. There are houses that are aligned neatly to make it easier for you to find your house with ease.";
-    } else if (direction === "South") {
-      sidewalkInputDesc = "This is the south of the 1900 block.";
-    } else if (direction === "West") {
-      sidewalkInputDesc = "This is the west of the 1900 block.";
-    } else if (direction === "East") {
-      sidewalkInputDesc = "This is the east of the 1900 block.";
-    }
-    if (gridY <= 8) {
-      if (direction === "South") {
-        desc = MANORSVILLE_PORCH_AHEAD_DESCRIPTION;
-      } else if (direction === "North") {
-        desc = MANORSVILLE_PORCH_BEHIND_DESCRIPTION;
-      } else {
-        desc = sidewalkInputDesc;
-      }
-    } else if (gridY >= currentDims.height - 10) {
-      if (direction === "North") {
-        desc = MANORSVILLE_STREET_EDGE_DESCRIPTION;
-      } else if (direction === "South") {
-        desc = MANORSVILLE_STREET_BEHIND_DESCRIPTION;
-      } else {
-        desc = sidewalkInputDesc;
-      }
-    } else {
-      desc = sidewalkInputDesc;
-    }
-  } else if (area === "Street") {
-    if (direction === "East") {
-      desc = "From markers 8000 to 16,000 from the west; Rasta-Manor is located on your right, south of this street. The Adventure house is located on your left, north of this street.";
-    } else if (direction === "West") {
-      desc = "From the markers of 16,000 to 24,000 from the east; Rasta-Manor is on your left, south of this street. The AdventureHouse is on your right, north of this street.";
-    } else {
-      desc = getManorsvilleStreetInfoDescription();
-    }
-  } else {
-    desc = getWallDescription(direction, area, gridX, gridY, level);
-  }
-  return desc;
-}
-const getSkyFoyerWestArchwayDescription = (gridX, gridY) => {
-  const distance2 = gridX;
-  return `You are at ${gridX}x, ${gridY}y of the Sky Foyer. Facing west. The archway to the grand playground's perimeter is ${distance2} feet ahead.`;
-};
-const getSkyFoyerGlassBarrierAheadDescription = (direction) => {
-  if (direction === "East") {
-    return "A crafted glass barrier is ahead at the 90 feet marker from the west wall.";
-  } else if (direction === "North") {
-    return "A crafted glass barrier is ahead at the 90 feet marker from the south wall.";
-  } else if (direction === "West") {
-    return "A crafted glass barrier is ahead at the 1910 feet marker from the east wall.";
-  } else if (direction === "South") {
-    return "A crafted glass barrier is ahead at the 1910 feet marker from the north wall (precisely 90 feet from the north wall).";
-  }
-  return "A crafted glass barrier is ahead.";
-};
-const formatDistance$4 = (val) => {
-  const rounded = Math.round(val);
-  if (rounded === 0) {
-    if (val > 0) {
-      const inches = Math.round(val * 12);
-      if (inches === 1) return "1 inch";
-      if (inches > 0) return `${inches} inches`;
-    }
-    return "0 feet";
-  }
-  if (rounded === 1) {
-    return "1 Foot";
-  }
-  return `${rounded} feet`;
-};
-const getFloorFoyerSWRectangleDescription = (gridX, gridY, paces) => {
-  return `You are at ${gridX}x, ${gridY}y of the Floor Foyer... inside the southwest rectangle beneath the Sky Foyer. Facing north. The cellar entrance is ${formatDistance$4(paces)} ahead.`;
-};
-const getFloorFoyerNorthDoorsAhead = (paces) => {
-  return `The high blue doors are ${formatDistance$4(paces)} ahead.`;
-};
-const getFloorFoyerSouthArchwayAhead = (paces) => {
-  return `The green and gold striped archway is ${formatDistance$4(paces)} ahead.`;
-};
-const getFloorFoyerWestArchwayAhead = (paces) => {
-  return `The archway to the grand playground floor is ${formatDistance$4(paces)} ahead.`;
-};
-const getFoyerBoundaryAhead = (direction, paces) => {
-  return `The ${direction} boundary is ${formatDistance$4(paces)} ahead.`;
-};
-const getRuggedPlayFieldDescription = (x, y, direction) => {
-  if (x <= 10) return "You are at the West wall of the Rugged Play Field.";
-  if (x >= 1990) return "You are at the East wall of the Rugged Play Field.";
-  if (y <= 10) return "You are at the South wall of the Rugged Play Field. The pink and white archway to the Simulated Garden Area is here.";
-  if (y >= 1990) return "You are at the North wall of the Rugged Play Field. The green and gold striped archway leads back to the Foyer.";
-  return `You are in the 2000x2000 foot Rugged Play Field. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}. ${RUGGED_PLAY_FIELD_DESCRIPTIONS.MAIN}`;
-};
-const formatDistance$3 = (val) => {
-  const rounded = Math.round(val);
-  if (rounded === 0) {
-    if (val > 0) {
-      const inches = Math.round(val * 12);
-      if (inches === 1) return "1 inch";
-      if (inches > 0) return `${inches} inches`;
-    }
-    return "0 feet";
-  }
-  if (rounded === 1) {
-    return "1 Foot";
-  }
-  return `${rounded} feet`;
-};
-const getRuggedPlayFieldAhead = (x, y, direction) => {
-  if (direction === "North") {
-    const dist = 2e3 - y;
-    if (x >= 990 && x <= 1010) return `The archway back to the Foyer is ${formatDistance$3(dist)} ahead.`;
-    return `The North wall is ${formatDistance$3(dist)} ahead.`;
-  }
-  if (direction === "South") {
-    if (x >= 990 && x <= 1010) return `The pink and white archway to the Simulated Garden Area is ${formatDistance$3(y)} ahead.`;
-    return `The South wall is ${formatDistance$3(y)} ahead.`;
-  }
-  if (direction === "East") return `The East boundary is ${formatDistance$3(2e3 - x)} ahead.`;
-  if (direction === "West") return `The West boundary is ${formatDistance$3(x)} ahead.`;
-  return "";
-};
-const getSimulatedGardenAreaDescription = (x, y, direction) => {
-  if (x <= 10) return "You are at the West wall of the Simulated Garden Area. The walls are beautifully decorated with garden scene paintings.";
-  if (x >= 1990) return "You are at the East wall of the Simulated Garden Area. 100 circular windows with brass trim overlook the manor's dining facilities.";
-  if (y <= 10) return "You are at the South wall of the Simulated Garden Area. The 20-foot wide sliding door with Japanese and Ethiopian windows leads to the Meditation Hall.";
-  if (y >= 1990) return "You are at the North wall of the Simulated Garden Area. The pink and white striped archway leads to the Rugged Play Field.";
-  return `You are in the 2000x2000 foot Simulated Garden Area. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
-};
-const formatDistance$2 = (val) => {
-  const rounded = Math.round(val);
-  if (rounded === 0) {
-    if (val > 0) {
-      const inches = Math.round(val * 12);
-      if (inches === 1) return "1 inch";
-      if (inches > 0) return `${inches} inches`;
-    }
-    return "0 feet";
-  }
-  if (rounded === 1) {
-    return "1 Foot";
-  }
-  return `${rounded} feet`;
-};
-const getSimulatedGardenAreaAhead = (x, y, direction) => {
-  if (direction === "North") {
-    const dist = 2e3 - y;
-    if (x >= 990 && x <= 1010) return `The pink and white archway to the Rugged Play Field is ${formatDistance$2(dist)} ahead.`;
-    return `The North wall is ${formatDistance$2(dist)} ahead.`;
-  }
-  if (direction === "South") {
-    if (x >= 990 && x <= 1010) return `The sliding door to the Meditation Hall is ${formatDistance$2(y)} ahead.`;
-    return `The South wall is ${formatDistance$2(y)} ahead.`;
-  }
-  if (direction === "East") return `The East boundary is ${formatDistance$2(2e3 - x)} ahead.`;
-  if (direction === "West") return `The West boundary is ${formatDistance$2(x)} ahead.`;
-  return "";
-};
-const getMeditationHallDescription = (x, y, direction) => {
-  if (y <= 10) return "You are at the South wall of the Meditation Hall. Magnificent rainbow glass doors lead to the Garden of Peace.";
-  if (y >= 1990) return "You are at the North wall of the Meditation Hall. The Tarsis sliding door leads to the Simulated Garden Area.";
-  return `You are in the 2000x2000 foot Meditation Hall. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
-};
-const formatDistance$1 = (val) => {
-  const rounded = Math.round(val);
-  if (rounded === 0) {
-    if (val > 0) {
-      const inches = Math.round(val * 12);
-      if (inches === 1) return "1 inch";
-      if (inches > 0) return `${inches} inches`;
-    }
-    return "0 feet";
-  }
-  if (rounded === 1) {
-    return "1 Foot";
-  }
-  return `${rounded} feet`;
-};
-const getMeditationHallAhead = (x, y, direction) => {
-  if (direction === "North") {
-    const dist = 2e3 - y;
-    if (x >= 990 && x <= 1010) return `The Simulated Garden Area is ${formatDistance$1(dist)} ahead.`;
-    return `The North wall is ${formatDistance$1(dist)} ahead.`;
-  }
-  if (direction === "South") {
-    if (x >= 990 && x <= 1010) return `The Back Porch and Garden are ${formatDistance$1(y)} ahead.`;
-    return `The South wall is ${formatDistance$1(y)} ahead.`;
-  }
-  if (direction === "East") return `The East boundary is ${formatDistance$1(2e3 - x)} ahead.`;
-  if (direction === "West") {
-    if (y >= 1 && y <= 20) return `The archway leading to the Meditation Hall's Library is ${formatDistance$1(x)} ahead.`;
-    return `The West boundary is ${formatDistance$1(x)} ahead.`;
-  }
-  return "";
-};
-const getLibraryDescription = (x, y, direction) => {
-  return `You are in the Meditation Hall's Library, a 200x480 space. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}. Polished wood shelves line the North wall.`;
-};
-const getLibraryAhead = (x, y, direction) => {
-  if (direction === "East") {
-    if (y >= 1 && y <= 20) return `The archway back to the Meditation Hall is ${formatDistance$1(200 - x)} ahead.`;
-  }
-  if (direction === "West") return `The West boundary towards the Lobby is ${formatDistance$1(x)} ahead.`;
-  return `The boundary is ahead.`;
-};
-const getPlaygroundDescription = (x, y, direction, level) => {
-  const isSky = level === "Sky";
-  const name = isSky ? "Sky Playground Perimeter" : "Grand Indoor Playground";
-  return `You are in ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
-};
-const getPlaygroundAhead = (x, y, direction, level) => {
-  if (level === "Floor") {
-    if (direction === "South") {
-      if (x <= 10) return "Ahead is an archway to the west grand arcade crafted at the 1 foot marker.";
-      if (x >= 1980) return "Ahead is the west grand arcade and archway.";
-    }
-    if (direction === "North" && x >= 1980) return "Ahead is a ramp to the grand playground's perimeter walkway (660 feet from the north wall).";
-    if (direction === "East" && y >= 1980) return "The archway to the Floor Foyer is ahead.";
-  }
-  return `The boundary is ahead.`;
-};
-const getArcadeDescription = (name, x, y, direction) => {
-  return `You are in the ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
-};
-const getArcadeAhead = (name, x, y, direction) => {
-  if (name === "West Grand Arcade") {
-    if (direction === "South" && x >= 1980) return "The archway to the gym is ahead.";
-    if (direction === "North" && x >= 1980) return "The archway to the grand indoor playground is ahead.";
-    if (direction === "East" && y >= 990 && y <= 1010) return "The archway to the Rugged Play Field is ahead.";
-  }
-  return `The boundary is ahead.`;
-};
-const getGymDescription = (name, x, y, direction) => {
-  return `You are in ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
-};
-const getGymAhead = (name, x, y, direction) => {
-  if (name === "The Grand Gym") {
-    if (direction === "North" && x >= 1980) return "The west grand arcade archway is ahead.";
-    if (direction === "West" && y >= 990 && y <= 1010) return "The archway leading to narrow dressage gym is ahead.";
-  }
-  if (name === "Narrow Dressage Gym") {
-    if (direction === "East" && y >= 990 && y <= 1010) return "The grand gym archway is ahead.";
-    if (direction === "West" && y >= 990 && y <= 1010) return "The door to the west side brick path is ahead.";
-  }
-  return `The barrier is ahead.`;
-};
-function getFootage(units, system = "Imperial") {
-  if (system === "Metric") {
-    return `${(units * 0.3048).toFixed(2)} meters`;
-  }
-  return `${units} feet`;
-}
-function getMeasurementDescription(value, system, type) {
-  if (system === "Imperial") {
-    switch (type) {
-      case "distance":
-        return `${value} feet`;
-      case "longDistance":
-        return `${(value / 5280).toFixed(2)} miles`;
-      case "smallDistance":
-        return `${value} inches`;
-      case "height":
-        return `${value} feet`;
-    }
-  } else {
-    switch (type) {
-      case "distance":
-        return `${(value * 0.3048).toFixed(2)} meters`;
-      case "longDistance":
-        return `${(value * 160934e-8).toFixed(2)} kilometers`;
-      case "smallDistance":
-        return `${(value * 2.54).toFixed(2)} centimeters`;
-      case "height":
-        return `${(value * 0.3048).toFixed(2)} meters`;
-    }
-  }
-  return `${value}`;
-}
-function getSpeedDescription(unitsPerSecond, system) {
-  if (system === "Imperial") {
-    const mph = unitsPerSecond * 0.681818;
-    return `${mph.toFixed(3)} mph`;
-  } else {
-    const kmh = unitsPerSecond * 1.09728;
-    return `${kmh.toFixed(3)} km/h`;
+  ctx.restore();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "#7f8c8d";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 118, leftHandY + 47);
+  ctx.lineTo(centerX - 58, leftHandY + 47);
+  ctx.stroke();
+  ctx.strokeStyle = "#7b1fa2";
+  ctx.beginPath();
+  ctx.moveTo(centerX - 118, leftHandY + 50);
+  ctx.lineTo(centerX - 58, leftHandY + 50);
+  ctx.stroke();
+  ctx.strokeStyle = "#7f8c8d";
+  ctx.beginPath();
+  ctx.moveTo(centerX + 58, rightHandY + 47);
+  ctx.lineTo(centerX + 118, rightHandY + 47);
+  ctx.stroke();
+  ctx.strokeStyle = "#7b1fa2";
+  ctx.beginPath();
+  ctx.moveTo(centerX + 58, rightHandY + 50);
+  ctx.lineTo(centerX + 118, rightHandY + 50);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(centerX - 110 + i * 15, leftHandY + 55);
+    ctx.lineTo(centerX - 110 + i * 15, leftHandY + 180);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(centerX + 75 + i * 15, rightHandY + 55);
+    ctx.lineTo(centerX + 75 + i * 15, rightHandY + 180);
+    ctx.stroke();
   }
 }
-function convertText(text, system) {
-  if (system === "Imperial") return text;
-  let processed = text.replace(/(\d+(\.\d+)?)\s*(x|by)\s*(\d+(\.\d+)?)\s*(-?\s*(feet|foot))/gi, (match, w, wd, sep, h, hd, unit) => {
-    const width = parseFloat(w);
-    const height = parseFloat(h);
-    const wMeters = (width * 0.3048).toFixed(2);
-    const hMeters = (height * 0.3048).toFixed(2);
-    const hasHyphen = match.includes("-");
-    return `${wMeters} by ${hMeters}${hasHyphen ? "-" : " "}meters`;
-  });
-  return processed.replace(/(\d+(\.\d+)?)\s*(-?\s*(feet|foot))/gi, (match, val, decimal, unit) => {
-    const feet = parseFloat(val);
-    const meters = (feet * 0.3048).toFixed(2);
-    const hasHyphen = match.includes("-");
-    return `${meters}${hasHyphen ? "-" : " "}meters`;
-  });
+function drawPriscillaPOV(ctx, GAME_WIDTH2, GAME_HEIGHT2, isJumping, isLeaning, isGraspingCollar, time2, isPetting = false, lastPetTime = 0) {
+  ctx.save();
+  const centerX = GAME_WIDTH2 / 2;
+  const bobbingTime = time2 * 1e3 % 300;
+  const bobbingOffset = Math.sin(bobbingTime / 300 * Math.PI) * 6;
+  const centerY = GAME_HEIGHT2 - 90 + (isJumping ? -35 : 0) + (isLeaning ? 40 : 0);
+  const poodleYOffset = (isJumping ? -35 : 0) + bobbingOffset;
+  const breathing = Math.sin(time2 * 4) * 3;
+  const bodyGrad = ctx.createRadialGradient(
+    centerX - 20,
+    centerY + 30 + poodleYOffset,
+    10,
+    centerX,
+    centerY + 45 + poodleYOffset,
+    100 + breathing
+  );
+  bodyGrad.addColorStop(0, "#555555");
+  bodyGrad.addColorStop(1, "#333333");
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, centerY + 45 + poodleYOffset, 90 + breathing * 0.4, 75 + breathing * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(10, 10, 10, 0.45)";
+  for (let i = 0; i < MOTTLED_TEXTURE_OFFSETS_X.length; i++) {
+    const px2 = centerX + MOTTLED_TEXTURE_OFFSETS_X[i] * 1.5;
+    const py = centerY + 45 + poodleYOffset + MOTTLED_TEXTURE_OFFSETS_Y[i] * 1.2;
+    ctx.fillRect(px2, py, 3, 3);
+  }
+  const neckWidth = 65;
+  const neckGrad = ctx.createLinearGradient(centerX - neckWidth / 2, centerY - 130 + poodleYOffset, centerX + neckWidth / 2, centerY - 130 + poodleYOffset);
+  neckGrad.addColorStop(0, "#3a3a3a");
+  neckGrad.addColorStop(0.5, "#505050");
+  neckGrad.addColorStop(1, "#3a3a3a");
+  ctx.fillStyle = neckGrad;
+  ctx.fillRect(centerX - neckWidth / 2, centerY - 130 + poodleYOffset, neckWidth, 90);
+  const headRadius = 65;
+  const headY = centerY - 165 + poodleYOffset;
+  const headGrad = ctx.createRadialGradient(centerX - 15, headY - 10, 5, centerX, headY, headRadius);
+  headGrad.addColorStop(0, "#5a5a5a");
+  headGrad.addColorStop(1, "#404040");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#333333";
+  ctx.lineWidth = 2.5;
+  const headHairSway = Math.sin(time2 * 5) * 0.08;
+  for (let i = 0; i < 360; i += 24) {
+    const angle = i * Math.PI / 180 + headHairSway;
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * headRadius, headY + Math.sin(angle) * headRadius);
+    ctx.lineTo(centerX + Math.cos(angle) * (headRadius + 14), headY + Math.sin(angle) * (headRadius + 14));
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 3.5;
+  const browOffset = isPetting ? -2 : 0;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 28, headY - 18 + browOffset);
+  ctx.lineTo(centerX - 10, headY - 22 + browOffset);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(centerX + 10, headY - 22 + browOffset);
+  ctx.lineTo(centerX + 28, headY - 18 + browOffset);
+  ctx.stroke();
+  ctx.fillStyle = "#111111";
+  ctx.beginPath();
+  ctx.arc(centerX - 18, headY - 5, 6, 0, Math.PI * 2);
+  ctx.arc(centerX + 18, headY - 5, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.beginPath();
+  ctx.arc(centerX - 16, headY - 7, 2, 0, Math.PI * 2);
+  ctx.arc(centerX + 20, headY - 7, 2, 0, Math.PI * 2);
+  ctx.fill();
+  const noseY = headY + 15;
+  ctx.fillStyle = "#000000";
+  ctx.beginPath();
+  ctx.arc(centerX, noseY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+  ctx.beginPath();
+  ctx.arc(centerX - 3, noseY - 3, 4, 0, Math.PI * 2);
+  ctx.fill();
+  const collarY = centerY - 80 + poodleYOffset;
+  ctx.fillStyle = "#3a3a3a";
+  ctx.fillRect(centerX - 35, collarY, 70, 18);
+  const charmY = collarY + 23;
+  ctx.fillStyle = "#666666";
+  ctx.fillRect(centerX - 8, charmY - 5, 16, 16);
+  ctx.strokeStyle = "#444444";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(centerX - 8, charmY - 5, 16, 16);
+  drawPriscillaPOVHands(ctx, centerX, centerY, isGraspingCollar, isPetting, lastPetTime, time2);
+  ctx.restore();
 }
-class MathMeasurement {
-  constructor() {
-    console.log("Scientific Mathematics Measurement Initialized");
+function drawPriscillaRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isPetting = false, lastPetTime = 0) {
+  const centerX = width / 2;
+  const bottomY = height - 50;
+  ctx.save();
+  const bobbingTime = time2 * 1e3 % 300;
+  const bobbingOffset = Math.sin(bobbingTime / 300 * Math.PI) * 6;
+  const leanOffset = isLeaning ? 40 : 0;
+  const poodleYOffset = bobbingOffset;
+  const riderYOffset = leanOffset + bobbingOffset;
+  const breathing = Math.sin(time2 * 4) * 4;
+  const frontGrad = ctx.createRadialGradient(
+    centerX - 30,
+    bottomY - 140 + poodleYOffset,
+    15,
+    centerX,
+    bottomY - 130 + poodleYOffset,
+    110 + breathing
+  );
+  frontGrad.addColorStop(0, "#505050");
+  frontGrad.addColorStop(1, "#333333");
+  ctx.fillStyle = frontGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 130 + poodleYOffset, 95 + breathing * 0.4, 85 + breathing * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  const backGrad = ctx.createRadialGradient(
+    centerX - 20,
+    bottomY - 110 + poodleYOffset,
+    15,
+    centerX,
+    bottomY - 100 + poodleYOffset,
+    100 + breathing
+  );
+  backGrad.addColorStop(0, "#484848");
+  backGrad.addColorStop(1, "#2b2b2b");
+  ctx.fillStyle = backGrad;
+  ctx.beginPath();
+  ctx.ellipse(centerX, bottomY - 100 + poodleYOffset, 85 + breathing * 0.35, 75 + breathing * 0.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(15, 15, 15, 0.4)";
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 40; i++) {
+    const lx = centerX + MOTTLED_TEXTURE_OFFSETS_X[i % 20] * 1.6;
+    const ly = bottomY + (i < 20 ? -130 : -100) + poodleYOffset + MOTTLED_TEXTURE_OFFSETS_Y[i % 20] * 1.1;
+    ctx.beginPath();
+    ctx.moveTo(lx, ly);
+    ctx.lineTo(lx + 4, ly + 4);
+    ctx.stroke();
   }
-  convertUnits(value, from, to) {
-    return value;
+  drawPriscillaJeansAndShoes(ctx, centerX, bottomY, riderYOffset);
+  const riderY = bottomY - 175 + riderYOffset;
+  const riderWidth = 65;
+  const riderHeight = 85;
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.fillStyle = "#ffd54f";
+  ctx.fill();
+  ctx.strokeStyle = "#5d4037";
+  ctx.lineWidth = 2;
+  for (let sx = -40; sx < 80; sx += 18) {
+    ctx.beginPath();
+    ctx.moveTo(centerX + sx - 15, riderY - 50);
+    ctx.lineTo(centerX + sx + 15, riderY + 50);
+    ctx.stroke();
   }
+  ctx.restore();
+  ctx.fillStyle = "#7f8c8d";
+  ctx.fillRect(centerX - 24, riderY + 15, 48, 3);
+  ctx.fillStyle = "#7b1fa2";
+  ctx.fillRect(centerX - 24, riderY + 18, 48, 3);
+  ctx.fillStyle = "#ffe4c4";
+  ctx.beginPath();
+  ctx.arc(centerX, riderY - 55, 18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#5d4037";
+  ctx.beginPath();
+  ctx.arc(centerX, riderY - 58, 22, Math.PI, 0, false);
+  ctx.lineTo(centerX + 26, riderY - 42);
+  ctx.lineTo(centerX + 18, riderY - 38);
+  ctx.quadraticCurveTo(centerX, riderY - 48, centerX - 18, riderY - 38);
+  ctx.lineTo(centerX - 26, riderY - 42);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "#8d6e63";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 10, riderY - 74);
+  ctx.quadraticCurveTo(centerX, riderY - 71, centerX + 10, riderY - 74);
+  ctx.stroke();
+  drawPriscillaDressSkirt(ctx, centerX, bottomY, riderYOffset);
+  const headY = bottomY - 260 + poodleYOffset;
+  const headRadius = 55;
+  const headGrad = ctx.createRadialGradient(centerX - 10, headY - 10, 5, centerX, headY, headRadius);
+  headGrad.addColorStop(0, "#555555");
+  headGrad.addColorStop(1, "#3c3c3c");
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#2d2d2d";
+  ctx.lineWidth = 2.5;
+  for (let i = 0; i < 360; i += 30) {
+    const angle = i * Math.PI / 180;
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * headRadius, headY + Math.sin(angle) * headRadius);
+    ctx.lineTo(centerX + Math.cos(angle) * (headRadius + 12), headY + Math.sin(angle) * (headRadius + 12));
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 22, headY - 15);
+  ctx.lineTo(centerX - 6, headY - 18);
+  ctx.moveTo(centerX + 6, headY - 18);
+  ctx.lineTo(centerX + 22, headY - 15);
+  ctx.stroke();
+  const noseY = headY + 18;
+  ctx.fillStyle = "#000000";
+  ctx.beginPath();
+  ctx.arc(centerX, noseY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+  ctx.beginPath();
+  ctx.arc(centerX - 3, noseY - 3, 3, 0, Math.PI * 2);
+  ctx.fill();
+  const collarY = bottomY - 185 + poodleYOffset;
+  ctx.fillStyle = "#3a3a3a";
+  ctx.fillRect(centerX - 30, collarY, 60, 16);
+  const charmY = collarY + 22;
+  ctx.fillStyle = "#666666";
+  ctx.fillRect(centerX - 7, charmY - 4, 14, 14);
+  ctx.strokeStyle = "#333333";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(centerX + 80, bottomY - 100 + poodleYOffset);
+  const tailSway = Math.sin(time2 * 6) * 12;
+  ctx.quadraticCurveTo(centerX + 110, bottomY - 120 + poodleYOffset, centerX + 125, bottomY - 150 + tailSway + poodleYOffset);
+  ctx.stroke();
+  ctx.restore();
 }
-new MathMeasurement();
-const SW_RECT_Y_MAX = 1320;
-const RAMP_Y_MIN = 1e3;
-const RAMP_Y_MAX = 2e3;
-const formatDistance = (val, system = "Imperial") => {
-  const rounded = Math.round(val);
-  if (system === "Metric") {
-    const meters = val * 0.3048;
-    if (meters < 0.1) {
-      const cm = Math.round(meters * 100);
-      if (cm === 1) return "1 centimeter";
-      return `${cm} centimeters`;
-    }
-    return `${meters.toFixed(2)} meters`;
-  }
-  if (rounded === 0) {
-    if (val > 0) {
-      const inches = Math.round(val * 12);
-      if (inches === 1) return "1 inch";
-      if (inches > 0) return `${inches} inches`;
-    }
-    return "0 feet";
-  }
-  if (rounded === 1) {
-    return "1 Foot";
-  }
-  return `${rounded} feet`;
-};
-function handleShiftMultiTap(count, state, speak2, announce) {
-  if (count !== 3) return;
-  const { direction, gridX, gridY, level, area, measurementSystem } = state;
-  const mt = (t) => convertText(t, measurementSystem);
-  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
-  const doorMin = currentDims.width * 0.48;
-  const doorMax = currentDims.width * 0.52;
-  let desc = "";
-  if (area === "Foyer") {
-    const isSky = level === "Sky";
-    const areaName = isSky ? "Sky Foyer" : "Floor Foyer";
-    if (isSky && direction === "North" && gridX >= 1 && gridX <= 20 && gridY <= 1341) {
-      desc = "Ahead is a tarsis rampway that leads back to Floor Foyer.";
-    } else if (isSky && direction === "West" && gridX >= 1 && gridX <= 90 && gridY >= 1320 && gridY <= 1340) {
-      desc = getSkyFoyerWestArchwayDescription(gridX, gridY);
-    } else if (isSky && direction === "West" && gridX >= 70 && gridX <= 90 && gridY >= 1341 && gridY <= 1980) {
-      desc = "A barrier is ahead.";
-    } else if (isSky) {
-      if (direction === "East" && gridX <= 90 && gridY >= 90 && gridY <= 1910 || direction === "North" && gridY <= 90 && gridX >= 90 && gridX <= 1910 || direction === "West" && gridX >= 1910 && gridY >= 90 && gridY <= 1910 || direction === "South" && gridY >= 1910 && gridX >= 90 && gridX <= 1910) {
-        desc = getSkyFoyerGlassBarrierAheadDescription(direction);
-      }
-    }
-    if (!desc) {
-      if (gridY === 1980 && gridX <= 20 && direction === "South") {
-        desc = `${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
-      } else if (gridX <= 10) {
-        if (gridY >= 1 && gridY <= 7) {
-          desc = `On the west wall here is a ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
-        } else {
-          desc = `You are at the West wall of the ${areaName}.`;
-        }
-      } else if (gridY <= 36) {
-        if (isSky) {
-          desc = "You are at the South wall of the Sky Foyer. It is a solid wall high above the South doors.";
-        } else {
-          desc = `You are at the South wall: ${FOYER_DESCRIPTIONS.SOUTH_DOOR} and ${FOYER_DESCRIPTIONS.SOUTH_WINDOWS}.`;
-        }
-      } else if (gridX <= 20 && gridY >= 1 && gridY <= 1320) {
-        desc = `You are in the Southwest Rectangle. ${FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE}`;
-      } else if (isSky) {
-        if (gridY >= currentDims.height - 36) {
-          if (gridX >= 300 && gridX <= 700) {
-            desc = `On the North wall of the Sky Foyer here is the ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
-          } else if (gridX >= 1300 && gridX <= 1700) {
-            desc = `On the North wall of the Sky Foyer here are the ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}`;
-          } else {
-            desc = `You are at the North wall of the Sky Foyer. Relocated artwork is displayed nearby.`;
-          }
-        }
-      }
-    }
-    if (desc) {
-      speak2(mt(desc), "EN_US");
-      announce(mt(desc));
-      return;
-    }
-  }
-  if (level === "Floor") {
-    if (direction === "South" && gridX <= 36 && gridY >= SW_RECT_Y_MAX) {
-      desc = "You are facing south in the northwest corner of the foyer. On your right, the west wall features an elegant brass railing. Just ahead, the brass-railed ramp begins its ascent south to the upper foyer. To your left is the vast, open expanse of the main foyer floor. The ceiling above the center is a staggering 45 feet high, while the upper foyer floor straddles the doors 25 feet above you.";
-    } else if (gridX <= 36 && gridY >= RAMP_Y_MIN) {
-      let artwork = "";
-      if (gridX === 1 && gridY >= 1 && gridY <= 7) {
-        artwork = ` On the west wall here is a ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
-      } else if (gridY === currentDims.height && gridX >= doorMin && gridX <= doorMax) {
-        artwork = ` On the north wall here are ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}`;
-      } else if (gridY === RAMP_Y_MAX && gridX >= 1 && gridX <= 8) {
-        artwork = ` To your south is the ${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
-      } else if (gridX === 8 && gridY >= RAMP_Y_MIN && gridY <= RAMP_Y_MAX) {
-        artwork = ` To your west is the ${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
-      }
-      desc = `You are in the northwest corner area of the foyer. Position: ${gridX}x, ${gridY}y. Facing ${direction.toLowerCase()}.${artwork}`;
-    } else {
-      desc = getWallDescription(direction, area, gridX, gridY, level);
-    }
-  } else {
-    desc = getWallDescription(direction, area, gridX, gridY, level);
-  }
-  if (desc) {
-    speak2(mt(desc), "EN_US");
-    announce(mt(desc));
-  }
-}
-function handleRegularMultiTap(count, state, speak2, announce) {
-  const { area, gridX, gridY, direction, level, obstacles, isStrafingEnabled, measurementSystem } = state;
-  const mt = (t) => convertText(t, measurementSystem);
-  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
-  if (count === 2) {
-    let desc = "";
-    if (area === "Foyer") {
-      desc = `You are in a massive ${currentDims.width}x${currentDims.height} foyer with high ceilings and a pink and white checked floor. To the North are the high blue doors leading to the street, and to the South is the green and gold striped archway leading to the Rugged Play Field.`;
-    } else if (area === "RuggedPlayField") {
-      desc = getRuggedPlayFieldDescription(gridX, gridY, direction);
-    } else if (area === "SimulatedGardenArea") {
-      desc = getSimulatedGardenAreaDescription(gridX, gridY, direction);
-    } else if (area === "MeditationHall") {
-      desc = getMeditationHallDescription(gridX, gridY, direction);
-    } else if (area.includes("MeditationHallLibrary")) {
-      desc = getLibraryDescription(gridX, gridY, direction);
-    } else if (area === "TheGrandPlayground") {
-      desc = getPlaygroundDescription(gridX, gridY, direction, level);
-    } else if (area.includes("Arcade")) {
-      desc = getArcadeDescription(area, gridX, gridY, direction);
-    } else if (area.includes("Gym")) {
-      desc = getGymDescription(area, gridX, gridY, direction);
-    } else if (area === "Garden") {
-      desc = `You are in the ${currentDims.width}x${currentDims.height} Garden of Peace. To the North are the rainbow glass doors leading back into the Meditation Hall. To the South is a 40-foot barrier overlooking railway tracks.`;
-    } else if (area === "FrontPorch" || area === "BackPorch") {
-      desc = area === "FrontPorch" ? `You are on the massive ${currentDims.width}x${currentDims.height} foot Front Porch. The floor is pink and white checked ceramic. To the South is the house, and to the North is the red brick sidewalk.` : `You are on the massive ${currentDims.width}x${currentDims.height} foot Back Porch. The floor is white. To the North is the house, and to the South is the garden.`;
-    } else if (area === "Sidewalk") {
-      desc = getManorsvilleSidewalkInfoDescription(currentDims.height);
-    } else if (area === "Street") {
-      desc = getManorsvilleStreetInfoDescription();
-    } else if (area === "Soca_Path") {
-      desc = `You are on the Soca Path, a snaking path with rolling hills that leads to Allison's Manor. The path is ${currentDims.height} feet long. You can feel the rise and fall of the hills as you ride forward.`;
-    } else if (area === "AllisonsPorch") {
-      desc = `You are on the grand white porch of Allison's Manor. The entrance to the foyer is to the North.`;
-    } else if (area === "AllisonsFoyer") {
-      desc = `You are in the grand ${currentDims.width}x${currentDims.height} foyer of Allison's Manor. The floor is polished marble and the ceilings are 35 feet high. To the West is Allison's Store and the Northwest Corner Ramps. To the East is the Southeast Warp Room and the Restaurant Communal Dining Facility.`;
-    } else if (area === "WesternWarpRoom") {
-      desc = `You are in the Western Specific Warp Station. A barn-themed room with a pink rocking pony and mural walls. To the East is a warp picture of Pablo's Pony Field with a barn frame and a mirror nearby.`;
-    } else if (area === "AllisonsStore") {
-      desc = `You are in Allison's Store, a busy ${currentDims.width}x${currentDims.height} retail space. Cash registers chime and staff are busy helping customers. A large glass door leads back to the Foyer.`;
-    } else if (area === "AllisonsMountainsWarpRoom") {
-      desc = `You are in the Mountains Specific Warp Room. The walls are decorated with mountain murals. A picture of a Mountain Pass with a rock frame sits on the North wall near a small table and a separator.`;
-    } else if (area === "AllisonsRestaurant") {
-      desc = `You are in the Restaurant-Communal Dining Facility. A large space with tables and a busy kitchen where Rastafarian cooks are preparing food.`;
-    } else if (area === "AdventureHouseFoyer") {
-      desc = `You are in the Adventure House Foyer, ${currentDims.width} feet wide, 15 feet high, and ${currentDims.height} feet deep. It has checked black and red flooring, white walls, and circular lights of many colors: pink, green, blue, gold, red, yellow, orange, purple, and indigo. There is a statue of a yellow kangaroo reading a book 5 feet from the hallway door, and a large rocking goat with pink horns and hooves 9 feet from the front door.`;
-    } else if (area === "AdventureHouseHallway") {
-      desc = `You are in a ${currentDims.width} foot wide, ${currentDims.height} foot long hallway. The door ahead is brown, just like the front door.`;
-    } else if (area === "AdventureHouseTeaRoom") {
-      desc = `You are in a ${currentDims.width} by ${currentDims.height} foot tea room with 4 tables. A couple is having tea, and a baby rocks on a red and white rocking horse. The walls are light green and the floor is white ceramic.`;
-    } else if (area === "AdventureHouseNarrowHallway") {
-      desc = `You are in a narrow hallway with green carpet and dimmed lighting. The walls are a soft cream color.`;
-    } else if (area === "AdventureHouseMusicRoom") {
-      desc = `You are in a small music room with a piano at its center. A pianist is playing public domain music. The walls are dark blue and the floor is polished wood.`;
-    } else if (area === "AdventureHouseBridgeHallway") {
-      desc = `You are on a bridge hallway over a town, with 12-foot high safety barriers. You can hear the sounds of the town below through the open windows.`;
-    } else if (area === "AdventureHouseTrenchHallway") {
-      desc = `You are in a functional trench hallway with 3 lanes. Gardens are visible above. The floors are ceramic with white and green squares, and the walls and ceiling are blue. You can hear the barks of a Bulldog and a Yellow Poodle from a distance.`;
-    } else if (area === "AdventurePath") {
-      desc = `You are on the Outside Path. This is the first of four segments of the Adventure Path. You see Xavier riding a poodle ahead of you!`;
-    } else if (area === "HedgePath") {
-      desc = `You are on the Hedge Path. This is the second of four segments. Hedges line both sides. You see Jela riding a poodle in the distance.`;
-    } else if (area === "RastafariCave") {
-      desc = `You are in the Rastafari Cave. This is the third of four segments. A gentle glow illuminates the path. You hear the echo of poodle paws.`;
-    } else if (area === "Overpass") {
-      desc = `You are on the Overpass Trench Path. This is the fourth of four segments. You can see cars zooming below on the highway.`;
-    } else if (area === "Suburb") {
-      desc = `You are in a quiet Suburb. The suburb path is 500 feet long. Houses with gardens line the street.`;
-    } else if (area === "OpenTrench") {
-      desc = `You are at the Open Trench. The trench is 800 feet long. Be ready to jump over the water!`;
-    } else if (area === "Cellar") {
-      desc = `You are in the Manor Cellar. It is a large, cool space with stone walls and a dusty floor. Shelves of supplies line the perimeter.`;
-    } else if (area === "MeditationHallLibrary") {
-      desc = `You are in the Meditation Hall's Library, a ${currentDims.width}x${currentDims.height} space filled with knowledge and peaceful energy. Polished wood shelves line the North wall. At the West end is an archway leading back toward the Lobby, and at the East end is an archway back to the Meditation Hall. A special librarian door with double steel doors and an LED light is at the South center.`;
-    } else if (area === "LobbyStairwayAndRamps") {
-      desc = `You are in the Lobby's Southwest Stairway and Ramps, part of Rasta-Manor's 1st Floor. This area connects the Main Lobby with the Mezzanine and the Cellar. The air here is cool, and the sounds of the manor's activities are slightly muffled. You see elegant brass railings and sturdy ramps.`;
-    } else if (area === "SouthwestMezzanineStairwayAndRamps") {
-      desc = `You are on the Mezzanine's 1st Floor Stairway and Ramps at the Southwest corner. This elevated area provides a view of the foyer's Northwest corner and features large windows overlooking the manor's surroundings. The floor is well-maintained, and the architecture emphasizes verticality and accessibility.`;
-    }
-    speak2(mt(desc), "EN_US");
-    announce(mt(desc));
-  } else if (count === 3) {
-    const { level: level2 } = state;
-    const isSky = level2 === "Sky";
-    let ahead = "";
-    let paces = 0;
-    if (direction === "South") {
-      paces = gridY;
-      if (area === "Foyer") {
-        if (gridX >= 990 && gridX <= 1010) {
-          ahead = getFloorFoyerSouthArchwayAhead(paces);
-        } else {
-          ahead = getFoyerBoundaryAhead("South", paces);
-        }
-      } else if (area === "RuggedPlayField") {
-        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
-      } else if (area === "SimulatedGardenArea") {
-        ahead = getSimulatedGardenAreaAhead(gridX, gridY, direction);
-      } else if (area === "MeditationHall") {
-        ahead = getMeditationHallAhead(gridX, gridY, direction);
-      } else if (area.includes("MeditationHallLibrary")) {
-        ahead = getLibraryAhead(gridX, gridY, direction);
-      } else if (area === "TheGrandPlayground") {
-        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
-      } else if (area.includes("Arcade")) {
-        ahead = getArcadeAhead(area, gridX, gridY, direction);
-      } else if (area.includes("Gym")) {
-        ahead = getGymAhead(area, gridX, gridY, direction);
-      } else if (area === "Garden") ahead = `The 40-foot barrier is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "FrontPorch") ahead = `The house doors are ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "BackPorch") ahead = `The garden is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "Sidewalk") ahead = `The porch is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "Street") ahead = `The sidewalk is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else ahead = `The South boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
-    } else if (direction === "North") {
-      paces = currentDims.height - gridY;
-      if (area === "Foyer") {
-        if (isSky) {
-          ahead = getFoyerBoundaryAhead("North", paces);
-        } else if (gridX >= 1 && gridX <= 20 && gridY < 1320) {
-          ahead = getFloorFoyerSWRectangleDescription(gridX, gridY, paces);
-        } else if (gridX >= 990 && gridX <= 1010) {
-          ahead = getFloorFoyerNorthDoorsAhead(paces);
-        } else {
-          ahead = getFoyerBoundaryAhead("North", paces);
-        }
-      } else if (area === "RuggedPlayField") {
-        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
-      } else if (area === "SimulatedGardenArea") {
-        ahead = getSimulatedGardenAreaAhead(gridX, gridY, direction);
-      } else if (area === "MeditationHall") {
-        ahead = getMeditationHallAhead(gridX, gridY, direction);
-      } else if (area.includes("MeditationHallLibrary")) {
-        ahead = getLibraryAhead(gridX, gridY, direction);
-      } else if (area === "TheGrandPlayground") {
-        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
-      } else if (area.includes("Arcade")) {
-        ahead = getArcadeAhead(area, gridX, gridY, direction);
-      } else if (area.includes("Gym")) {
-        ahead = getGymAhead(area, gridX, gridY, direction);
-      } else if (area === "Garden") ahead = `The rainbow glass doors are ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "FrontPorch") ahead = `The sidewalk is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "BackPorch") ahead = `The house doors are ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "Sidewalk") ahead = `The street is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else if (area === "Street") ahead = `The Adventure House is ${formatDistance(paces, measurementSystem)} ahead.`;
-      else ahead = `The North boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
-    } else if (direction === "East") {
-      paces = currentDims.width - gridX;
-      if (area === "TheGrandPlayground") {
-        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
-      } else if (area === "RuggedPlayField") {
-        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
-      } else if (area.includes("Arcade")) {
-        ahead = getArcadeAhead(area, gridX, gridY, direction);
-      } else if (area.includes("Gym")) {
-        ahead = getGymAhead(area, gridX, gridY, direction);
-      } else if (area.includes("MeditationHallLibrary")) {
-        ahead = getLibraryAhead(gridX, gridY, direction);
-      } else {
-        ahead = `The East boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
-      }
-    } else if (direction === "West") {
-      paces = gridX;
-      if (area === "TheGrandPlayground") {
-        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
-      } else if (area === "RuggedPlayField") {
-        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
-      } else if (area.includes("Arcade")) {
-        ahead = getArcadeAhead(area, gridX, gridY, direction);
-      } else if (area.includes("Gym")) {
-        ahead = getGymAhead(area, gridX, gridY, direction);
-      } else if (area === "MeditationHall" || area === "MeditationHallLibrary") {
-        ahead = area === "MeditationHall" ? getMeditationHallAhead(gridX, gridY, direction) : getLibraryAhead(gridX, gridY, direction);
-      } else if (area === "Foyer" && gridY >= 1980 && gridY <= 2e3) {
-        ahead = getFloorFoyerWestArchwayAhead(paces);
-      } else {
-        ahead = `The West boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
-      }
-    }
-    const nextObstacle = obstacles.find((o) => !o.isJumped && o.distance > gridY);
-    let obstacleMsg = "";
-    if (nextObstacle) {
-      obstacleMsg = ` Next ${nextObstacle.type} is ${formatDistance(nextObstacle.distance - gridY, measurementSystem)} ahead.`;
-    }
-    let strafeMsg = "";
-    if (isStrafingEnabled) {
-      const centerX = currentDims.width / 2;
-      const offset = Math.round(gridX - centerX);
-      const side = offset < 0 ? "West" : offset > 0 ? "East" : "Center";
-      strafeMsg = ` Strafing Position: ${formatDistance(Math.abs(offset), measurementSystem)} ${side} of the center.`;
-    }
-    let areaDisplay = area;
-    if (area === "Foyer") areaDisplay = isSky ? "Sky Foyer" : "Floor Foyer";
-    else if (area === "AllisonsFoyer") areaDisplay = "Allison's Manor";
-    else if (area === "TheGrandPlayground") areaDisplay = "The Grand Playground";
-    const ofKeyword = area === "TheGrandPlayground" || area === "AllisonsFoyer" ? "of" : "of the";
-    const msg = `You are at position ${gridX}, ${gridY} ${ofKeyword} ${areaDisplay}, facing ${direction}. ${ahead}${obstacleMsg}${strafeMsg}`;
-    speak2(mt(msg), "EN_US");
-    announce(mt(msg));
-  }
-}
-const handleCedellaKeyDown = (e, ctx) => {
-  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, lastKeyTime, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, handlers } = ctx;
-  const isShift = e.shiftKey;
-  const now2 = Date.now();
-  if (handleCommonInventoryKeys(e, ctx)) return true;
-  if (e.code === "KeyZ" && isShift) {
-    const prevTime = (lastKeyTime == null ? void 0 : lastKeyTime.current) ? lastKeyTime.current["KeyZ_Shift"] || 0 : 0;
-    if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
-      lastKeyTime.current["KeyZ_Shift"] = now2;
-    }
-    if (now2 - prevTime < 400) {
-      setGameState((prev) => {
-        const next = !prev.isTTSEnabled;
-        const msg = next ? "Speech synthesis enabled." : "Speech synthesis disabled.";
-        speak2(msg);
-        announceToScreenReader(msg);
-        return { ...prev, isTTSEnabled: next };
-      });
-      if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
-        lastKeyTime.current["KeyZ_Shift"] = 0;
-      }
-    }
-    return true;
-  }
-  if (e.code === "KeyA") {
-    if (isShift) {
-      if (aShiftTapCount) {
-        aShiftTapCount.current++;
-        if (aShiftTapTimeout == null ? void 0 : aShiftTapTimeout.current) clearTimeout(aShiftTapTimeout.current);
-        if (aShiftTapTimeout) {
-          aShiftTapTimeout.current = setTimeout(() => {
-            handleShiftMultiTap(aShiftTapCount.current, state, speak2, announceToScreenReader);
-            aShiftTapCount.current = 0;
-          }, 400);
-        }
-      }
-    } else {
-      if (aTapCount) {
-        aTapCount.current++;
-        if (aTapTimeout == null ? void 0 : aTapTimeout.current) clearTimeout(aTapTimeout.current);
-        if (aTapTimeout) {
-          aTapTimeout.current = setTimeout(() => {
-            handleRegularMultiTap(aTapCount.current, state, speak2, announceToScreenReader);
-            aTapCount.current = 0;
-          }, 400);
-        }
-      }
-    }
-    return false;
-  }
-  if (e.code === "KeyW" && !isShift) {
-    if (state.isInventoryOpen || state.isPoodleSelectionOpen) return true;
-    if (state.ridingAnimal === "Classic White Poodle") {
-      return true;
-    }
-    const modes = ["Gallop", "Canter", "Trot", "Walk", "Slow Walk", "Very Slow Walk"];
-    const currentIndex = modes.indexOf(state.movementMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    const nextMode = modes[nextIndex];
-    setGameState((prev) => ({ ...prev, movementMode: nextMode }));
-    const msg = `Movement mode toggled to ${nextMode}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyR" && !isShift) {
-    if (state.isInventoryOpen || state.isPoodleSelectionOpen) return true;
-    const msg = `You are currently riding ${state.ridingAnimal}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "BracketLeft" && !isShift) {
-    const nextSpeed = Math.max(0, state.targetSpeed - 5);
-    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
-    const msg = `Target speed decreased to ${nextSpeed}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "BracketRight" && !isShift) {
-    const nextSpeed = Math.min(100, state.targetSpeed + 5);
-    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
-    const msg = `Target speed increased to ${nextSpeed}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyJ" && !isShift) {
-    const next = !state.isInventoryOpen;
-    setGameState((prev) => ({
-      ...prev,
-      isInventoryOpen: next,
-      inventoryTab: "Items",
-      inventoryMenuMode: "Selection",
-      selectedInventoryIndex: 0,
-      selectedStorybookItemIndex: 0,
-      isWalletOpen: false,
-      inventoryFocus: "Tabs"
-    }));
-    const msg = next ? "Inventory opened." : "Inventory closed.";
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyI" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    const wallDesc = getWallInteractionDescription(state);
-    speak2(wallDesc);
-    announceToScreenReader(wallDesc);
-    return true;
-  }
-  if (e.code === "KeyO" && !isShift) {
-    if (state.isPaused) return true;
-    if (!state.isInventoryOpen) {
-      handleWorldInteraction(ctx);
-      return true;
-    }
-  }
-  if (e.code === "Enter" && !isShift) {
-    if (state.isPoodleSelectionOpen || state.isInventoryOpen) {
-      return false;
-    }
-    return true;
-  }
-  if (e.code === "Slash" && !isShift) {
-    const next = !state.isPoodleSelectionOpen;
-    setGameState((prev) => ({
-      ...prev,
-      isPoodleSelectionOpen: next,
-      selectedPoodleIndex: 0,
-      poodleMenuMode: "Selection",
-      selectedPoodleActionIndex: 0
-    }));
-    const msg = next ? "Poodle selection menu opened. Use arrow keys to pick a poodle." : "Poodle selection menu closed.";
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyO" && !isShift) {
-    if (state.isInventoryOpen) {
-      if (state.inventoryTab === "Heart" || state.inventoryTab === "Map") {
-        speak2(`Viewing ${state.inventoryTab} status.`);
-        return true;
-      }
-      if (state.isWalletOpen) {
-        const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-        const item = walletItems[state.selectedWalletIndex];
-        let desc = "A very important item kept safely in your wallet.";
-        if (state.characterName === "Priscilla") {
-          if (item === "Priscilla ID Card") {
-            desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
-          } else if (item === "Priscilla Gold Card") {
-            desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
-          }
-        } else {
-          if (item === "Photo of Abigay") {
-            desc = "A beautiful picture of your massive white poodle partner Abigay.";
-          }
-        }
-        speak2(`Description of ${item}: ${desc}`);
-        return true;
-      }
-      if (state.inventoryMenuMode === "Selection") {
-        const item = state.inventory.items[state.selectedInventoryIndex];
-        if ((item == null ? void 0 : item.id) === "wallet") {
-          setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
-          speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
-          return true;
-        }
-        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
-        const actionMsg = (item == null ? void 0 : item.id) === "umbrella" ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
-        speak2(actionMsg);
-      } else {
-        const item = state.inventory.items[state.selectedInventoryIndex];
-        if (item) {
-          let actions = ["Use", "Check", "Combine", "Equip"];
-          if (item.id === "umbrella") actions = ["Open", "Close", "Check", "Combine", "Equip"];
-          const action = actions[state.selectedActionIndex];
-          if (item.id === "umbrella") {
-            if (action === "Equip") {
-              const nextEquipped = !state.isUmbrellaEquipped;
-              setGameState((prev) => ({
-                ...prev,
-                isUmbrellaEquipped: nextEquipped,
-                inventoryMenuMode: "Selection"
-              }));
-              const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
-              speak2(msg);
-              announceToScreenReader(msg);
-            } else if (action === "Open" || action === "Close") {
-              if (!state.isUmbrellaEquipped) {
-                speak2("You must equip the umbrella first before you can open or close it.");
-              } else {
-                const nextOpen = action === "Open";
-                setGameState((prev) => ({
-                  ...prev,
-                  isUmbrellaOpen: nextOpen,
-                  inventoryMenuMode: "Selection"
-                }));
-                speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
-              }
-            } else {
-              speak2(`${action}ing ${item.name}`);
-              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-            }
-          } else {
-            speak2(`${action}ing ${item.name}`);
-            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-          }
-        }
-      }
-      return true;
-    } else {
-      handleWorldInteraction(ctx);
-    }
-    return true;
-  }
-  if (e.code === "KeyX" && !isShift) {
-    if (state.isInventoryOpen) {
-      if (state.inventoryFocus === "Content") {
-        if (state.isWalletOpen) {
-          setGameState((prev) => ({ ...prev, isWalletOpen: false }));
-          speak2("Back to items list.");
-        } else if (state.inventoryMenuMode === "Action") {
-          setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-          speak2("Back to item selection.");
-        } else if (state.inventoryTab === "Storybook") {
-          if (state.storybookMenuMode === "PageContent") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
-            speak2("Back to pages list.");
-          } else if (state.storybookMenuMode !== "Selection") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
-            speak2("Back to storybook menu.");
-          } else {
-            setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-            speak2("Back to tabs navigation.");
-          }
-        } else {
-          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-          speak2("Back to tabs navigation.");
-        }
-      } else {
-        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
-        speak2("Inventory closed.");
-      }
-      return true;
-    }
-  }
-  if (e.code === "ControlLeft" || e.code === "ControlRight") {
-    audio2.stopSpeech();
-    return true;
-  }
-  return false;
-};
-const handleCedellaMovement = (ctx) => {
-  const { gameState, keysPressed, moveForward, moveReverse, rotate: rotate2, announceToScreenReader, time: time2 } = ctx;
-  const results = {};
-  const isJoystickUp = keysPressed.has("Numpad8");
-  const isJoystickDown = keysPressed.has("Numpad2");
-  const isJoystickUpLeft = keysPressed.has("Numpad7");
-  const isJoystickUpRight = keysPressed.has("Numpad9");
-  const isJoystickDownLeft = keysPressed.has("Numpad1");
-  const isJoystickDownRight = keysPressed.has("Numpad3");
-  const isArrowUp = keysPressed.has("ArrowUp");
-  const isArrowDown = keysPressed.has("ArrowDown");
-  const isArrowLeft = keysPressed.has("ArrowLeft");
-  const isArrowRight = keysPressed.has("ArrowRight");
-  if (isJoystickUp) {
-    moveForward();
-    results.lastMoveTime = time2;
-  }
-  if (isJoystickDown) {
-    moveReverse();
-    results.lastMoveTime = time2;
-  }
-  if (isJoystickUpLeft) {
-    moveForward(false, void 0, (gameState.rotation - 45 + 360) % 360);
-    results.lastMoveTime = time2;
-  }
-  if (isJoystickUpRight) {
-    moveForward(false, void 0, (gameState.rotation + 45) % 360);
-    results.lastMoveTime = time2;
-  }
-  if (isJoystickDownLeft) {
-    moveForward(false, void 0, (gameState.rotation - 135 + 360) % 360, true);
-    results.lastMoveTime = time2;
-  }
-  if (isJoystickDownRight) {
-    moveForward(false, void 0, (gameState.rotation + 135) % 360, true);
-    results.lastMoveTime = time2;
-  }
-  if (isArrowUp) {
-    moveForward();
-    results.lastMoveTime = time2;
-  }
-  if (isArrowDown) {
-    moveReverse();
-    results.lastMoveTime = time2;
-  }
-  const hasManualMove = isJoystickUp || isJoystickDown || isJoystickUpLeft || isJoystickUpRight || isJoystickDownLeft || isJoystickDownRight || isArrowUp || isArrowDown;
-  if (!hasManualMove) {
-    if (gameState.targetSpeed > 0) {
-      moveForward();
-      results.lastMoveTime = time2;
-    } else if (gameState.targetSpeed < 0) {
-      moveReverse();
-      results.lastMoveTime = time2;
-    }
-  }
-  if (gameState.isStrafingEnabled) {
-    const isJoystickLeft = keysPressed.has("Numpad4");
-    const isJoystickRight = keysPressed.has("Numpad6");
-    if (isJoystickLeft || isArrowLeft) {
-      moveForward(false, "Left");
-      results.lastMoveTime = time2;
-    }
-    if (isJoystickRight || isArrowRight) {
-      moveForward(false, "Right");
-      results.lastMoveTime = time2;
-    }
-  } else {
-    const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
-    if (time2 - (ctx.lastRotateTime || 0) > 300) {
-      if (isArrowLeft) {
-        if (isAdventurePathArea) {
-          announceToScreenReader("Turning is disabled on the Adventure Path.");
-        } else {
-          rotate2(-1);
-        }
-        results.lastRotateTime = time2;
-      } else if (isArrowRight) {
-        if (isAdventurePathArea) {
-          announceToScreenReader("Turning is disabled on the Adventure Path.");
-        } else {
-          rotate2(1);
-        }
-        results.lastRotateTime = time2;
-      }
-    }
-  }
-  return results;
-};
-const handleCedellaJoystick = (ctx, lastReactUpdateTime) => {
-  const {
-    gameState,
-    keysPressed,
-    time: time2,
-    lastJoystickRotationTime,
-    lastAnnouncedJoystickAngle,
-    audio: audio2,
-    speak: speak2,
-    announceToScreenReader,
-    setGameState
-  } = ctx;
-  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
-  const isJoystickLeft = keysPressed.has("Numpad4");
-  const isJoystickRight = keysPressed.has("Numpad6");
-  const results = {};
-  if ((isJoystickLeft || isJoystickRight) && !gameState.isStrafingEnabled) {
-    if (isAdventurePathArea) {
-      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
-        announceToScreenReader("Turning is disabled on the Adventure Path.");
-        results.lastRotateTime = time2;
-      }
-    } else {
-      const isShift = keysPressed.has("ShiftLeft") || keysPressed.has("ShiftRight");
-      const baseRotationSpeed = 180;
-      const rotationSpeed = isShift ? baseRotationSpeed / 4 : baseRotationSpeed;
-      const dt = lastJoystickRotationTime ? Math.min(0.1, (time2 - lastJoystickRotationTime) / 1e3) : 0.016;
-      results.lastJoystickRotationTime = time2;
-      let rotationDelta = 0;
-      if (isJoystickLeft) rotationDelta -= rotationSpeed * dt;
-      if (isJoystickRight) rotationDelta += rotationSpeed * dt;
-      if (rotationDelta !== 0) {
-        const oldRotation = gameState.rotation;
-        const newRotation = (oldRotation + rotationDelta + 360) % 360;
-        const oldInt = Math.floor(oldRotation);
-        const newInt = Math.floor(newRotation);
-        if (oldInt !== newInt) {
-          const isMajor = newInt % 15 === 0;
-          audio2.playRotationTick(isMajor);
-        }
-        const points = [
-          { angle: 0 },
-          { angle: 45 },
-          { angle: 90 },
-          { angle: 135 },
-          { angle: 180 },
-          { angle: 225 },
-          { angle: 270 },
-          { angle: 315 },
-          { angle: 360 }
-        ];
-        const match = points.find((p) => Math.abs(newRotation - p.angle) < 2.5);
-        if (match) {
-          const announcedAngle = lastAnnouncedJoystickAngle;
-          const normalizedAngle = match.angle === 360 ? 0 : match.angle;
-          if (announcedAngle !== normalizedAngle) {
-            const msg = `${normalizedAngle} degrees`;
-            speak2(msg);
-            announceToScreenReader(msg);
-            results.lastAnnouncedJoystickAngle = normalizedAngle;
-          }
-        }
-        gameState.rotation = newRotation;
-        if (time2 - lastReactUpdateTime > 33) {
-          setGameState((prev) => ({ ...prev, rotation: newRotation }));
-          results.lastReactUpdateTime = time2;
-        }
-      }
-    }
-  } else {
-    results.lastJoystickRotationTime = time2;
-  }
-  return results;
-};
-const handleArdenDenisKeyDown = (e, ctx) => {
-  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, lastKeyTime, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, handlers } = ctx;
-  const isShift = e.shiftKey;
-  const now2 = Date.now();
-  if (handleCommonInventoryKeys(e, ctx)) return true;
-  if (e.code === "KeyZ" && isShift) {
-    const prevTime = (lastKeyTime == null ? void 0 : lastKeyTime.current) ? lastKeyTime.current["KeyZ_Shift"] || 0 : 0;
-    if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
-      lastKeyTime.current["KeyZ_Shift"] = now2;
-    }
-    if (now2 - prevTime < 400) {
-      setGameState((prev) => {
-        const next = !prev.isTTSEnabled;
-        const msg = next ? "Speech synthesis enabled." : "Speech synthesis disabled.";
-        speak2(msg);
-        announceToScreenReader(msg);
-        return { ...prev, isTTSEnabled: next };
-      });
-      if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
-        lastKeyTime.current["KeyZ_Shift"] = 0;
-      }
-    }
-    return true;
-  }
-  if (e.code === "KeyL" && !isShift) {
-    if (state.isInventoryOpen) return true;
-    handleWorldInteraction(ctx);
-    return true;
-  }
-  if (e.code === "Slash" && !isShift) {
-    const next = !state.isInventoryOpen;
-    setGameState((prev) => ({
-      ...prev,
-      isInventoryOpen: next,
-      inventoryTab: "Items",
-      inventoryMenuMode: "Selection",
-      selectedInventoryIndex: 0,
-      selectedStorybookItemIndex: 0,
-      isWalletOpen: false,
-      inventoryFocus: "Tabs"
-    }));
-    const msg = next ? "Inventory opened. Use arrow keys to pick a tab or item." : "Inventory closed.";
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyI" && !isShift) {
-    const nextSpeed = Math.min(100, state.targetSpeed + 5);
-    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
-    const msg = `Target speed increased to ${nextSpeed}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyK" && !isShift) {
-    const nextSpeed = Math.max(0, state.targetSpeed - 5);
-    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
-    const msg = `Target speed decreased to ${nextSpeed}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyE" && !isShift) {
-    if (state.isInventoryOpen) {
-      if (state.inventoryTab === "Heart" || state.inventoryTab === "Map") {
-        speak2(`Viewing ${state.inventoryTab} status.`);
-        return true;
-      }
-      if (state.isWalletOpen) {
-        const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
-        const item = walletItems[state.selectedWalletIndex];
-        let desc = "A very important item kept safely in your wallet.";
-        if (state.characterName === "Priscilla") {
-          if (item === "Priscilla ID Card") {
-            desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
-          } else if (item === "Priscilla Gold Card") {
-            desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
-          }
-        } else {
-          if (item === "Photo of Abigay") {
-            desc = "A beautiful picture of your massive white poodle partner Abigay.";
-          }
-        }
-        speak2(`Description of ${item}: ${desc}`);
-        return true;
-      }
-      if (state.inventoryMenuMode === "Selection") {
-        const item = state.inventory.items[state.selectedInventoryIndex];
-        if ((item == null ? void 0 : item.id) === "wallet") {
-          setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
-          speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
-          return true;
-        }
-        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
-        const actionMsg = (item == null ? void 0 : item.id) === "umbrella" ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
-        speak2(actionMsg);
-      } else {
-        const item = state.inventory.items[state.selectedInventoryIndex];
-        if (item) {
-          let actions = ["Use", "Check", "Combine", "Equip"];
-          if (item.id === "umbrella") actions = ["Open", "Close", "Check", "Combine", "Equip"];
-          const action = actions[state.selectedActionIndex];
-          if (item.id === "umbrella") {
-            if (action === "Equip") {
-              const nextEquipped = !state.isUmbrellaEquipped;
-              setGameState((prev) => ({
-                ...prev,
-                isUmbrellaEquipped: nextEquipped,
-                inventoryMenuMode: "Selection"
-              }));
-              const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
-              speak2(msg);
-              announceToScreenReader(msg);
-            } else if (action === "Open" || action === "Close") {
-              if (!state.isUmbrellaEquipped) {
-                speak2("You must equip the umbrella first before you can open or close it.");
-              } else {
-                const nextOpen = action === "Open";
-                setGameState((prev) => ({
-                  ...prev,
-                  isUmbrellaOpen: nextOpen,
-                  inventoryMenuMode: "Selection"
-                }));
-                speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
-              }
-            } else {
-              speak2(`${action}ing ${item.name}`);
-              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-            }
-          } else {
-            speak2(`${action}ing ${item.name}`);
-            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-          }
-        }
-      }
-      return true;
-    }
-  }
-  if (e.code === "KeyF" && !isShift) {
-    if (state.isInventoryOpen) {
-      if (state.inventoryFocus === "Content") {
-        if (state.isWalletOpen) {
-          setGameState((prev) => ({ ...prev, isWalletOpen: false }));
-          speak2("Back to items list.");
-        } else if (state.inventoryMenuMode === "Action") {
-          setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
-          speak2("Back to item selection.");
-        } else if (state.inventoryTab === "Storybook") {
-          if (state.storybookMenuMode === "PageContent") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
-            speak2("Back to pages list.");
-          } else if (state.storybookMenuMode !== "Selection") {
-            setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
-            speak2("Back to storybook menu.");
-          } else {
-            setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-            speak2("Back to tabs navigation.");
-          }
-        } else {
-          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
-          speak2("Back to tabs navigation.");
-        }
-      } else {
-        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
-        speak2("Inventory closed.");
-      }
-      return true;
-    }
-  }
-  if (e.code === "KeyQ" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    const wallDesc = getWallInteractionDescription(state);
-    speak2(wallDesc);
-    announceToScreenReader(wallDesc);
-    return true;
-  }
-  if ((e.code === "KeyE" || e.code === "Enter") && !isShift) {
-    if (state.isPaused) return true;
-    if (!state.isInventoryOpen) {
-      handleWorldInteraction(ctx);
-      return true;
-    }
-  }
-  if (e.code === "KeyM" && !isShift) {
-    const next = !state.isPoodleSelectionOpen;
-    setGameState((prev) => ({
-      ...prev,
-      isPoodleSelectionOpen: next,
-      selectedPoodleIndex: 0,
-      poodleMenuMode: "Selection",
-      selectedPoodleActionIndex: 0
-    }));
-    const msg = next ? "Poodle selection menu opened. Use arrow keys to pick a poodle." : "Poodle selection menu closed.";
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyV" && !isShift) {
-    const next = !state.isVisualDescriptionEnabled;
-    setGameState((prev) => ({ ...prev, isVisualDescriptionEnabled: next }));
-    speak2(next ? "Visual descriptions enabled." : "Visual descriptions disabled.");
-    return true;
-  }
-  return false;
-};
-const handleArdenDenisMovement = (ctx) => {
-  const { keysPressed, moveForward, moveReverse, rotate: rotate2, time: time2, lastRotateTime } = ctx;
-  const results = {};
-  const isUp = keysPressed.has("KeyW") || keysPressed.has("ArrowUp");
-  const isDown = keysPressed.has("KeyS") || keysPressed.has("ArrowDown");
-  const isLeft = keysPressed.has("KeyA") || keysPressed.has("ArrowLeft");
-  const isRight = keysPressed.has("KeyD") || keysPressed.has("ArrowRight");
-  if (isUp) {
-    moveForward();
-    results.lastMoveTime = time2;
-  } else if (isDown) {
-    moveReverse();
-    results.lastMoveTime = time2;
-  } else if (ctx.gameState.targetSpeed > 0) {
-    moveForward();
-    results.lastMoveTime = time2;
-  } else if (ctx.gameState.targetSpeed < 0) {
-    moveReverse();
-    results.lastMoveTime = time2;
-  }
-  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(ctx.gameState.area);
-  if (time2 - (ctx.lastRotateTime || 0) > 300) {
-    if (isLeft) {
-      if (isAdventurePathArea) {
-        ctx.announceToScreenReader("Turning is disabled on the Adventure Path.");
-      } else {
-        rotate2(-1);
-      }
-      results.lastRotateTime = time2;
-    }
-    if (isRight) {
-      if (isAdventurePathArea) {
-        ctx.announceToScreenReader("Turning is disabled on the Adventure Path.");
-      } else {
-        rotate2(1);
-      }
-      results.lastRotateTime = time2;
-    }
-  }
-  return results;
-};
-const handleStandardKeyDown = (e, ctx) => {
-  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, handlers } = ctx;
-  const isShift = e.shiftKey;
-  if (handleCommonInventoryKeys(e, ctx)) return true;
-  if (e.code === "KeyJ" && !isShift) {
-    const next = !state.isInventoryOpen;
-    setGameState((prev) => ({
-      ...prev,
-      isInventoryOpen: next,
-      inventoryTab: "Items",
-      inventoryMenuMode: "Selection",
-      selectedInventoryIndex: 0,
-      selectedStorybookItemIndex: 0,
-      isWalletOpen: false,
-      inventoryFocus: "Tabs"
-    }));
-    const msg = next ? "Inventory opened." : "Inventory closed.";
-    speak2(msg, "EN_US");
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (e.code === "KeyI" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    const wallDesc = getWallInteractionDescription(state);
-    speak2(wallDesc, "EN_US");
-    announceToScreenReader(wallDesc);
-    return true;
-  }
-  if ((e.code === "KeyE" || e.code === "Enter") && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    handleWorldInteraction(ctx);
-    return true;
-  }
-  return false;
-};
-const handleStandardMovement = (ctx) => {
-  const { gameState, keysPressed, moveForward, moveReverse, rotate: rotate2, time: time2, announceToScreenReader } = ctx;
-  const results = {};
-  const isUpArrow = keysPressed.has("ArrowUp");
-  const isDownArrow = keysPressed.has("ArrowDown");
-  const isLeftArrow = keysPressed.has("ArrowLeft");
-  const isRightArrow = keysPressed.has("ArrowRight");
-  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
-  if (isLeftArrow) {
-    if (isAdventurePathArea) {
-      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
-        announceToScreenReader("Turning is disabled on the Adventure Path.");
-        results.lastRotateTime = time2;
-      }
-    } else if (time2 - (ctx.lastRotateTime || 0) > 300) {
-      rotate2(-1);
-      results.lastRotateTime = time2;
-    }
-  } else if (isRightArrow) {
-    if (isAdventurePathArea) {
-      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
-        announceToScreenReader("Turning is disabled on the Adventure Path.");
-        results.lastRotateTime = time2;
-      }
-    } else if (time2 - (ctx.lastRotateTime || 0) > 300) {
-      rotate2(1);
-      results.lastRotateTime = time2;
-    }
-  }
-  if (isUpArrow || gameState.targetSpeed > 0) {
-    moveForward();
-    results.lastMoveTime = time2;
-  } else if (isDownArrow || gameState.targetSpeed < 0) {
-    moveReverse();
-    results.lastMoveTime = time2;
-  }
-  return results;
-};
-function detectHardwareProfile() {
-  const ram = navigator.deviceMemory || 4;
-  const isiPad = /iPad|iPhone|iPod/.test(navigator.userAgent) || navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const isMobile = isiPad || isAndroid || /Mobi/i.test(navigator.userAgent);
-  const isLegacy = ram <= 4 || isMobile;
-  const maxDPR = isLegacy ? 1.25 : isMobile ? 1.5 : 2;
-  return {
-    isLegacy,
-    isMobile,
-    isiPad,
-    isAndroid,
-    targetFPS: isLegacy ? 30 : 60,
-    useGPU: !isLegacy,
-    ramLimitMB: ram * 1024 * 0.1,
-    isBabylonFree: true,
-    maxDPR,
-    canvasMemoryOptimized: isMobile
-  };
-}
-function applyLegacyConstraints(ctx) {
-  ctx.imageSmoothingEnabled = false;
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = "transparent";
-}
-function getSystemStatusDescription(state) {
-  const hw = detectHardwareProfile();
-  const cpuUsage = Math.floor(Math.random() * 5) + 2;
-  const currentDims = AREA_DIMENSIONS[state.area] || { width: GRID_SIZE, height: GRID_SIZE };
-  const coordDesc = state.useCoordinates ? `Coordinates: ${Math.round(state.gridX)}, ${Math.round(state.gridY)}.` : "Coordinates are disabled.";
-  return `System status: Grid Size ${currentDims.width} by ${currentDims.height} feet. Level: ${state.level}. Area: ${state.area}. ${coordDesc} Pixel Ratio: ${state.pixelRatio}. Estimated CPU usage is ${cpuUsage} percent. Target performance is ${hw.targetFPS} frames per second. GPU acceleration is ${hw.useGPU ? "enabled" : "disabled"}. This software is officially Babylon-free, using vintage 3D craftsmanship for maximum efficiency.`;
-}
-const handleGlobalHotkeys = (e, ctx) => {
-  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, systems, handlers } = ctx;
-  const isShift = e.shiftKey;
-  const now2 = Date.now();
-  if (e.code === "Space" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    handlers == null ? void 0 : handlers.jump();
-    return true;
-  }
-  if (e.code === "KeyP" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    handlers == null ? void 0 : handlers.pet();
-    return true;
-  }
-  if (e.code === "KeyH" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    if (!state.isSpanked) {
-      speak2("The poodle nuzzles your hand. She loves you because you treat her with kindness and oppose Babylonian norms.");
-    } else {
-      speak2("The poodle seems distant.");
-    }
-    return true;
-  }
-  if (e.code === "KeyT" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    const nextMode = state.viewMode === "Rider" ? "POV" : "Rider";
-    setGameState((prev) => ({ ...prev, viewMode: nextMode }));
-    speak2(`View mode toggled to ${nextMode === "Rider" ? "Rider View" : "POV View"}`);
-    return true;
-  }
-  if (e.code === "KeyL" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    handlers == null ? void 0 : handlers.lean();
-    return true;
-  }
-  if (e.code === "KeyC" && !isShift) {
-    if (state.isInventoryOpen || state.isPaused) return true;
-    handlers == null ? void 0 : handlers.collar();
-    return true;
-  }
-  if (e.code === "KeyV" && !isShift) {
-    const next = !state.isVisualDescriptionEnabled;
-    setGameState((prev) => ({ ...prev, isVisualDescriptionEnabled: next }));
-    speak2(next ? "Visual descriptions enabled." : "Visual descriptions disabled.");
-    return true;
-  }
-  if (e.ctrlKey && e.shiftKey && e.code === "Digit4") {
-    const modes = ["FourDirection", "EightDirection", "Full360"];
-    const currentMode = state.arrowKeyTurningMode || "FourDirection";
-    const currentIndex = modes.indexOf(currentMode);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    const nextMode = modes[nextIndex];
-    let screenReaderMsg = "";
-    if (nextMode === "FourDirection") {
-      screenReaderMsg = "Four Direction Mode, your left and right arrow keys are set for turning to a compass direction. Down arrow always go reverse, and up arrow always go forward.";
-    } else if (nextMode === "EightDirection") {
-      screenReaderMsg = "Eight-Directional Mode, your left and right arrow keys turns to a compass direction with 8 directions, useful for going to places that are diagonal, or if you need to make an angled turn. Up always go forward, and down always go reverse.";
-    } else if (nextMode === "Full360") {
-      screenReaderMsg = "This is a three hundred sixty turning mode. Your arrow keys work like the left and right arrows on a conventional D-pad. Your up arrow key always go forward, and your down arrow key always go reverse. Use this function for traversing places that are curved, rounded, or any place that requires you to use an exact angle to go through doors, go along paths, or other transitions. Also used for diagonal jumping (if needed).";
-    }
-    setGameState((prev) => ({ ...prev, arrowKeyTurningMode: nextMode }));
-    speak2(screenReaderMsg);
-    announceToScreenReader(screenReaderMsg);
-    return true;
-  }
-  if (isShift && e.code === "Digit4" && !e.ctrlKey) {
-    const next = !state.showDiagnostics;
-    setGameState((prev) => ({ ...prev, showDiagnostics: next }));
-    const diagMsg = next ? "Diagnostic system enabled." : "Diagnostic system disabled.";
-    speak2(diagMsg);
-    announceToScreenReader(diagMsg);
-    return true;
-  }
-  if (isShift && e.code === "Digit1") {
-    const next = !state.notifications.bark;
-    setGameState((prev) => ({
-      ...prev,
-      notifications: { ...prev.notifications, bark: next }
-    }));
-    const msg = `Bark notifications ${next ? "enabled" : "disabled"}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (isShift && e.code === "Digit2") {
-    const next = !state.notifications.jump;
-    setGameState((prev) => ({
-      ...prev,
-      notifications: { ...prev.notifications, jump: next }
-    }));
-    const msg = `Jump notifications ${next ? "enabled" : "disabled"}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (isShift && e.code === "Digit3") {
-    const next = !state.notifications.jumpForward;
-    setGameState((prev) => ({
-      ...prev,
-      notifications: { ...prev.notifications, jumpForward: next }
-    }));
-    const msg = `Running jump notifications ${next ? "enabled" : "disabled"}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (!isShift && e.code === "Digit4" && !state.choices) {
-    const nextSystem = state.measurementSystem === "Imperial" ? "Metric" : "Imperial";
-    setGameState((prev) => ({ ...prev, measurementSystem: nextSystem }));
-    const msg = `Measurement system set to ${nextSystem}.`;
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (!isShift && e.code === "Digit3" && !state.choices) {
-    handlers == null ? void 0 : handlers.readHUD();
-    return true;
-  }
-  if (isShift && e.code === "Digit0") {
-    const next = !state.isCSTEnabled;
-    speak2(next ? "CST Clock Enabled (Chicago, IL)" : "CST Clock Disabled");
-    setGameState((prev) => ({ ...prev, isCSTEnabled: next }));
-    return true;
-  }
-  if (isShift && e.code === "Digit8") {
-    const next = !state.isPaused;
-    setGameState((prev) => ({ ...prev, isPaused: next }));
-    const msg = next ? "Game Paused." : "Game Resumed.";
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (isShift && e.code === "KeyZ") {
-    const lastZ = ctx.lastKeyTime.current["ShiftKeyZ"] || 0;
-    if (now2 - lastZ < 500) {
-      let nextInternal = state.isTTSEnabled;
-      let nextLocal = !!state.isLocalTTSEnabled;
-      let msg = "";
-      if (state.isTTSEnabled && !state.isLocalTTSEnabled) {
-        nextInternal = false;
-        nextLocal = true;
-        msg = "Local TTS Mode On";
-      } else if (!state.isTTSEnabled && state.isLocalTTSEnabled) {
-        nextInternal = false;
-        nextLocal = false;
-        msg = "TTS Engine off";
-      } else if (state.isTTSEnabled && state.isLocalTTSEnabled) {
-        nextInternal = false;
-        nextLocal = false;
-        msg = "TTS Engine off";
-      } else {
-        nextInternal = true;
-        nextLocal = false;
-        msg = "TTS Engine On";
-      }
-      setGameState((prev) => ({ ...prev, isTTSEnabled: nextInternal, isLocalTTSEnabled: nextLocal }));
-      speak2(msg, void 0, true);
-      announceToScreenReader(msg, true);
-      ctx.lastKeyTime.current["ShiftKeyZ"] = 0;
-      return true;
-    }
-    ctx.lastKeyTime.current["ShiftKeyZ"] = now2;
-    return true;
-  }
-  if (isShift && e.code === "KeyM") {
-    const msg = getSystemStatusDescription(state);
-    speak2(msg);
-    announceToScreenReader(msg);
-    return true;
-  }
-  if (state.choices && ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5"].includes(e.code)) {
-    const choiceIndex = parseInt(e.code.slice(-1)) - 1;
-    if (choiceIndex >= 0 && choiceIndex < state.choices.length) {
-      const choice = state.choices[choiceIndex];
-      speak2(`Choice ${choiceIndex + 1}: ${choice} selected.`);
-      return true;
-    }
-  }
-  return false;
-};
-function routeKeyboardEvent(e, state, setGameState, audio2, speak2, announceToScreenReader, gameStateRef, handlers, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, lastKeyTime) {
-  const ctx = {
-    gameState: state,
-    audio: audio2,
-    speak: speak2,
-    announceToScreenReader,
-    setGameState,
-    aTapCount,
-    aTapTimeout,
-    aShiftTapCount,
-    aShiftTapTimeout,
-    lastKeyTime,
-    systems: {},
-    handlers
-    // Added handlers here
-  };
-  if (handleGlobalHotkeys(e, ctx)) return true;
-  if (state.keyboardLayout === "Arden Denis") {
-    return handleArdenDenisKeyDown(e, ctx);
-  } else if (state.keyboardLayout === "Cedella") {
-    return handleCedellaKeyDown(e, ctx);
-  } else if (state.keyboardLayout === "Standard") {
-    return handleStandardKeyDown(e, ctx);
-  }
-  return false;
-}
-function attachGameKeyboardListeners(params) {
-  const {
-    gameStateRef,
-    setGameState,
-    keysPressed,
-    lastKeyTime,
-    barkIntervalRef,
-    audio: audio2,
-    speak: speak2,
-    announceToScreenReader,
-    actions,
-    aTapCount,
-    aTapTimeout,
-    aShiftTapCount,
-    aShiftTapTimeout,
-    isNearToy
-  } = params;
-  const handleKeyDown = (e) => {
-    const target = e.target;
-    if (DOMEngineGeneral.isMenuOrUIInteractive(target)) return;
-    const state = gameStateRef.current;
-    if (!state.isPlaying) return;
-    const now2 = Date.now();
-    const isShift = e.shiftKey;
-    keysPressed.current.add(e.code);
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
-      e.preventDefault();
-    }
-    const isOneShotKey = [
-      "KeyH",
-      "KeyA",
-      "KeyD",
-      "Digit0",
-      "KeyE",
-      "KeyZ",
-      "KeyL",
-      "KeyC",
-      "KeyP",
-      "KeyG",
-      "KeyI",
-      "KeyQ",
-      "Digit3",
-      "Digit4",
-      "Digit5",
-      "Digit6"
-    ].includes(e.code);
-    if (e.repeat && isOneShotKey) return;
-    if (!e.repeat) {
-      lastKeyTime.current[e.code] = now2;
-    }
-    if (state.isRidingToy) {
-      executeToyInput(e.code, state, setGameState, audio2, { speak: speak2 });
-      e.preventDefault();
-      return;
-    }
-    if (state.isToyReady && !state.isRidingToy) {
-      if (e.code === "KeyY" || e.code === "Enter") {
-        executeToyRideChoice(true, state, setGameState, audio2, { speak: speak2 });
-        e.preventDefault();
-        return;
-      } else if (e.code === "KeyN" || e.code === "Escape") {
-        executeToyRideChoice(false, state, setGameState, audio2, { speak: speak2 });
-        e.preventDefault();
-        return;
-      }
-    }
-    if (routeKeyboardEvent(
-      e,
-      state,
-      setGameState,
-      audio2,
-      speak2,
-      announceToScreenReader,
-      gameStateRef,
-      {
-        bark: actions.bark,
-        pet: actions.pet,
-        lean: actions.lean,
-        collar: actions.collar,
-        jump: actions.jump,
-        readHUD: actions.readHUD,
-        setShowGrid: actions.setShowGrid,
-        setSynth: actions.handleSetSynth
-      },
-      aTapCount,
-      aTapTimeout,
-      aShiftTapCount,
-      aShiftTapTimeout,
-      lastKeyTime
-    )) {
-      e.preventDefault();
-      return;
-    }
-    const isBarkKey = e.code === "KeyS" && !isShift && state.keyboardLayout !== "Arden Denis" || e.code === "KeyO" && state.keyboardLayout === "Arden Denis" && !isNearToy;
-    if (isBarkKey) {
-      if (!barkIntervalRef.current) {
-        actions.bark("The poodle barks elegantly.", true);
-        barkIntervalRef.current = setInterval(() => {
-          actions.bark("The poodle barks elegantly.", true);
-        }, MOVE_COOLDOWN);
-      }
-    }
-  };
-  const handleKeyUp = (e) => {
-    const state = gameStateRef.current;
-    const isBarkKeyRelease = e.code === "KeyS" && state.keyboardLayout !== "Arden Denis" || e.code === "KeyO" && state.keyboardLayout === "Arden Denis";
-    if (isBarkKeyRelease) {
-      if (barkIntervalRef.current) {
-        clearInterval(barkIntervalRef.current);
-        barkIntervalRef.current = null;
-      }
-    }
-    keysPressed.current.delete(e.code);
-  };
-  window.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("keyup", handleKeyUp);
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("keyup", handleKeyUp);
-  };
-}
-const CONTINUOUS_TRACKS = [
-  "PoodleRideStoryBookInitialPath",
-  "PoodleRideStoryBookCourse1_Seg1",
-  "PoodleRideStoryBookCourse1_Seg2",
-  "PoodleRideStoryBookCourse1_Seg3",
-  "PoodleRideStoryBookCourse1_Seg4"
-];
-const WIDE_AREAS = [
-  "PinkHouseFoyer",
-  "PoodleRideStoryBookCourse1_Break1",
-  "PoodleRideStoryBookCourse1_Break2",
-  "PoodleRideStoryBookCourse1_Break3",
-  "PoodleRideStoryBookGoalZone",
-  "PoodleRideStoryBookDecisionZone"
-];
-function evaluateOrientationAndStrafing(context) {
-  const { gameState, prevAreaRef, setGameState, speak: speak2, announceToScreenReader } = context;
-  if (!gameState.isPlaying || !gameState.area) return;
-  const currentArea = gameState.area;
-  const prevArea = prevAreaRef.current;
-  const isTrack = CONTINUOUS_TRACKS.includes(currentArea);
-  const isWide = WIDE_AREAS.includes(currentArea);
-  let targetMode = gameState.arrowKeyTurningMode || "FourDirection";
-  if (currentArea === "WandasWarpHouse" || currentArea === "WandaPlatform") {
-    targetMode = "EightDirection";
-  } else if (currentArea.includes("StoryBookCourse") || currentArea.includes("StoryBookDecision") || currentArea.includes("StoryBookInitialPath") || currentArea === "TheGrandPlayground" || currentArea === "SimulatedGardenArea") {
-    if (!isTrack) {
-      targetMode = "Full360";
-    }
-  } else {
-    targetMode = "FourDirection";
-  }
-  const stateUpdates = {};
-  if (gameState.arrowKeyTurningMode !== targetMode) {
-    stateUpdates.arrowKeyTurningMode = targetMode;
-  }
-  if (isTrack && !gameState.isStrafingEnabled) {
-    stateUpdates.isStrafingEnabled = true;
-    const msg = "Continuous course track detected. Automated steering is active. Manual lane strafing is enabled. Use left and right arrow keys to glide between lanes.";
-    speak2(msg, "EN_US");
-    announceToScreenReader(msg);
-  } else if (isWide && gameState.isStrafingEnabled) {
-    stateUpdates.isStrafingEnabled = false;
-    const msg = "Wide zone reached. Auto-switching strafing off. Left and right arrow keys are restored for manual turning.";
-    speak2(msg, "EN_US");
-    announceToScreenReader(msg);
-  }
-  if (prevArea && prevArea !== currentArea) {
-    let autoHeading = null;
-    if (prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "WandasWarpHouse") {
-      autoHeading = {
-        rotation: 180,
-        direction: "South",
-        msg: "Facing South entering Wandas Warp House."
-      };
-    } else if (prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "PoodleRideStoryBookCourse1_Seg4") {
-      autoHeading = {
-        rotation: 0,
-        direction: "North",
-        msg: "Facing North returning to course segment 4."
-      };
-    } else if (prevArea === "PoodleRideStoryBookCourse1_Seg1" && currentArea === "PoodleRideStoryBookCourse1_Break1" || prevArea === "PoodleRideStoryBookCourse1_Seg2" && currentArea === "PoodleRideStoryBookCourse1_Break2" || prevArea === "PoodleRideStoryBookCourse1_Seg3" && currentArea === "PoodleRideStoryBookCourse1_Break3" || prevArea === "PoodleRideStoryBookCourse1_Seg4" && currentArea === "PoodleRideStoryBookGoalZone" || prevArea === "PoodleRideStoryBookInitialPath" && currentArea === "PinkHouseFoyer" || prevArea === "PoodleRideStoryBookDecisionZone" && currentArea === "PoodleRideStoryBookInitialPath") {
-      autoHeading = {
-        rotation: 90,
-        direction: "East",
-        msg: "Automatically oriented East along the course path."
-      };
-    } else if (prevArea === "PoodleRideStoryBookCourse1_Seg1" && currentArea === "PinkHouseFoyer" || prevArea === "PoodleRideStoryBookCourse1_Break1" && currentArea === "PoodleRideStoryBookCourse1_Seg1" || prevArea === "PoodleRideStoryBookCourse1_Break2" && currentArea === "PoodleRideStoryBookCourse1_Break1" || prevArea === "PoodleRideStoryBookCourse1_Seg2" && currentArea === "PoodleRideStoryBookCourse1_Break1" || prevArea === "PoodleRideStoryBookCourse1_Break2" && currentArea === "PoodleRideStoryBookCourse1_Seg2" || prevArea === "PoodleRideStoryBookCourse1_Seg3" && currentArea === "PoodleRideStoryBookCourse1_Break2" || prevArea === "PoodleRideStoryBookCourse1_Break3" && currentArea === "PoodleRideStoryBookCourse1_Seg3" || prevArea === "PoodleRideStoryBookCourse1_Seg4" && currentArea === "PoodleRideStoryBookCourse1_Break3" || prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "PoodleRideStoryBookCourse1_Seg4" || prevArea === "PoodleRideStoryBookInitialPath" && currentArea === "PoodleRideStoryBookDecisionZone") {
-      autoHeading = {
-        rotation: 270,
-        direction: "West",
-        msg: "Automatically oriented West along the course path."
-      };
-    }
-    if (autoHeading) {
-      stateUpdates.rotation = autoHeading.rotation;
-      stateUpdates.direction = autoHeading.direction;
-      speak2(autoHeading.msg, "EN_US");
-      announceToScreenReader(autoHeading.msg);
-    }
-  }
-  if (Object.keys(stateUpdates).length > 0) {
-    setGameState((prev) => ({ ...prev, ...stateUpdates }));
-  }
-  prevAreaRef.current = currentArea;
-}
-const calculateMovement = (state, keysPressed, dt, now2, lastRotateTime) => {
-  let newSpeed = state.speed;
-  let newRotation = state.rotation;
-  let strafeSpeed = 0;
-  let announcement;
-  const isUp = keysPressed.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyW");
-  const isDown = keysPressed.has("ArrowDown") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyS");
-  const isLeft = keysPressed.has("ArrowLeft") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyA");
-  const isRight = keysPressed.has("ArrowRight") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyD");
-  const isShift = keysPressed.has("ShiftLeft") || keysPressed.has("ShiftRight");
-  let joystickAngle = null;
-  if (state.keyboardLayout === "Cedella") {
-    const n8 = keysPressed.has("Numpad8");
-    const n2 = keysPressed.has("Numpad2");
-    const n4 = keysPressed.has("Numpad4");
-    const n6 = keysPressed.has("Numpad6");
-    const n7 = keysPressed.has("Numpad7");
-    const n9 = keysPressed.has("Numpad9");
-    const n1 = keysPressed.has("Numpad1");
-    const n3 = keysPressed.has("Numpad3");
-    if (n4) newRotation -= 180 * dt;
-    if (n6) newRotation += 180 * dt;
-    let moveAngleOffset = null;
-    if (n8) moveAngleOffset = 0;
-    else if (n2) moveAngleOffset = 180;
-    else if (n7) moveAngleOffset = -45;
-    else if (n9) moveAngleOffset = 45;
-    else if (n1) moveAngleOffset = -135;
-    else if (n3) moveAngleOffset = 135;
-    if (moveAngleOffset !== null) {
-      joystickAngle = (newRotation + moveAngleOffset) % 360;
-      if (joystickAngle < 0) joystickAngle += 360;
-    }
-  }
-  state.visualPrefs === "3D" || state.visualPrefs === "3DPlus" || state.visualPrefs === "Super3D";
-  let maxSpeed = 600;
-  let accel = 300;
-  let effectiveMode = state.movementMode;
-  if (state.area === "MeditationHallLibrary") {
-    if (effectiveMode === "Gallop" || effectiveMode === "Canter" || effectiveMode === "Trot") {
-      effectiveMode = "Walk";
-    }
-  } else if (state.area === "NarrowDressageGym" && state.level === "Sky") {
-    if (effectiveMode === "Gallop" || effectiveMode === "Canter" || effectiveMode === "Trot") {
-      effectiveMode = "Walk";
-    }
-  }
-  switch (effectiveMode) {
-    case "Walk":
-      maxSpeed = 100;
-      accel = 50;
-      break;
-    case "Slow Walk":
-      maxSpeed = 50;
-      accel = 25;
-      break;
-    case "Very Slow Walk":
-      maxSpeed = 25;
-      accel = 12.5;
-      break;
-    case "Trot":
-      maxSpeed = 250;
-      accel = 125;
-      break;
-    case "Canter":
-      maxSpeed = 450;
-      accel = 225;
-      break;
-    case "Gallop":
-    default:
-      maxSpeed = 600;
-      accel = 300;
-      break;
-  }
-  if (isShift) {
-    maxSpeed *= 1.5;
-    accel *= 1.5;
-  }
-  const targetSpeed = state.targetSpeed || 0;
-  if (joystickAngle !== null) {
-    newSpeed += accel * dt;
-    if (state.keyboardLayout !== "Cedella") {
-      newRotation = joystickAngle;
-    }
-  } else if (isUp) {
-    newSpeed += accel * dt;
-  } else if (isDown) {
-    newSpeed -= accel * dt;
-  } else if (targetSpeed !== 0) {
-    if (newSpeed < targetSpeed) newSpeed = Math.min(targetSpeed, newSpeed + accel * dt);
-    else if (newSpeed > targetSpeed) newSpeed = Math.max(targetSpeed, newSpeed - accel * dt);
-  } else {
-    if (newSpeed > 0) newSpeed = Math.max(0, newSpeed - 100 * dt);
-    else if (newSpeed < 0) newSpeed = Math.min(0, newSpeed + 100 * dt);
-  }
-  newSpeed = Math.max(-maxSpeed / 2, Math.min(maxSpeed, newSpeed));
-  let actualIsLeft = isLeft;
-  let actualIsRight = isRight;
-  if (state.isStrafingEnabled) {
-    if (isLeft) {
-      strafeSpeed = -150;
-      actualIsLeft = false;
-      if (now2 - lastRotateTime > 1e3) {
-        announcement = "Strafing Left";
-      }
-    }
-    if (isRight) {
-      strafeSpeed = 150;
-      actualIsRight = false;
-      if (now2 - lastRotateTime > 1e3) {
-        announcement = "Strafing Right";
-      }
-    }
-  }
-  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(state.area);
-  const turningMode = state.arrowKeyTurningMode || "FourDirection";
-  const isPhysicalLeft = keysPressed.has("ArrowLeft") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyA");
-  const isPhysicalRight = keysPressed.has("ArrowRight") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyD");
-  if (!isAdventurePathArea) {
-    if (turningMode === "Full360") {
-      if (actualIsLeft) newRotation -= 180 * dt;
-      else if (actualIsRight) newRotation += 180 * dt;
-    } else {
-      if ((isPhysicalLeft || isPhysicalRight) && !state.isStrafingEnabled && now2 - lastRotateTime > 300) {
-        const delta = isPhysicalLeft ? -1 : 1;
-        let nextDirection;
-        if (turningMode === "FourDirection") {
-          const CARDINALS = ["North", "East", "South", "West"];
-          const currentDir2 = state.direction;
-          const currentIndex = CARDINALS.indexOf(currentDir2);
-          if (currentIndex !== -1) {
-            const nextIndex = (currentIndex + delta + CARDINALS.length) % CARDINALS.length;
-            nextDirection = CARDINALS[nextIndex];
-          } else {
-            if (currentDir2 === "Northeast") nextDirection = delta === -1 ? "North" : "East";
-            else if (currentDir2 === "Southeast") nextDirection = delta === -1 ? "East" : "South";
-            else if (currentDir2 === "Southwest") nextDirection = delta === -1 ? "South" : "West";
-            else nextDirection = delta === -1 ? "West" : "North";
-          }
-        } else {
-          const currentIndex = DIRECTIONS.indexOf(state.direction);
-          const nextIndex = (currentIndex + delta + DIRECTIONS.length) % DIRECTIONS.length;
-          nextDirection = DIRECTIONS[nextIndex];
-        }
-        if (nextDirection === "North") newRotation = 0;
-        else if (nextDirection === "Northeast") newRotation = 45;
-        else if (nextDirection === "East") newRotation = 90;
-        else if (nextDirection === "Southeast") newRotation = 135;
-        else if (nextDirection === "South") newRotation = 180;
-        else if (nextDirection === "Southwest") newRotation = 225;
-        else if (nextDirection === "West") newRotation = 270;
-        else if (nextDirection === "Northwest") newRotation = 315;
-        const turnDir = delta === -1 ? "left" : "right";
-        announcement = state.notifications.truncateTurning ? nextDirection : `Turning ${turnDir}. Facing ${nextDirection}`;
-      }
-    }
-  }
-  const normalized = (newRotation % 360 + 360) % 360;
-  const prevNormalized = (state.rotation % 360 + 360) % 360;
-  const points = [
-    { angle: 0, label: "North" },
-    { angle: 45, label: "Northeast" },
-    { angle: 90, label: "East" },
-    { angle: 135, label: "Southeast" },
-    { angle: 180, label: "South" },
-    { angle: 225, label: "Southwest" },
-    { angle: 270, label: "West" },
-    { angle: 315, label: "Northwest" },
-    { angle: 360, label: "North" }
-  ];
-  const match = points.find((p) => Math.abs(normalized - p.angle) < 2.5);
-  const wasMatching = points.find((p) => Math.abs(prevNormalized - p.angle) < 2.5);
-  if (match && (!wasMatching || match.label !== wasMatching.label)) {
-    announcement = state.notifications.truncateTurning ? match.label : `Facing ${match.label}`;
-  }
-  let currentDir = "North";
-  if (normalized >= 22.5 && normalized < 67.5) currentDir = "Northeast";
-  else if (normalized >= 67.5 && normalized < 112.5) currentDir = "East";
-  else if (normalized >= 112.5 && normalized < 157.5) currentDir = "Southeast";
-  else if (normalized >= 157.5 && normalized < 202.5) currentDir = "South";
-  else if (normalized >= 202.5 && normalized < 247.5) currentDir = "Southwest";
-  else if (normalized >= 247.5 && normalized < 292.5) currentDir = "West";
-  else if (normalized >= 292.5 && normalized < 337.5) currentDir = "Northwest";
-  const travelAngle = joystickAngle !== null ? joystickAngle : newRotation;
-  const moveAngleRad = travelAngle * Math.PI / 180;
-  const dx = newSpeed * Math.sin(moveAngleRad) * dt;
-  const dy = newSpeed * Math.cos(moveAngleRad) * dt;
-  const strafeAngle = (newRotation + 90) * Math.PI / 180;
-  const sdx = strafeSpeed * Math.sin(strafeAngle) * dt;
-  const sdy = strafeSpeed * Math.cos(strafeAngle) * dt;
-  return {
-    gridX: state.gridX + dx + sdx,
-    gridY: state.gridY + dy + sdy,
-    speed: newSpeed,
-    rotation: newRotation,
-    direction: currentDir,
-    strafeSpeed,
-    announcement
-  };
-};
 const FOYER_OBSTACLES = [
   {
     id: "ramp_wall_right",
@@ -56781,318 +56142,6 @@ const checkAnnouncementFlags = (state, area, x, y) => {
   }
   return updates;
 };
-const handleMovementInput = (ctx, lastReactUpdateTime) => {
-  const { gameState, time: time2, keysPressed, moveForward, rotate: rotate2, announceToScreenReader } = ctx;
-  let finalResults = {};
-  if (gameState.keyboardLayout === "Cedella" && !gameState.isAutomated) {
-    const joystickResults = handleCedellaJoystick(ctx, lastReactUpdateTime);
-    finalResults = { ...finalResults, ...joystickResults };
-  }
-  let cooldown = MOVE_COOLDOWN;
-  if (gameState.targetSpeed > 0) {
-    cooldown = Math.max(50, MOVE_COOLDOWN - gameState.targetSpeed / 300 * 200);
-  } else if (gameState.targetSpeed < 0) {
-    cooldown = Math.min(500, MOVE_COOLDOWN + Math.abs(gameState.targetSpeed) / 150 * 250);
-  }
-  const canMove = !ctx.lastMoveTime || time2 - ctx.lastMoveTime > cooldown;
-  if (canMove && !gameState.isAutomated) {
-    let movementResults = {};
-    if (gameState.keyboardLayout === "Cedella") {
-      movementResults = handleCedellaMovement(ctx);
-    } else if (gameState.keyboardLayout === "Arden Denis") {
-      movementResults = handleArdenDenisMovement(ctx);
-    } else {
-      movementResults = handleStandardMovement(ctx);
-    }
-    finalResults = { ...finalResults, ...movementResults };
-  }
-  return finalResults;
-};
-function handleStandardKinematics(time2, ctx) {
-  const {
-    gameStateRef,
-    setGameState,
-    keysPressed,
-    lastMoveTime,
-    lastRotateTime,
-    lastJoystickRotationTime,
-    lastAnnouncedJoystickAngle,
-    lastReactUpdateTime,
-    audio: audio2,
-    systems,
-    speak: speak2,
-    announceToScreenReader,
-    moveForward,
-    moveReverse,
-    rotate: rotate2
-  } = ctx;
-  const state = gameStateRef.current;
-  const inputCtx = {
-    gameState: state,
-    keysPressed: keysPressed.current,
-    time: Date.now(),
-    lastMoveTime: lastMoveTime.current,
-    lastRotateTime: lastRotateTime.current,
-    lastJoystickRotationTime: lastJoystickRotationTime.current,
-    lastAnnouncedJoystickAngle: lastAnnouncedJoystickAngle.current || 0,
-    audio: audio2,
-    systems,
-    speak: speak2,
-    announceToScreenReader,
-    moveForward,
-    moveReverse,
-    rotate: rotate2,
-    setGameState
-  };
-  const results = handleMovementInput(inputCtx, lastReactUpdateTime.current);
-  const now2 = Date.now();
-  if (results.lastMoveTime === void 0 && state.speed !== 0 && now2 - lastMoveTime.current > MOVE_COOLDOWN + 50) {
-    setGameState((prev) => ({ ...prev, speed: 0 }));
-  }
-  if (results.lastMoveTime !== void 0) lastMoveTime.current = results.lastMoveTime;
-  if (results.lastRotateTime !== void 0) lastRotateTime.current = results.lastRotateTime;
-  if (results.lastJoystickRotationTime !== void 0)
-    lastJoystickRotationTime.current = results.lastJoystickRotationTime;
-  if (results.lastAnnouncedJoystickAngle !== void 0)
-    lastAnnouncedJoystickAngle.current = results.lastAnnouncedJoystickAngle;
-  if (results.lastReactUpdateTime !== void 0)
-    lastReactUpdateTime.current = results.lastReactUpdateTime;
-}
-function handlePreciseKinematics(time2, ctx) {
-  const {
-    gameStateRef,
-    setGameState,
-    keysPressed,
-    lastFrameTime,
-    lastMoveTime,
-    lastRotateTime,
-    lastReactUpdateTime,
-    audio: audio2,
-    speak: speak2,
-    announceToScreenReader,
-    bark: bark2,
-    mt
-  } = ctx;
-  const state = gameStateRef.current;
-  const now2 = Date.now();
-  if (state.isAutomated) return;
-  if (!lastFrameTime.current) {
-    lastFrameTime.current = time2;
-    return;
-  }
-  let dt = (time2 - lastFrameTime.current) / 1e3;
-  if (dt > 0.1) dt = 0.1;
-  lastFrameTime.current = time2;
-  const update = calculateMovement(
-    state,
-    keysPressed.current,
-    dt,
-    now2,
-    lastRotateTime.current
-  );
-  const {
-    gridX: nextX,
-    gridY: nextY,
-    speed: newSpeed,
-    rotation: newRotation,
-    direction: currentDir,
-    announcement
-  } = update;
-  if (announcement) {
-    speak2(announcement, "EN_US");
-    announceToScreenReader(announcement);
-    lastRotateTime.current = now2;
-  }
-  const isUp = keysPressed.current.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyW");
-  const isDown = keysPressed.current.has("ArrowDown") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyS");
-  if (isUp || isDown) {
-    if (now2 - lastMoveTime.current > 1e3) {
-      if (state.notifications.announceDirection) {
-        const msg = isUp ? "Moving forward." : "Backing up.";
-        announceToScreenReader(msg);
-      }
-      lastMoveTime.current = now2;
-    }
-  }
-  const collision = checkCollision(
-    state.gridX,
-    state.gridY,
-    nextX,
-    nextY,
-    state.level,
-    state.area,
-    currentDir,
-    state.doorwayStep,
-    state
-  );
-  const announcementUpdates = checkAnnouncementFlags(
-    state,
-    collision.nextArea,
-    collision.nextX,
-    collision.nextY
-  );
-  let newState = { ...state, ...announcementUpdates };
-  if (collision.isBlocked) {
-    DiagnosticManager.logCollision(
-      collision.nextX,
-      collision.nextY,
-      state.area,
-      collision.wallDesc
-    );
-    newState = {
-      ...newState,
-      gridX: collision.nextX,
-      gridY: collision.nextY,
-      speed: 0,
-      rotation: newRotation,
-      direction: currentDir,
-      doorwayStep: collision.nextDoorwayStep,
-      isRampStep: collision.isRampStep || false,
-      isDescending: collision.isDescending || false,
-      area: collision.nextArea,
-      level: collision.nextLevel,
-      isLevelComplete: collision.isLevelComplete || false
-    };
-    if (collision.wallDesc) {
-      const desc = mt(collision.wallDesc);
-      speak2(desc, "EN_US");
-      announceToScreenReader(desc);
-      audio2.playWallHit(state.area);
-      setGameState((prev) => ({ ...prev, speed: 0 }));
-    }
-  } else {
-    if (Math.abs(newSpeed) > 1) {
-      DiagnosticManager.logMovement(collision.nextX, collision.nextY, state.area, newSpeed);
-    }
-    newState = {
-      ...newState,
-      gridX: collision.nextX,
-      gridY: collision.nextY,
-      speed: newSpeed,
-      rotation: newRotation,
-      direction: currentDir,
-      doorwayStep: collision.nextDoorwayStep,
-      isRampStep: collision.isRampStep || false,
-      isDescending: collision.isDescending || false,
-      area: collision.nextArea,
-      level: collision.nextLevel,
-      isLevelComplete: collision.isLevelComplete || false
-    };
-    if (collision.msg) {
-      speak2(mt(collision.msg), "EN_US");
-      announceToScreenReader(mt(collision.msg));
-    }
-  }
-  if (announcementUpdates.hasAnnouncedSouthwestRectangle) {
-    speak2(FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE, "EN_US");
-  }
-  if (announcementUpdates.hasAnnouncedSkyRampAscent) {
-    speak2("You are starting your ascent up the Sky Ramp towards the Mezzanine.", "EN_US");
-  }
-  if (announcementUpdates.hasAnnouncedSkyRampDescent) {
-    speak2("You are starting your descent down the Sky Ramp towards the floor foyer.", "EN_US");
-  }
-  const isShift = keysPressed.current.has("ShiftLeft") || keysPressed.current.has("ShiftRight");
-  const getStepSize = (mode, shift) => {
-    let base = 4;
-    switch (mode) {
-      case "Very Slow Walk":
-        base = 1;
-        break;
-      case "Slow Walk":
-        base = 2;
-        break;
-      case "Walk":
-        base = 4;
-        break;
-      case "Trot":
-        base = 8;
-        break;
-      case "Canter":
-        base = 12;
-        break;
-      case "Gallop":
-        base = 16;
-        break;
-    }
-    return shift ? base * 1.5 : base;
-  };
-  const stepDist = getStepSize(state.movementMode, isShift);
-  const moveDist = Math.sqrt(
-    Math.pow(collision.nextX - state.gridX, 2) + Math.pow(collision.nextY - state.gridY, 2)
-  );
-  let nextAccumulated = state.accumulatedDistance + moveDist;
-  let nextRampStepCount = state.rampStepCount;
-  if (nextAccumulated >= stepDist && !collision.isBlocked) {
-    const stepsToProcess = Math.floor(nextAccumulated / stepDist);
-    nextAccumulated %= stepDist;
-    for (let i = 0; i < stepsToProcess; i++) {
-      if (state.movementMode === "Walk")
-        audio2.playPoodleWalk(state.area, 0, 0, 0, state.ridingAnimal);
-      else if (state.movementMode === "Slow Walk")
-        audio2.playPoodleSlowWalk(state.area, 0, 0, 0, state.ridingAnimal);
-      else if (state.movementMode === "Very Slow Walk")
-        audio2.playPoodleVerySlowWalk(state.area, 0, 0, 0, state.ridingAnimal);
-      else audio2.playPoodleGallop(state.area, 0, 0, 0, state.ridingAnimal);
-      if (collision.isRampStep) {
-        nextRampStepCount++;
-        const beepStep = nextRampStepCount % 5 || 5;
-        audio2.playRampBeep(beepStep, collision.isDescending);
-        if (nextRampStepCount % 5 === 0) {
-          bark2("The Poodle Barks Elegantly (5-beep indicator)");
-        }
-      }
-    }
-  }
-  if (collision.nextLevel !== state.level) {
-    nextRampStepCount = 0;
-  }
-  newState = {
-    ...newState,
-    accumulatedDistance: nextAccumulated,
-    rampStepCount: nextRampStepCount
-  };
-  const nextAreaMetrics = formulateAreaMetrics(collision.nextArea);
-  const nextDims = { width: nextAreaMetrics.width, height: nextAreaMetrics.height };
-  if (collision.nextArea === "Garden") {
-    if (currentDir === "North" && collision.nextY > Math.floor(nextDims.height * 0.8)) {
-      if (announcementUpdates.hasAnnouncedWindChimes) {
-        speak2(
-          "The wind chimes from the garden are hanging here, tinkling softly in the breeze.",
-          "EN_US"
-        );
-      }
-    }
-  } else if (collision.nextArea === "Foyer") {
-    if (announcementUpdates.hasAnnouncedStreetSounds && currentDir === "North")
-      speak2("The street sounds grow louder to the North.", "EN_US");
-  } else if (collision.nextArea === "MeditationHall") {
-    if (collision.nextY === Math.floor(nextDims.height * 0.2) && currentDir === "South") {
-      if (announcementUpdates.hasAnnouncedWindChimes) {
-        speak2("The wind chimes from the garden are clearer now.", "EN_US");
-      }
-    }
-  }
-  if (collision.nextArea === "ElevatedPath") {
-    const elevatedPathMetrics = formulateAreaMetrics("ElevatedPath");
-    const pathLength = elevatedPathMetrics.height;
-    const progress2 = collision.nextY / pathLength;
-    if (announcementUpdates.hasAnnouncedElevatedPathEntry) {
-      bark2("The Poodle Barks Elegantly (Entry)", true, 3);
-    } else if (progress2 > 0.4 && progress2 < 0.5 && announcementUpdates.hasAnnouncedElevatedPathHalf1) {
-      bark2("The Poodle Barks Elegantly (Halfway Approach)", true, 4);
-    } else if (progress2 > 0.5 && progress2 < 0.6 && announcementUpdates.hasAnnouncedElevatedPathHalf2) {
-      bark2("The Poodle Barks Elegantly (Halfway Passed)", true, 4);
-    }
-  }
-  gameStateRef.current = newState;
-  if (time2 - lastReactUpdateTime.current > 33) {
-    if (newState.gridX !== state.gridX || newState.gridY !== state.gridY || newState.rotation !== state.rotation || newState.speed !== state.speed || newState.direction !== state.direction) {
-      setGameState(newState);
-    }
-    lastReactUpdateTime.current = time2;
-  }
-}
 const RAINBOW_GLASS_DOOR_DIMENSIONS = {
   colors: {
     frame: "#ff00ff",
@@ -61435,184 +60484,6 @@ function drawWandaWarpHouse(ctx, width, height, state, time2) {
     });
   }
 }
-function drawStoryBookDecisionZone(ctx, width, height, state, time2) {
-  const scale2 = width / 50;
-  ctx.fillStyle = "#8b4513";
-  ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = "#5d2906";
-  for (let x = 0; x < 50; x += 5) {
-    ctx.beginPath();
-    ctx.moveTo(x * scale2, 0);
-    ctx.lineTo(x * scale2, height);
-    ctx.stroke();
-  }
-  ctx.beginPath();
-  ctx.arc(25 * scale2, 25 * scale2, 18.75 * scale2, 0, Math.PI * 2);
-  ctx.fillStyle = "#0000ff";
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(25 * scale2, 25 * scale2, 17 * scale2, 0, Math.PI * 2);
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
-  ctx.fillStyle = "#deb887";
-  ctx.fillRect(48 * scale2, 17.5 * scale2, 2 * scale2, 15 * scale2);
-  ctx.strokeStyle = "#8b4513";
-  ctx.strokeRect(48 * scale2, 17.5 * scale2, 2 * scale2, 15 * scale2);
-  ctx.fillStyle = "silver";
-  ctx.fillRect(48 * scale2, 18.5 * scale2, 1 * scale2, 13 * scale2);
-  ctx.fillStyle = "red";
-  ctx.font = "bold 8px Arial";
-  ctx.fillText("Welcome", 48.2 * scale2, 25 * scale2);
-  ctx.fillStyle = "#9370db";
-  ctx.fillRect(0, 20 * scale2, 2 * scale2, 10 * scale2);
-  ctx.strokeStyle = "#4b0082";
-  ctx.strokeRect(0, 20 * scale2, 2 * scale2, 10 * scale2);
-  const rockerX = 9 * scale2;
-  const rockerY = 49 * scale2;
-  const rockingAngle = state.isToyRocking ? Math.sin(time2 / 100) * 0.1 : 0;
-  ctx.save();
-  ctx.translate(rockerX, rockerY);
-  ctx.rotate(rockingAngle);
-  ctx.fillStyle = "#444";
-  ctx.fillRect(-4 * scale2, 0.5 * scale2, 8 * scale2, 0.2 * scale2);
-  ctx.fillStyle = "#ff69b4";
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 3.475 * scale2, 1.5 * scale2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(3.475 * scale2, -1.5 * scale2, 1.2 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(-3.475 * scale2, 0);
-  ctx.lineTo(-5 * scale2, -2 * scale2);
-  ctx.lineWidth = 0.5 * scale2;
-  ctx.strokeStyle = "#ff69b4";
-  ctx.stroke();
-  ctx.restore();
-  const bookX = 25 * scale2;
-  const bookY = 49.5 * scale2;
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(bookX - 2 * scale2, bookY, 4 * scale2, 0.2 * scale2);
-  ctx.strokeStyle = "#000";
-  ctx.strokeRect(bookX - 2 * scale2, bookY, 4 * scale2, 0.2 * scale2);
-  const toy2X = 25 * scale2;
-  const toy2Y = 2 * scale2;
-  ctx.fillStyle = "#ffb6c1";
-  ctx.beginPath();
-  ctx.arc(toy2X, toy2Y, 1 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-}
-function drawStoryBookCourse(ctx, width, height, state, time2) {
-  const scale2 = height / 50;
-  ctx.fillStyle = "#2d5a27";
-  ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = "#9b7653";
-  ctx.fillRect(0, 15 * scale2, width, 20 * scale2);
-  const skyN = ctx.createLinearGradient(0, 0, 0, 5 * scale2);
-  skyN.addColorStop(0, "#87ceeb");
-  skyN.addColorStop(1, "rgba(135, 206, 235, 0)");
-  ctx.fillStyle = skyN;
-  ctx.fillRect(0, 0, width, 5 * scale2);
-  const skyS = ctx.createLinearGradient(0, height, 0, height - 5 * scale2);
-  skyS.addColorStop(0, "#87ceeb");
-  skyS.addColorStop(1, "rgba(135, 206, 235, 0)");
-  ctx.fillStyle = skyS;
-  ctx.fillRect(0, height - 5 * scale2, width, 5 * scale2);
-  for (let i = 0; i < 20; i++) {
-    const fx = ((i * 50 - state.gridX * 0.1) % (width * 2) + width * 2) % (width * 2) - width;
-    const fyN = (5 + Math.sin(i + time2 / 1e3) * 3) * scale2;
-    const fyS = (45 - Math.sin(i + time2 / 1e3) * 3) * scale2;
-    ctx.strokeStyle = "#32cd32";
-    ctx.lineWidth = 0.5 * scale2;
-    ctx.beginPath();
-    ctx.moveTo(fx, fyN);
-    ctx.lineTo(fx, fyN + 5 * scale2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(fx, fyS);
-    ctx.lineTo(fx, fyS - 5 * scale2);
-    ctx.stroke();
-    ctx.fillStyle = i % 2 === 0 ? "#ff69b4" : "#add8e6";
-    ctx.beginPath();
-    ctx.arc(fx, fyN, 1.2 * scale2, 0, Math.PI * 2);
-    ctx.arc(fx, fyS, 1.2 * scale2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${1.5 * scale2}px Arial`;
-  const dist = Math.floor(state.gridX);
-  if (dist % 100 < 5) {
-    ctx.fillText(`${dist} FEET`, 10 * scale2, 45 * scale2);
-  }
-  if (state.gridX > 100) {
-    const houseAlpha = Math.min(1, (state.gridX - 100) / 300);
-    ctx.save();
-    ctx.globalAlpha = houseAlpha;
-    const houseX2 = (400 - state.gridX) * (width / 400);
-    if (houseX2 < width) {
-      ctx.fillStyle = "#ff1493";
-      ctx.fillRect(houseX2, 0, 100 * scale2, height);
-      ctx.fillStyle = "#fff";
-      ctx.beginPath();
-      ctx.moveTo(houseX2, 0);
-      ctx.lineTo(houseX2 - 20 * scale2, height / 2);
-      ctx.lineTo(houseX2, height);
-      ctx.fill();
-      ctx.save();
-      ctx.translate(houseX2 + 50 * scale2, 5 * scale2);
-      ctx.rotate(time2 / 1e3);
-      ctx.fillStyle = "#ddd";
-      for (let j = 0; j < 4; j++) {
-        ctx.rotate(Math.PI / 2);
-        ctx.fillRect(-1 * scale2, 0, 2 * scale2, 15 * scale2);
-      }
-      ctx.restore();
-    }
-    ctx.restore();
-  }
-}
-function drawToyInterface(ctx, width, height, state, time2) {
-  const pageIndex = state.toyCurrentPage;
-  const page = STORY_BOOK_PAGES[pageIndex] || STORY_BOOK_PAGES[0];
-  const scale2 = width / 100;
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(10 * scale2, 10 * scale2, 80 * scale2, 60 * scale2);
-  ctx.fillStyle = "#000";
-  ctx.font = `bold ${3 * scale2}px Arial`;
-  const lines = wrapText(ctx, page.text, 70 * scale2);
-  lines.forEach((line, i) => {
-    ctx.fillText(line, 15 * scale2, 20 * scale2 + i * 5 * scale2);
-  });
-  ctx.fillStyle = "#f0f0f0";
-  ctx.fillRect(15 * scale2, 45 * scale2, 70 * scale2, 15 * scale2);
-  ctx.fillStyle = "#555";
-  ctx.font = `${2.5 * scale2}px Arial`;
-  ctx.fillText(page.imageAlt, 18 * scale2, 52 * scale2);
-  ctx.fillStyle = "#ff69b4";
-  ctx.font = `bold ${2 * scale2}px Arial`;
-  ctx.fillText(`Page ${pageIndex + 1} of ${STORY_BOOK_PAGES.length}`, 15 * scale2, 75 * scale2);
-  ctx.fillStyle = "#aaa";
-  ctx.fillText("Controls: Up/Down to rock, Right to turn page, Left for prev, F or X to exit.", 15 * scale2, 85 * scale2);
-}
-function wrapText(ctx, text, maxWidth) {
-  const words = text.split(" ");
-  const lines = [];
-  let currentLine = words[0];
-  for (let i = 1; i < words.length; i++) {
-    const word = words[i];
-    const width = ctx.measureText(currentLine + " " + word).width;
-    if (width < maxWidth) {
-      currentLine += " " + word;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
-    }
-  }
-  lines.push(currentLine);
-  return lines;
-}
 function drawCourse1Segment1(ctx, width, height, state, time2) {
   const scale2 = height / 50;
   ctx.fillStyle = "#2d5a27";
@@ -63923,2939 +62794,31 @@ function drawEnvironment(ctx, width, height, state, time2) {
     renderCoins(ctx, state.coins || [], height / 50, time2);
   }
 }
-function drawWorldObjects(ctx, width, height, state, time2) {
-  const objects = [];
-  if (state.area === "Foyer") {
-    objects.push({ x: 200, y: 300, type: "fountain" });
-    objects.push({ x: 600, y: 500, type: "statue" });
-  } else if (state.area === "HedgePath") {
-    for (let i = 0; i < 10; i++) {
-      objects.push({ x: 10, y: i * 100 + 50, type: "bush" });
-    }
-  } else if (state.area === "Suburb") {
-    for (let i = 0; i < 5; i++) {
-      objects.push({ x: 20, y: i * 400 + 100, type: "rock" });
-    }
-  } else if (state.area === "OpenTrench") {
-    for (let i = 0; i < 5; i++) {
-      objects.push({ x: 20, y: i * 1e3 + 500, type: "trench" });
-    }
-  }
-  if (state.coins) {
-    state.coins.forEach((c) => {
-      if (!c.isCollected && c.area === state.area) {
-        objects.push({ x: c.x, y: c.y, type: "coin", value: c.value });
-      }
-    });
-  }
-  if (state.opponents && state.opponents.length > 0) {
-    const adventureAreas = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench"];
-    if (adventureAreas.includes(state.area)) {
-      const areaIndex = adventureAreas.indexOf(state.area);
-      const opponentsInArea = state.opponents.slice(areaIndex * 20, (areaIndex + 1) * 20);
-      opponentsInArea.forEach((opp, idx) => {
-        objects.push({
-          x: 20 + idx % 3 * 10,
-          // Staggered x positions
-          y: (idx + 1) * 100,
-          // Spaced out along y
-          type: "opponent",
-          opponent: opp
-        });
-      });
-    }
-  }
-  const horizonY = height / 2;
-  objects.forEach((obj) => {
-    const dx = obj.x - state.gridX;
-    const dy = obj.y - state.gridY;
-    const angle = state.rotation * Math.PI / 180;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    const localX = dx * cos - dy * sin;
-    const localY = dx * sin + dy * cos;
-    if (localY < 10) return;
-    const scale2 = 400 / (localY + 100);
-    const screenX = width / 2 + localX * scale2;
-    const screenY = horizonY + 100 * scale2;
-    if (screenX < -200 || screenX > width + 200) return;
-    ctx.save();
-    ctx.translate(screenX, screenY);
-    ctx.scale(scale2, scale2);
-    if (obj.type === "fountain") {
-      drawFountain(ctx, dy);
-    } else if (obj.type === "bush") {
-      drawBush(ctx);
-    } else if (obj.type === "rock") {
-      drawRock(ctx);
-    } else if (obj.type === "trench") {
-      drawTrench(ctx);
-    } else if (obj.type === "opponent" && obj.opponent) {
-      drawOpponent(ctx, dy, obj.opponent);
-    } else if (obj.type === "coin") {
-      drawWorldCoin(ctx, time2);
-    }
-    ctx.restore();
-  });
-}
-function drawWorldCoin(ctx, time2) {
-  const spin = Math.sin(time2 / 200) * 0.5 + 0.5;
-  ctx.fillStyle = "#ffd700";
-  ctx.strokeStyle = "#daa520";
-  ctx.beginPath();
-  ctx.ellipse(0, -10, 8 * spin, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
-function drawOpponent(ctx, distance2, opponent) {
-  ctx.fillStyle = opponent.poodleColor.toLowerCase().includes("spotted") ? "#e0e0e0" : opponent.poodleColor.toLowerCase();
-  ctx.beginPath();
-  ctx.ellipse(0, -10, 20, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-  if (opponent.poodleColor.toLowerCase().includes("spotted")) {
-    ctx.fillStyle = "#333";
-    ctx.beginPath();
-    ctx.arc(-10, -10, 3, 0, Math.PI * 2);
-    ctx.arc(5, -12, 4, 0, Math.PI * 2);
-    ctx.arc(12, -8, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = opponent.outfit.toLowerCase().includes("pink") ? "#ff69b4" : opponent.outfit.toLowerCase().includes("green") ? "#4caf50" : opponent.outfit.toLowerCase().includes("navy") ? "#000080" : "#888";
-  ctx.beginPath();
-  ctx.arc(0, -25, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillRect(-5, -20, 10, 15);
-}
-function drawBush(ctx, distance2) {
-  ctx.fillStyle = "#2d5a27";
-  ctx.beginPath();
-  ctx.arc(0, 0, 30, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3e7c36";
-  ctx.beginPath();
-  ctx.arc(-10, -10, 20, 0, Math.PI * 2);
-  ctx.fill();
-}
-function drawRock(ctx, distance2) {
-  ctx.fillStyle = "#7f8c8d";
-  ctx.beginPath();
-  ctx.moveTo(-30, 0);
-  ctx.lineTo(-20, -20);
-  ctx.lineTo(20, -25);
-  ctx.lineTo(35, 0);
-  ctx.closePath();
-  ctx.fill();
-}
-function drawTrench(ctx, distance2) {
-  ctx.fillStyle = "#34495e";
-  ctx.fillRect(-100, -10, 200, 20);
-  ctx.fillStyle = "#2980b9";
-  ctx.fillRect(-100, -5, 200, 10);
-}
-function drawFountain(ctx, distance2) {
-  if (distance2 > 400) {
-    ctx.fillStyle = "#4a90e2";
-    ctx.beginPath();
-    ctx.arc(0, 0, 40, 0, Math.PI, true);
-    ctx.fill();
-  } else if (distance2 > 150) {
-    ctx.fillStyle = "#357abd";
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillRect(-40, -20, 80, 20);
-  } else {
-    const basinGrad = ctx.createLinearGradient(-40, 0, 40, 0);
-    basinGrad.addColorStop(0, "#2c3e50");
-    basinGrad.addColorStop(0.5, "#34495e");
-    basinGrad.addColorStop(1, "#2c3e50");
-    ctx.fillStyle = basinGrad;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
-    ctx.fill();
-    const waterGrad = ctx.createRadialGradient(0, -5, 2, 0, 0, 35);
-    waterGrad.addColorStop(0, "#ffffff");
-    waterGrad.addColorStop(0.4, "#4fc3f7");
-    waterGrad.addColorStop(1, "#0288d1");
-    ctx.fillStyle = waterGrad;
-    ctx.beginPath();
-    ctx.ellipse(0, -2, 35, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, -2, 30, -Math.PI / 4, -Math.PI / 2, true);
-    ctx.stroke();
-  }
-}
-function draw2DView(ctx, width, height, state) {
-  ctx.save();
-  ctx.fillStyle = "#1a1a1a";
-  ctx.fillRect(0, 0, width, height);
-  const currentDims = AREA_DIMENSIONS[state.area] || { width: 2e3, height: 2e3 };
-  const scaleX2 = width / currentDims.width;
-  const scaleY2 = height / currentDims.height;
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 1;
-  for (let x = 0; x <= currentDims.width; x += 200) {
-    ctx.beginPath();
-    ctx.moveTo(x * scaleX2, 0);
-    ctx.lineTo(x * scaleX2, height);
-    ctx.stroke();
-  }
-  for (let y = 0; y <= currentDims.height; y += 200) {
-    ctx.beginPath();
-    ctx.moveTo(0, y * scaleY2);
-    ctx.lineTo(width, y * scaleY2);
-    ctx.stroke();
-  }
-  ctx.fillStyle = "#ff69b4";
-  ctx.beginPath();
-  ctx.arc(state.gridX * scaleX2, state.gridY * scaleY2, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(state.gridX * scaleX2, state.gridY * scaleY2);
-  const dirX = state.direction === "East" ? 20 : state.direction === "West" ? -20 : 0;
-  const dirY = state.direction === "South" ? 20 : state.direction === "North" ? -20 : 0;
-  ctx.lineTo(state.gridX * scaleX2 + dirX, state.gridY * scaleY2 + dirY);
-  ctx.stroke();
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 12px sans-serif";
-  ctx.fillText(`2D MODE: ${state.area} (${Math.floor(state.gridX)}, ${Math.floor(state.gridY)})`, 20, 30);
-  ctx.restore();
-}
-const POODLE_CORE$3 = {
-  identity: {
-    name: "Abigay Rose Kone",
-    description: "Core Feature: Abigay, a massive white poodle standing 6 feet tall at the shoulder (with her iconic larger head perched on top of her neck reaching 9 feet, and a total height of 10 feet including her enlarged tiara), designed for riding with the power of science, not pseudoscience! She is a majestic, living masterpiece of 3D craftsmanship.",
-    rastafarian: "Core Feature: She's surprisingly Rastafarian, embracing a spirit of peace, love, and natural living!",
-    opposesBabylon: "Core Feature: She Opposes Babylon, rejecting artificial constraints and embracing the freedom of the open path.",
-    onlyDog: "Core Feature: She's an only dog who can't be walked with a 'Babylonian leash', only for riding. This emphasizes her unique role as a partner and steed.",
-    ageGroup: "Core Feature: This poodle is for everyone of any age who wished to ride Abigay, a massive white poodle, not for little kids (because a definition of a kid is a baby goat!). It's a sophisticated adventure for the young at heart."
-  },
-  design: {
-    appearance: "Abigay has a massive white coat, a cartoon pink button round nose (warm and dry with a horizontal oval shape and no nostrils), and shiny blue eyes. Her iconic larger head is perched on top of her neck. Her skin is a refined peach color. She wears a pink collar with horizontal white diamonds and a large diamond charm, and an enlarged pink tiara with a 4-inch heart-shaped gem. Her body is 50 inches wide and 8 feet long, appearing as two spheres connected by thick fur. Your legs are molded into her fur, creating a fused appearance. Her paws have rounded toes and pink pads. Her tail is 3 feet long, standing diagonally at an acute angle with an enlarged furry ball tip.",
-    size: "Core Feature: A poodle this large (8 feet long) is large enough for me to ride, I can go anywhere (#1 on my wish list!!)",
-    height: "Core Feature: She stands 6 feet tall at the shoulder; her iconic larger head is perched on top of her neck at 9 feet, and her enlarged tiara reaches a total height of 10 feet. This makes her a truly massive and majestic poodle, perfectly sized for riding.",
-    dimensions: {
-      shoulderHeightFeet: 6,
-      headHeightFeet: 9,
-      headWidthInches: 56.25
-    }
-  },
-  rider: {
-    role: "Me (as a rider) - Core Feature as a partner who rides his poodle!"
-  },
-  environment: {
-    checkedFlooring: "Core Feature: Pink and white checked ceramic flooring design, creating a vibrant and clean aesthetic.",
-    grandTapestry: "Core Feature: A grand, hand-woven tapestry depicting history, adding a sense of depth and heritage to the foyer.",
-    artwork: "Core Feature: Embossed artwork and carvings that can be felt, providing a tactile dimension to the environment.",
-    ambientSound: "Core Feature: Ambient sound of the streets from the north doors, grounding the adventure in a living world.",
-    gardenAndFoyer: "Core Feature: The 2000x2000 feet foyer and garden are expansive areas designed for ease of expansion and exploration.",
-    nightSky: "Core Feature: Ultra Black night sky with a vibrant array of stars and a majestic, glowing moon.",
-    lighting: "Core Feature: Gentle Glow lighting that adapts to the time of day, creating a warm and inviting atmosphere even at night."
-  },
-  mechanics: {
-    gallopRhythm: "Core Feature: Iconic 1-2-3 gallop rhythm pattern (400ms).",
-    screenReaderFirst: "Core Feature: Screen-Reader First Approach (Prioritized as a core priority).",
-    glassBarrierTip: "Core Tip: An ability to effortlessly go around the glass barrier of an upper foyer."
-  },
-  developerComments: {
-    dream: "Is a game what I make as a game what I dreamed to play!",
-    role: "I am Aaron Johnson (nickname: 'Fairy-Rider'), a core developer, and a core artist!",
-    status: "Masterpiece Finalized & Hardened: Abigay stands at her ultimate scale of 10 feet tall (including tiara). All core features, including her iconic larger head and 4-inch heart gem, are now hardened and centralized within the Primary_Characters directory for maximum performance.",
-    gameDescription: "Poodle Ride Adventure is an immersive, accessible adventure where you, the Fairy-Rider, ride Abigay Rose Kone, a massive white poodle standing 6 feet at the shoulder with her iconic larger head perched on top of her neck reaching 9 feet. This masterpiece is officially Babylon-free, using vintage 3D craftsmanship for maximum efficiency and a high-quality experience."
-  }
-};
-const GAME_CORE_FEATURES = {
-  notifications: {
-    barkToggle: "Core Feature: Pressing 1 to toggle a notification for 'The poodle barks elegantly' (Off by default).",
-    directionToggle: "Core Feature: Pressing 4 to truncate direction notifications (On by default).",
-    jumpNotifications: "Core Feature: Jump Notifications (Experimental Feature still in the works for the future...)"
-  },
-  controls: {
-    barkS: "Poodle's elegant bark: Always available with an 'S' key. Press for single bark, hold for gallop pattern.",
-    loveH: "Pressing 'H' to confirm there's love."
-  },
-  physics: {
-    runningJump: "Core Feature: Iconic running jump refined to stick with her gallop for precision, reducing sound bloat and ensuring a smooth, rhythmic experience.",
-    gallopPhysics: "Core Feature: Physics-based gallop that responds to terrain, providing a realistic feel of weight and momentum."
-  }
-};
-function drawRiderLegs(ctx, centerX, bottomY, leanOffset) {
-  const legGrad = ctx.createLinearGradient(centerX - 80, bottomY - 140 + leanOffset, centerX - 20, bottomY - 20 + leanOffset);
-  legGrad.addColorStop(0, "#ffffff");
-  legGrad.addColorStop(1, "#d0d0d0");
-  ctx.fillStyle = legGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX - 50, bottomY - 80 + leanOffset, 30, 60, Math.PI / 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(centerX + 50, bottomY - 80 + leanOffset, 30, 60, -Math.PI / 8, 0, Math.PI * 2);
-  ctx.fill();
-}
-function drawRiderHands(ctx, centerX, bottomY, leanOffset) {
-  const handGrad = ctx.createRadialGradient(centerX - 85, bottomY - 135 + leanOffset, 5, centerX - 80, bottomY - 130 + leanOffset, 22);
-  handGrad.addColorStop(0, "#3b2219");
-  handGrad.addColorStop(1, "#2a1811");
-  ctx.fillStyle = handGrad;
-  ctx.beginPath();
-  ctx.arc(centerX - 80, bottomY - 130 + leanOffset, 22, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(centerX + 80, bottomY - 130 + leanOffset, 22, 0, Math.PI * 2);
-  ctx.fill();
-}
-let lastLogTime$3 = 0;
-const LOG_INTERVAL$3 = 5e3;
-const FUR_RANDOM_VALUES = Array.from({ length: 100 }, () => ({
-  angle: Math.random() * Math.PI * 2,
-  r: 40 + Math.random() * 25,
-  r2: 70 + Math.random() * 25
-}));
-const ABIGAY_FUR_RANDOM = FUR_RANDOM_VALUES;
-const drawPaw = (ctx, x, y) => {
-  const pawGrad = ctx.createRadialGradient(x - 5, y - 5, 5, x, y, 25);
-  pawGrad.addColorStop(0, "#ffffff");
-  pawGrad.addColorStop(1, "#dcdcdc");
-  ctx.fillStyle = pawGrad;
-  ctx.beginPath();
-  ctx.arc(x, y, 25, 0, Math.PI * 2);
-  ctx.fill();
-  const padGrad = ctx.createRadialGradient(x, y, 2, x, y, 12);
-  padGrad.addColorStop(0, "#ffc0cb");
-  padGrad.addColorStop(1, "#ffb6c1");
-  ctx.fillStyle = padGrad;
-  ctx.beginPath();
-  ctx.arc(x, y, 12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#ffffff";
-  for (let i = 0; i < 3; i++) {
-    ctx.beginPath();
-    ctx.arc(x - 15 + i * 15, y - 15, 8, 0, Math.PI * 2);
-    ctx.fill();
-  }
-};
-function drawPoodleRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isUmbrellaEquipped = false, isUmbrellaOpen = false, isPetting = false, lastPetTime = 0) {
-  const centerX = width / 2;
-  const bottomY = height - 50;
-  ctx.save();
-  if (isUmbrellaEquipped) {
-    const umbrellaY = bottomY - 380 + (isLeaning ? 50 : 0);
-    const umbrellaX = centerX - 40;
-    ctx.strokeStyle = "#silver";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(umbrellaX, umbrellaY);
-    ctx.lineTo(umbrellaX, umbrellaY - 150);
-    ctx.stroke();
-    if (isUmbrellaOpen) {
-      const canopyWidth = 200;
-      const canopyHeight = 80;
-      const umbrellaGrad = ctx.createLinearGradient(umbrellaX - canopyWidth / 2, umbrellaY - 150, umbrellaX + canopyWidth / 2, umbrellaY - 150);
-      umbrellaGrad.addColorStop(0, "#white");
-      umbrellaGrad.addColorStop(0.5, "#ffc0cb");
-      umbrellaGrad.addColorStop(1, "#white");
-      ctx.fillStyle = umbrellaGrad;
-      ctx.beginPath();
-      ctx.ellipse(umbrellaX, umbrellaY - 150, canopyWidth / 2, canopyHeight / 2, 0, Math.PI, 0);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(0,0,0,0.1)";
-      ctx.lineWidth = 1;
-      for (let i = -2; i <= 2; i++) {
-        ctx.beginPath();
-        ctx.moveTo(umbrellaX, umbrellaY - 150);
-        ctx.lineTo(umbrellaX + i * 40, umbrellaY - 150 + canopyHeight / 4);
-        ctx.stroke();
-      }
-    } else {
-      ctx.fillStyle = "#ffc0cb";
-      ctx.beginPath();
-      ctx.ellipse(umbrellaX, umbrellaY - 170, 15, 60, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  const gallopTime = time2 * 1e3 % 400;
-  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 5;
-  const leanOffset = isLeaning ? 50 : 0;
-  const poodleYOffset = gallopBounce;
-  const riderYOffset = leanOffset + gallopBounce;
-  const now2 = Date.now();
-  if (now2 - lastLogTime$3 > LOG_INTERVAL$3) {
-    DiagnosticManager.logGraphics("PoodleRenderer (2-D)", `Rendering Abigay 2-D View. Bounce: ${poodleYOffset.toFixed(1)}, Lean: ${isLeaning}`);
-    lastLogTime$3 = now2;
-  }
-  const breathing = Math.sin(time2 * 3) * 5;
-  const frontGrad = ctx.createRadialGradient(centerX - 40, bottomY - 180 + poodleYOffset, 20, centerX, bottomY - 160 + poodleYOffset, 150 + breathing);
-  frontGrad.addColorStop(0, "#ffffff");
-  frontGrad.addColorStop(1, "#e0e0e0");
-  ctx.fillStyle = frontGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 160 + poodleYOffset, 120 + breathing * 0.5, 110 + breathing * 0.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const backGrad = ctx.createRadialGradient(centerX - 30, bottomY - 140 + poodleYOffset, 20, centerX, bottomY - 120 + poodleYOffset, 140 + breathing);
-  backGrad.addColorStop(0, "#ffffff");
-  backGrad.addColorStop(1, "#d0d0d0");
-  ctx.fillStyle = backGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 120 + poodleYOffset, 110 + breathing * 0.4, 100 + breathing * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 80; i++) {
-    const { angle, r } = FUR_RANDOM_VALUES[i % 100];
-    const offsetY = i < 40 ? -160 : -120;
-    ctx.beginPath();
-    ctx.moveTo(centerX + Math.cos(angle) * r, bottomY + offsetY + poodleYOffset + Math.sin(angle) * r);
-    ctx.lineTo(centerX + Math.cos(angle) * (r + 15), bottomY + offsetY + poodleYOffset + Math.sin(angle) * (r + 15));
-    ctx.stroke();
-  }
-  const riderY = bottomY - 220 + riderYOffset;
-  const riderWidth = 80;
-  const riderHeight = 100;
-  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
-  riderGrad.addColorStop(0, "#00008b");
-  riderGrad.addColorStop(0.5, "#0000ff");
-  riderGrad.addColorStop(1, "#00008b");
-  ctx.fillStyle = riderGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3b2219";
-  ctx.beginPath();
-  ctx.arc(centerX, riderY - 65, 22, 0, Math.PI * 2);
-  ctx.fill();
-  drawRiderLegs(ctx, centerX, bottomY, riderYOffset);
-  const headScale = 1.25;
-  const headY = bottomY - 340 + poodleYOffset;
-  const headRadius = 75 * headScale;
-  const headGrad = ctx.createRadialGradient(centerX - 20 * headScale, headY - 20 * headScale, 10 * headScale, centerX, headY, headRadius);
-  headGrad.addColorStop(0, "#ffffff");
-  headGrad.addColorStop(1, "#f0f0f0");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-  ctx.fill();
-  const earSway = Math.sin(time2 * 2) * 0.05;
-  const earWidth = 45 * headScale;
-  const earHeight = 100 * headScale;
-  ctx.fillStyle = "#f5f5f5";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 80 * headScale, headY + 20, earWidth, earHeight, Math.PI / 12 + earSway, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(centerX + 80 * headScale, headY + 20, earWidth, earHeight, -Math.PI / 12 - earSway, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#0000ff";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 25 * headScale, headY - 10, 8 * headScale, 10 * headScale, 0, 0, Math.PI * 2);
-  ctx.ellipse(centerX + 25 * headScale, headY - 10, 8 * headScale, 10 * headScale, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(centerX - 28 * headScale, headY - 13, 3 * headScale, 0, Math.PI * 2);
-  ctx.arc(centerX + 22 * headScale, headY - 13, 3 * headScale, 0, Math.PI * 2);
-  ctx.fill();
-  const noseY = headY + 25;
-  const noseWidth = 14 * headScale;
-  const noseHeight = 9 * headScale;
-  const noseGrad = ctx.createRadialGradient(centerX - 3 * headScale, noseY - 2 * headScale, 2 * headScale, centerX, noseY, noseWidth);
-  noseGrad.addColorStop(0, "#ffc0cb");
-  noseGrad.addColorStop(0.7, "#ffb6c1");
-  noseGrad.addColorStop(1, "#ff69b4");
-  ctx.fillStyle = noseGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 5 * headScale, noseY - 3 * headScale, 6 * headScale, 3 * headScale, -Math.PI / 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.beginPath();
-  ctx.arc(centerX - 7 * headScale, noseY - 4 * headScale, 1.5 * headScale, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-  ctx.beginPath();
-  ctx.ellipse(centerX + 4 * headScale, noseY + 2 * headScale, 3 * headScale, 1.5 * headScale, Math.PI / 4, 0, Math.PI * 2);
-  ctx.fill();
-  const tiaraWidth = 55 * headScale;
-  const tiaraY = headY - 90;
-  const tiaraGrad = ctx.createLinearGradient(centerX - tiaraWidth, tiaraY - 50, centerX + tiaraWidth, tiaraY);
-  tiaraGrad.addColorStop(0, "#ff1493");
-  tiaraGrad.addColorStop(0.5, "#ff69b4");
-  tiaraGrad.addColorStop(1, "#ff1493");
-  ctx.fillStyle = tiaraGrad;
-  ctx.beginPath();
-  ctx.moveTo(centerX - tiaraWidth, tiaraY);
-  ctx.lineTo(centerX, tiaraY - 50);
-  ctx.lineTo(centerX + tiaraWidth, tiaraY);
-  ctx.closePath();
-  ctx.fill();
-  const gemPulse = Math.sin(time2 * 4) * 0.5;
-  const gemRadius = 4;
-  const gemGrad = ctx.createRadialGradient(centerX - 1, tiaraY - 32, 0.5, centerX, tiaraY - 30, gemRadius + gemPulse);
-  gemGrad.addColorStop(0, "#ffffff");
-  gemGrad.addColorStop(0.3, "#ff1493");
-  gemGrad.addColorStop(1, "#8b0000");
-  ctx.fillStyle = gemGrad;
-  ctx.beginPath();
-  ctx.arc(centerX, tiaraY - 30, gemRadius + gemPulse, 0, Math.PI * 2);
-  ctx.fill();
-  const tailWagSpeed = isPetting ? 12 : 5;
-  const tailWagRange = isPetting ? 0.4 : 0.2;
-  const tailAngle = -Math.PI / 4 + Math.sin(time2 * tailWagSpeed) * tailWagRange;
-  const tailX = centerX + 100;
-  const tailY = bottomY - 120 + poodleYOffset;
-  const stemGrad = ctx.createLinearGradient(tailX - 5, tailY, tailX + 5, tailY);
-  stemGrad.addColorStop(0, "#d0d0d0");
-  stemGrad.addColorStop(0.5, "#ffffff");
-  stemGrad.addColorStop(1, "#d0d0d0");
-  ctx.strokeStyle = stemGrad;
-  ctx.lineWidth = 12;
-  ctx.beginPath();
-  ctx.moveTo(tailX, tailY);
-  ctx.lineTo(tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90);
-  ctx.stroke();
-  const ballSize = 38;
-  const ballGrad = ctx.createRadialGradient(tailX + Math.cos(tailAngle) * 90 - 8, tailY + Math.sin(tailAngle) * 90 - 8, 8, tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90, ballSize);
-  ballGrad.addColorStop(0, "#ffffff");
-  ballGrad.addColorStop(1, "#e0e0e0");
-  ctx.fillStyle = ballGrad;
-  ctx.beginPath();
-  ctx.arc(tailX + Math.cos(tailAngle) * 90, tailY + Math.sin(tailAngle) * 90, ballSize, 0, Math.PI * 2);
-  ctx.fill();
-  if (isGraspingCollar) {
-    drawRiderHands(ctx, centerX, bottomY, riderYOffset);
-    const collarY = bottomY - 145 + poodleYOffset;
-    const collarGrad = ctx.createLinearGradient(centerX - 70, collarY, centerX - 70, collarY + 25);
-    collarGrad.addColorStop(0, "#c71585");
-    collarGrad.addColorStop(0.5, "#ff69b4");
-    collarGrad.addColorStop(1, "#c71585");
-    ctx.fillStyle = collarGrad;
-    ctx.fillRect(centerX - 70, collarY, 140, 25);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    for (let i = 0; i < 5; i++) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - 55 + i * 28, collarY + 12);
-      ctx.lineTo(centerX - 50 + i * 28, collarY + 6);
-      ctx.lineTo(centerX - 45 + i * 28, collarY + 12);
-      ctx.lineTo(centerX - 50 + i * 28, collarY + 18);
-      ctx.closePath();
-      ctx.fill();
-    }
-    const charmShimmer = Math.sin(time2 * 3) * 0.5 + 0.5;
-    const charmGrad = ctx.createRadialGradient(centerX - 5, collarY + 35, 2, centerX, collarY + 40, 15 + charmShimmer * 2);
-    charmGrad.addColorStop(0, "#ffffff");
-    charmGrad.addColorStop(0.5, "#e0ffff");
-    charmGrad.addColorStop(1, "#afeeee");
-    ctx.fillStyle = charmGrad;
-    ctx.beginPath();
-    ctx.moveTo(centerX, collarY + 25);
-    ctx.lineTo(centerX - 15, collarY + 40);
-    ctx.lineTo(centerX, collarY + 55);
-    ctx.lineTo(centerX + 15, collarY + 40);
-    ctx.closePath();
-    ctx.fill();
-  } else if (isPetting) {
-    const petDuration = 0.7;
-    const elapsedTime = time2 - lastPetTime / 1e3;
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = tiaraY;
-    const endY = headY + 40;
-    const currentY = startY + (endY - startY) * progress2;
-    const handX = centerX - 45;
-    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
-    handGrad.addColorStop(0, "#3b2219");
-    handGrad.addColorStop(1, "#2a1811");
-    ctx.fillStyle = handGrad;
-    ctx.beginPath();
-    ctx.arc(handX, currentY, 22, 0, Math.PI * 2);
-    ctx.fill();
-    const handY = bottomY - 110 + riderYOffset;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(centerX + 50, handY, 18, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    const handY = bottomY - 110 + riderYOffset;
-    const handGrad = ctx.createRadialGradient(centerX - 55, handY, 5, centerX - 50, handY + 5, 20);
-    handGrad.addColorStop(0, "#3b2219");
-    handGrad.addColorStop(1, "#2a1811");
-    ctx.fillStyle = handGrad;
-    ctx.beginPath();
-    ctx.arc(centerX - 50, handY, 18, 0, Math.PI * 2);
-    ctx.arc(centerX + 50, handY, 18, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  drawPaw(ctx, centerX - 100, bottomY - 20 + poodleYOffset);
-  drawPaw(ctx, centerX + 100, bottomY - 20 + poodleYOffset);
-  ctx.restore();
-}
-function drawRiderPOV(ctx, centerX, centerY, isGraspingCollar, isPetting = false, lastPetTime = 0, time2 = 0, ridingAnimal = "Abigay Rose Kone") {
-  let leftHandY = isGraspingCollar ? centerY - 100 : centerY + 50;
-  const rightHandY = isGraspingCollar ? centerY - 100 : centerY + 50;
-  if (isPetting) {
-    const petDuration = 0.7;
-    const elapsedTime = Math.max(0, time2 - lastPetTime / 1e3);
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = leftHandY;
-    let peakY = centerY - 280;
-    let strokeEndY = centerY - 150;
-    if (ridingAnimal === "Abigail Marigold Kenyatta" || ridingAnimal === "Dymond Daisy Qin-Reynolds") {
-      peakY = centerY - 210;
-      strokeEndY = centerY - 100;
-    }
-    if (progress2 < 0.2) {
-      leftHandY = startY + (peakY - startY) * (progress2 / 0.2);
-    } else {
-      const strokeProgress = (progress2 - 0.2) / 0.8;
-      leftHandY = peakY + (strokeEndY - peakY) * strokeProgress;
-    }
-  }
-  const leftHandGrad = ctx.createRadialGradient(centerX - 90, leftHandY + 20, 5, centerX - 87, leftHandY + 25, 30);
-  leftHandGrad.addColorStop(0, "#3b2219");
-  leftHandGrad.addColorStop(1, "#2a1811");
-  const rightHandGrad = ctx.createRadialGradient(centerX + 85, rightHandY + 20, 5, centerX + 88, rightHandY + 25, 30);
-  rightHandGrad.addColorStop(0, "#3b2219");
-  rightHandGrad.addColorStop(1, "#2a1811");
-  ctx.fillStyle = leftHandGrad;
-  ctx.fillRect(centerX - 110, leftHandY, 45, 110);
-  ctx.fillStyle = rightHandGrad;
-  ctx.fillRect(centerX + 65, rightHandY, 45, 110);
-  const leftSleeveGrad = ctx.createLinearGradient(centerX - 120, leftHandY + 50, centerX - 55, leftHandY + 50);
-  leftSleeveGrad.addColorStop(0, "#00008b");
-  leftSleeveGrad.addColorStop(0.5, "#0000ff");
-  leftSleeveGrad.addColorStop(1, "#00008b");
-  const rightSleeveGrad = ctx.createLinearGradient(centerX + 55, rightHandY + 50, centerX + 120, rightHandY + 50);
-  rightSleeveGrad.addColorStop(0, "#00008b");
-  rightSleeveGrad.addColorStop(0.5, "#0000ff");
-  rightSleeveGrad.addColorStop(1, "#00008b");
-  ctx.fillStyle = leftSleeveGrad;
-  ctx.fillRect(centerX - 120, leftHandY + 50, 65, 160);
-  ctx.fillStyle = rightSleeveGrad;
-  ctx.fillRect(centerX + 55, rightHandY + 50, 65, 160);
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 3; i++) {
-    ctx.beginPath();
-    ctx.moveTo(centerX - 115 + i * 10, leftHandY + 60);
-    ctx.lineTo(centerX - 115 + i * 10, leftHandY + 200);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(centerX + 70 + i * 10, rightHandY + 60);
-    ctx.lineTo(centerX + 70 + i * 10, rightHandY + 200);
-    ctx.stroke();
-  }
-}
-function drawPoodlePOV(ctx, GAME_WIDTH2, GAME_HEIGHT2, isJumping, isLeaning, isGraspingCollar, time2, ridingAnimal = "Abigay Rose Kone", isPetting = false, lastPetTime = 0) {
-  ctx.save();
-  const centerX = GAME_WIDTH2 / 2;
-  const centerY = GAME_HEIGHT2 - 100 + (isJumping ? -50 : 0) + (isLeaning ? 50 : 0);
-  const isAnninneAmelia = ridingAnimal === "Anninne-Amelia Rose Julisus";
-  const headScale = isLeaning ? 1.1 : 1;
-  const headOffset = isLeaning ? 20 : 0;
-  const headColor = isAnninneAmelia ? "#ffffff" : "#ffffff";
-  const earColor = isAnninneAmelia ? "#ff8c00" : "#f5f5f5";
-  const tiaraColor = isAnninneAmelia ? "#ffd700" : "#c71585";
-  const noseColor = isAnninneAmelia ? "#ff6347" : "#ffc0cb";
-  const collarColor = isAnninneAmelia ? "#ffd700" : "#c71585";
-  const gallopTime = time2 * 1e3 % 400;
-  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 3;
-  const poodleYOffset = (isJumping ? -50 : 0) + gallopBounce;
-  const breathing = Math.sin(time2 * 3) * 2;
-  const bodyGrad = ctx.createRadialGradient(centerX - 30, centerY + 30 + poodleYOffset, 10, centerX, centerY + 50 + poodleYOffset, 120 + breathing);
-  bodyGrad.addColorStop(0, "#ffffff");
-  bodyGrad.addColorStop(1, "#e0e0e0");
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, centerY + 50 + poodleYOffset, 100 + breathing * 0.5, 80 + breathing * 0.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const shimmer = Math.sin(time2 * 2) * 0.1 + 0.5;
-  ctx.strokeStyle = `rgba(255, 255, 255, ${shimmer})`;
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 40; i++) {
-    const { angle, r2 } = ABIGAY_FUR_RANDOM[i % 100];
-    ctx.beginPath();
-    ctx.moveTo(centerX + Math.cos(angle) * r2, centerY + 50 + poodleYOffset + Math.sin(angle) * r2);
-    ctx.lineTo(centerX + Math.cos(angle) * (r2 + 12), centerY + 50 + poodleYOffset + Math.sin(angle) * (r2 + 12));
-    ctx.stroke();
-  }
-  const neckWidth = 80 * headScale;
-  const neckGrad = ctx.createLinearGradient(centerX - neckWidth / 2, centerY - 160 + headOffset + poodleYOffset, centerX + neckWidth / 2, centerY - 160 + headOffset + poodleYOffset);
-  neckGrad.addColorStop(0, "#e0e0e0");
-  neckGrad.addColorStop(0.5, "#ffffff");
-  neckGrad.addColorStop(1, "#e0e0e0");
-  ctx.fillStyle = neckGrad;
-  ctx.fillRect(centerX - neckWidth / 2, centerY - 160 + headOffset + poodleYOffset, neckWidth, 110 * headScale);
-  const headRadius = 85 * headScale;
-  const headY = centerY - 210 + headOffset + poodleYOffset;
-  const headGrad = ctx.createRadialGradient(centerX - 20 * headScale, headY - 15 * headScale, 5 * headScale, centerX, headY, headRadius);
-  headGrad.addColorStop(0, headColor);
-  headGrad.addColorStop(1, isAnninneAmelia ? "#f5f5f5" : "#f0f0f0");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-  ctx.fill();
-  const earSway = Math.sin(time2 * 2) * 0.05 + (isJumping ? Math.sin(time2 * 10) * 0.1 : 0);
-  const leftEarX = centerX - 85 * headScale;
-  const leftEarY = centerY - 190 + headOffset + poodleYOffset;
-  const leftEarGrad = ctx.createRadialGradient(leftEarX, leftEarY, 5 * headScale, leftEarX, leftEarY, 95 * headScale);
-  leftEarGrad.addColorStop(0, earColor);
-  leftEarGrad.addColorStop(1, isAnninneAmelia ? "#e67e22" : "#f5f5f5");
-  ctx.fillStyle = leftEarGrad;
-  ctx.beginPath();
-  ctx.ellipse(leftEarX, leftEarY, 40 * headScale, 90 * headScale, Math.PI / 12 + earSway, 0, Math.PI * 2);
-  ctx.fill();
-  const rightEarX = centerX + 85 * headScale;
-  const rightEarY = centerY - 190 + headOffset + poodleYOffset;
-  const rightEarGrad = ctx.createRadialGradient(rightEarX, rightEarY, 5 * headScale, rightEarX, rightEarY, 95 * headScale);
-  rightEarGrad.addColorStop(0, earColor);
-  rightEarGrad.addColorStop(1, isAnninneAmelia ? "#e67e22" : "#f5f5f5");
-  ctx.fillStyle = rightEarGrad;
-  ctx.beginPath();
-  ctx.ellipse(rightEarX, rightEarY, 40 * headScale, 90 * headScale, -Math.PI / 12 - earSway, 0, Math.PI * 2);
-  ctx.fill();
-  const tiaraWidth = 55 * headScale;
-  const tiaraY = centerY - 270 + headOffset + poodleYOffset;
-  const tiaraGrad = ctx.createLinearGradient(centerX - tiaraWidth, tiaraY - 50 * headScale, centerX + tiaraWidth, tiaraY);
-  tiaraGrad.addColorStop(0, tiaraColor);
-  tiaraGrad.addColorStop(0.5, isAnninneAmelia ? "#fffacd" : "#ff69b4");
-  tiaraGrad.addColorStop(1, tiaraColor);
-  ctx.fillStyle = tiaraGrad;
-  ctx.beginPath();
-  ctx.moveTo(centerX - tiaraWidth, tiaraY);
-  ctx.lineTo(centerX, tiaraY - 50 * headScale);
-  ctx.lineTo(centerX + tiaraWidth, tiaraY);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.lineWidth = 2 * headScale;
-  ctx.stroke();
-  const gemPulse = Math.sin(time2 * 4) * 0.5;
-  const gemY = tiaraY - 30 * headScale;
-  const gemRadius = 3.2 * headScale;
-  if (isAnninneAmelia) {
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.moveTo(centerX, gemY - 20 * headScale - gemPulse);
-    ctx.lineTo(centerX + 12 * headScale, gemY);
-    ctx.lineTo(centerX, gemY + 20 * headScale + gemPulse);
-    ctx.lineTo(centerX - 12 * headScale, gemY);
-    ctx.closePath();
-    ctx.fill();
-  } else {
-    const gemGrad = ctx.createRadialGradient(centerX - 1 * headScale, gemY - 1 * headScale, 0.5 * headScale, centerX, gemY, gemRadius + gemPulse);
-    gemGrad.addColorStop(0, "#ff69b4");
-    gemGrad.addColorStop(1, "#ff1493");
-    ctx.fillStyle = gemGrad;
-    ctx.beginPath();
-    ctx.arc(centerX, gemY, gemRadius, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  const blink = Math.sin(time2 * 0.5) > 0.98 ? 0.1 : 1;
-  ctx.fillStyle = "#0000ff";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 25 * headScale, centerY - 220 + headOffset + poodleYOffset, 8 * headScale, 8 * headScale * blink, 0, 0, Math.PI * 2);
-  ctx.ellipse(centerX + 25 * headScale, centerY - 220 + headOffset + poodleYOffset, 8 * headScale, 8 * headScale * blink, 0, 0, Math.PI * 2);
-  ctx.fill();
-  if (blink > 0.5) {
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(centerX - 28 * headScale, centerY - 223 + headOffset + poodleYOffset, 3 * headScale, 0, Math.PI * 2);
-    ctx.arc(centerX + 22 * headScale, centerY - 223 + headOffset + poodleYOffset, 3 * headScale, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  const noseY = centerY - 200 + headOffset + poodleYOffset;
-  const noseWidth = 12 * headScale;
-  const noseHeight = 8 * headScale;
-  const noseGrad = ctx.createRadialGradient(centerX - 3 * headScale, noseY - 2 * headScale, 2 * headScale, centerX, noseY, noseWidth);
-  noseGrad.addColorStop(0, noseColor);
-  noseGrad.addColorStop(0.7, isAnninneAmelia ? "#ff7f50" : "#ffb6c1");
-  noseGrad.addColorStop(1, isAnninneAmelia ? "#ff4500" : "#ff69b4");
-  ctx.fillStyle = noseGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 4 * headScale, noseY - 3 * headScale, 5 * headScale, 3 * headScale, -Math.PI / 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-  ctx.beginPath();
-  ctx.arc(centerX + 4 * headScale, noseY + 2 * headScale, 2 * headScale, 0, Math.PI * 2);
-  ctx.fill();
-  const collarY = centerY - 110 + headOffset * 0.5 + poodleYOffset;
-  const collarGrad = ctx.createLinearGradient(centerX - 45 * headScale, collarY, centerX - 45 * headScale, collarY + 25 * headScale);
-  collarGrad.addColorStop(0, collarColor);
-  collarGrad.addColorStop(0.5, isAnninneAmelia ? "#fffacd" : "#ff69b4");
-  collarGrad.addColorStop(1, collarColor);
-  ctx.fillStyle = collarGrad;
-  ctx.fillRect(centerX - 45 * headScale, collarY, 90 * headScale, 25 * headScale);
-  const sparkle = Math.sin(time2 * 5) * 0.2 + 0.8;
-  ctx.fillStyle = `rgba(255, 255, 255, ${sparkle})`;
-  for (let i = 0; i < 3; i++) {
-    ctx.beginPath();
-    ctx.moveTo(centerX - (30 - i * 30) * headScale, collarY + 12 * headScale);
-    ctx.lineTo(centerX - (25 - i * 30) * headScale, collarY + 6 * headScale);
-    ctx.lineTo(centerX - (20 - i * 30) * headScale, collarY + 12 * headScale);
-    ctx.lineTo(centerX - (25 - i * 30) * headScale, collarY + 18 * headScale);
-    ctx.closePath();
-    ctx.fill();
-  }
-  const charmY = collarY + 35 * headScale;
-  const charmSparkle = Math.cos(time2 * 4) * 0.3 + 0.7;
-  const charmGrad = ctx.createRadialGradient(centerX - 5 * headScale, charmY - 5 * headScale, 2 * headScale, centerX, charmY, 15 * headScale);
-  charmGrad.addColorStop(0, `rgba(255, 255, 255, ${charmSparkle})`);
-  charmGrad.addColorStop(0.5, isAnninneAmelia ? "#e0ffff" : "#e0ffff");
-  charmGrad.addColorStop(1, isAnninneAmelia ? "#afeeee" : "#afeeee");
-  ctx.fillStyle = charmGrad;
-  if (isAnninneAmelia) {
-    ctx.beginPath();
-    ctx.moveTo(centerX - 25 * headScale, charmY);
-    ctx.lineTo(centerX, charmY - 15 * headScale);
-    ctx.lineTo(centerX + 25 * headScale, charmY);
-    ctx.lineTo(centerX, charmY + 15 * headScale);
-    ctx.closePath();
-    ctx.fill();
-  } else {
-    ctx.beginPath();
-    ctx.moveTo(centerX, charmY - 10 * headScale);
-    ctx.lineTo(centerX - 15 * headScale, charmY + 5 * headScale);
-    ctx.lineTo(centerX, charmY + 20 * headScale);
-    ctx.lineTo(centerX + 15 * headScale, charmY + 5 * headScale);
-    ctx.closePath();
-    ctx.fill();
-  }
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  drawRiderPOV(ctx, centerX, centerY, isGraspingCollar, isPetting, lastPetTime, time2, ridingAnimal);
-  ctx.restore();
-}
-let lastLogTime$2 = 0;
-const LOG_INTERVAL$2 = 5e3;
-const rotateY = (p, angle) => {
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
+function detectHardwareProfile() {
+  const ram = navigator.deviceMemory || 4;
+  const isiPad = /iPad|iPhone|iPod/.test(navigator.userAgent) || navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isMobile = isiPad || isAndroid || /Mobi/i.test(navigator.userAgent);
+  const isLegacy = ram <= 4 || isMobile;
+  const maxDPR = isLegacy ? 1.25 : isMobile ? 1.5 : 2;
   return {
-    x: p.x * cos - p.z * sin,
-    y: p.y,
-    z: p.x * sin + p.z * cos
-  };
-};
-const renderSphere3D = (ctx, sphere, rotation, viewWidth, viewHeight, fov = 800) => {
-  const rotatedCenter = rotateY(sphere.center, rotation);
-  const scale2 = fov / (fov + rotatedCenter.z);
-  const projX = viewWidth / 2 + rotatedCenter.x * scale2;
-  const projY = viewHeight / 2 + rotatedCenter.y * scale2;
-  const projRadius = sphere.radius * scale2;
-  if (projRadius <= 0) return;
-  ctx.save();
-  const gradX = projX - projRadius * 0.3;
-  const gradY = projY - projRadius * 0.3;
-  const gradR = projRadius * 0.1;
-  const grad = ctx.createRadialGradient(gradX, gradY, gradR, projX, projY, projRadius);
-  if (sphere.gradient) {
-    grad.addColorStop(0, sphere.gradient.stop0);
-    grad.addColorStop(1, sphere.gradient.stop1);
-  } else {
-    grad.addColorStop(0, "#ffffff");
-    grad.addColorStop(1, sphere.color);
-  }
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(projX, projY, projRadius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-};
-function drawPoodle3D(ctx, width, height, time2, angleY = 0) {
-  const breathing = Math.sin(time2 * 2.5) * 3;
-  const gallopBounce = Math.sin(time2 * 15.7) * 4;
-  const components = [
-    {
-      center: { x: 0, y: 100 + gallopBounce, z: 80 },
-      radius: 110 + breathing,
-      color: "#d0d0d0",
-      gradient: { stop0: "#ffffff", stop1: "#d0d0d0" }
-    },
-    {
-      center: { x: 0, y: 80 + gallopBounce, z: -80 },
-      radius: 120 + breathing * 1.2,
-      color: "#e0e0e0",
-      gradient: { stop0: "#ffffff", stop1: "#e0e0e0" }
-    },
-    {
-      center: { x: 0, y: -120 + gallopBounce, z: -150 },
-      radius: 95,
-      color: "#f0f0f0",
-      gradient: { stop0: "#ffffff", stop1: "#f0f0f0" }
-    },
-    {
-      center: { x: -100, y: -100 + gallopBounce, z: -140 },
-      radius: 50,
-      color: "#f5f5f5"
-    },
-    {
-      center: { x: 100, y: -100 + gallopBounce, z: -140 },
-      radius: 50,
-      color: "#f5f5f5"
-    },
-    {
-      center: { x: 0, y: 50 + gallopBounce + Math.sin(time2 * 5) * 20, z: 220 },
-      radius: 38,
-      color: "#e0e0e0"
-    }
-  ];
-  const sortedComponents = components.map((c) => ({ ...c, rotatedZ: rotateY(c.center, angleY).z })).sort((a, b) => b.rotatedZ - a.rotatedZ);
-  const now2 = Date.now();
-  if (now2 - lastLogTime$2 > LOG_INTERVAL$2) {
-    DiagnosticManager.logGraphics("Poodle3DRenderer", `Rendering Abigay 3-D. Angle: ${angleY.toFixed(1)}`);
-    lastLogTime$2 = now2;
-  }
-  sortedComponents.forEach((sphere) => {
-    renderSphere3D(ctx, sphere, angleY, width, height);
-  });
-}
-const POODLE_CORE$2 = {
-  identity: {
-    name: "Anninne-Amelia Rose Julisus",
-    description: "Anninne-Amelia is a massive 9.5-foot tall red-orange poodle standing 6 feet at the shoulder (9.5 feet total without her tiara, and 10.5 feet including her 12-inch golden tiara). She is a majestic masterpiece of red-orange beauty."
-  },
-  design: {
-    appearance: "Anninne-Amelia stands 6 feet at the shoulder. She has a red-orange rounded nose (warm and dry with a mirror shine), shiny blue eyes, and a girl-like head form (with dimensions excluding ears/hair) with long thick wavy red-orange hair. Her ears are not visible or present. Her neck never leans forward, and her head is always perched on top of her neck. Her skin is a shiny tan color. She wears a gold collar with horizontal green and red diamonds with rainbow borders and a horizontal diamond charm. Her golden tiara features a large vertical diamond-shaped gem at its center. Her body is 56 inches wide and 8 feet long, appearing as two spheres connected by thick fur. Your legs are molded into her fur, creating a fused appearance. Her paws have rounded paws with dark red-orange pads. Her tail is 3 feet long, standing at a precise 45-degree angle, with an enlarged ball tip.",
-    dimensions: {
-      shoulderHeightFeet: 6,
-      headWidthInches: 46,
-      // Excludes ears (precision update)
-      headHeightInches: 43
-    }
-  }
-};
-const FUR_RANDOM_VALUES_AA = Array.from({ length: 150 }, () => ({
-  angle: Math.random() * Math.PI * 2,
-  r: 45 + Math.random() * 30,
-  r2: 80 + Math.random() * 30
-}));
-let lastLogTime$1 = 0;
-const LOG_INTERVAL$1 = 5e3;
-const drawAnninneAmeliaPaw = (ctx, x, y) => {
-  const pawGrad = ctx.createRadialGradient(x - 5, y - 5, 5, x, y, 30);
-  pawGrad.addColorStop(0, "#ff7f50");
-  pawGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = pawGrad;
-  ctx.beginPath();
-  ctx.arc(x, y, 30, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-  ctx.beginPath();
-  ctx.ellipse(x - 8, y - 8, 12, 6, -Math.PI / 4, 0, Math.PI * 2);
-  ctx.fill();
-  const padGrad = ctx.createRadialGradient(x, y, 2, x, y, 15);
-  padGrad.addColorStop(0, "#8b0000");
-  padGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = padGrad;
-  ctx.beginPath();
-  ctx.arc(x, y, 15, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#ff4500";
-  for (let i = 0; i < 3; i++) {
-    ctx.beginPath();
-    ctx.arc(x - 18 + i * 18, y - 18, 11, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-    ctx.beginPath();
-    ctx.arc(x - 20 + i * 18, y - 20, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ff4500";
-  }
-};
-function drawAnninneAmeliaRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isUmbrellaEquipped = false, isUmbrellaOpen = false, isPetting = false, lastPetTime = 0) {
-  const centerX = width / 2;
-  const bottomY = height - 50;
-  ctx.save();
-  if (isUmbrellaEquipped) {
-    const umbrellaY = bottomY - 420 + (isLeaning ? 60 : 0);
-    const umbrellaX = centerX - 45;
-    ctx.strokeStyle = "#silver";
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(umbrellaX, umbrellaY);
-    ctx.lineTo(umbrellaX, umbrellaY - 160);
-    ctx.stroke();
-    if (isUmbrellaOpen) {
-      const canopyWidth = 220;
-      const canopyHeight = 90;
-      const umbrellaGrad = ctx.createLinearGradient(umbrellaX - canopyWidth / 2, umbrellaY - 160, umbrellaX + canopyWidth / 2, umbrellaY - 160);
-      umbrellaGrad.addColorStop(0, "#white");
-      umbrellaGrad.addColorStop(0.5, "#ffc0cb");
-      umbrellaGrad.addColorStop(1, "#white");
-      ctx.fillStyle = umbrellaGrad;
-      ctx.beginPath();
-      ctx.ellipse(umbrellaX, umbrellaY - 160, canopyWidth / 2, canopyHeight / 2, 0, Math.PI, 0);
-      ctx.fill();
-    } else {
-      ctx.fillStyle = "#ffc0cb";
-      ctx.beginPath();
-      ctx.ellipse(umbrellaX, umbrellaY - 180, 18, 70, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  const gallopTime = time2 * 1e3 % 400;
-  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 7;
-  const leanOffset = isLeaning ? 60 : 0;
-  const poodleYOffset = gallopBounce;
-  const riderYOffset = leanOffset + gallopBounce;
-  const breathing = Math.sin(time2 * 2.5) * 6;
-  const now2 = Date.now();
-  if (now2 - lastLogTime$1 > LOG_INTERVAL$1) {
-    DiagnosticManager.logGraphics("AnninneAmeliaRenderer (2-D)", `Rendering Anninne-Amelia 2-D. Bounce: ${poodleYOffset.toFixed(1)}`);
-    lastLogTime$1 = now2;
-  }
-  const frontGrad = ctx.createRadialGradient(centerX - 50, bottomY - 200 + poodleYOffset, 25, centerX, bottomY - 180 + poodleYOffset, 180 + breathing);
-  frontGrad.addColorStop(0, "#ff7f50");
-  frontGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = frontGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 180 + poodleYOffset, 140 + breathing * 0.5, 125 + breathing * 0.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 60, bottomY - 220 + poodleYOffset, 40, 20, -Math.PI / 6, 0, Math.PI * 2);
-  ctx.fill();
-  const backGrad = ctx.createRadialGradient(centerX - 40, bottomY - 160 + poodleYOffset, 25, centerX, bottomY - 140 + poodleYOffset, 170 + breathing);
-  backGrad.addColorStop(0, "#ff6347");
-  backGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = backGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 140 + poodleYOffset, 130 + breathing * 0.4, 120 + breathing * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 127, 80, 0.5)";
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 120; i++) {
-    const { angle, r } = FUR_RANDOM_VALUES_AA[i % 150];
-    const offsetY = i < 60 ? -180 : -140;
-    ctx.beginPath();
-    ctx.moveTo(centerX + Math.cos(angle) * r, bottomY + offsetY + poodleYOffset + Math.sin(angle) * r);
-    ctx.lineTo(centerX + Math.cos(angle) * (r + 18), bottomY + offsetY + poodleYOffset + Math.sin(angle) * (r + 18));
-    ctx.stroke();
-  }
-  const riderY = bottomY - 250 + riderYOffset;
-  const riderWidth = 85;
-  const riderHeight = 110;
-  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
-  riderGrad.addColorStop(0, "#00008b");
-  riderGrad.addColorStop(0.5, "#0000ff");
-  riderGrad.addColorStop(1, "#00008b");
-  ctx.fillStyle = riderGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3b2219";
-  ctx.beginPath();
-  ctx.arc(centerX, riderY - 70, 24, 0, Math.PI * 2);
-  ctx.fill();
-  drawRiderLegs(ctx, centerX, bottomY, riderYOffset);
-  const headW = 100;
-  const headH = 95;
-  const headY = bottomY - 380 + poodleYOffset;
-  const headGrad = ctx.createRadialGradient(centerX - 30, headY - 30, 15, centerX, headY, headW * 1.2);
-  headGrad.addColorStop(0, "#ff8c00");
-  headGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, headY, headW, headH, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#ff7f50";
-  for (let i = 0; i < 14; i++) {
-    const side = i % 2 === 0 ? -1 : 1;
-    const verticalSpread = Math.floor(i / 2);
-    const wave = Math.sin(time2 * 2 + verticalSpread) * 8;
-    const horizontalOpening = verticalSpread === 0 ? 20 : 0;
-    const x = centerX + side * (85 + horizontalOpening) + wave;
-    const y = headY + verticalSpread * 35 + 5;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 77, 105, side * Math.PI / 10 + wave * 0.02, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.beginPath();
-    ctx.ellipse(x - side * 20, y - 30, 22, 44, side * Math.PI / 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ff7f50";
-  }
-  ctx.fillStyle = "#0000ff";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 35, headY - 15, 12, 16, 0, 0, Math.PI * 2);
-  ctx.ellipse(centerX + 35, headY - 15, 12, 16, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-  ctx.beginPath();
-  ctx.arc(centerX - 40, headY - 22, 6, 0, Math.PI * 2);
-  ctx.arc(centerX + 30, headY - 22, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.beginPath();
-  ctx.arc(centerX - 32, headY - 8, 3, 0, Math.PI * 2);
-  ctx.arc(centerX + 38, headY - 8, 3, 0, Math.PI * 2);
-  ctx.fill();
-  const noseY = headY + 35;
-  const noseGrad = ctx.createRadialGradient(centerX - 5, noseY - 4, 3, centerX, noseY, 20);
-  noseGrad.addColorStop(0, "#ff6347");
-  noseGrad.addColorStop(1, "#8b0000");
-  ctx.fillStyle = noseGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, noseY, 20, 14, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 6, noseY - 4, 8, 4, -Math.PI / 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-  ctx.beginPath();
-  ctx.arc(centerX - 9, noseY - 6, 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-  ctx.beginPath();
-  ctx.ellipse(centerX + 6, noseY + 4, 4, 2, Math.PI / 6, 0, Math.PI * 2);
-  ctx.fill();
-  const tiaraY = headY - 110;
-  const tiaraGrad = ctx.createLinearGradient(centerX - 60, tiaraY - 60, centerX + 60, tiaraY);
-  tiaraGrad.addColorStop(0, "#ffd700");
-  tiaraGrad.addColorStop(0.5, "#fffacd");
-  tiaraGrad.addColorStop(1, "#ffd700");
-  ctx.fillStyle = tiaraGrad;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 65, tiaraY);
-  ctx.lineTo(centerX, tiaraY - 70);
-  ctx.lineTo(centerX + 65, tiaraY);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 12, tiaraY - 55);
-  ctx.lineTo(centerX, tiaraY - 75);
-  ctx.lineTo(centerX + 12, tiaraY - 55);
-  ctx.fill();
-  const gemPulse = Math.sin(time2 * 5) * 1;
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.moveTo(centerX, tiaraY - 55 - gemPulse);
-  ctx.lineTo(centerX + 15, tiaraY - 33);
-  ctx.lineTo(centerX, tiaraY - 11 + gemPulse);
-  ctx.lineTo(centerX - 15, tiaraY - 33);
-  ctx.closePath();
-  ctx.fill();
-  const tailWagSpeed = isPetting ? 12 : 4;
-  const tailWagRange = isPetting ? 0.3 : 0.1;
-  const tailAngle = -Math.PI / 4 + Math.sin(time2 * tailWagSpeed) * tailWagRange;
-  const tailX = centerX + 120;
-  const tailY = bottomY - 140 + poodleYOffset;
-  ctx.strokeStyle = "#ff7f50";
-  ctx.lineWidth = 15;
-  ctx.beginPath();
-  ctx.moveTo(tailX, tailY);
-  ctx.lineTo(tailX + Math.cos(tailAngle) * 120, tailY + Math.sin(tailAngle) * 120);
-  ctx.stroke();
-  const ballX = tailX + Math.cos(tailAngle) * 120;
-  const ballY = tailY + Math.sin(tailAngle) * 120;
-  const ballGrad = ctx.createRadialGradient(ballX - 10, ballY - 10, 10, ballX, ballY, 45);
-  ballGrad.addColorStop(0, "#ff8c00");
-  ballGrad.addColorStop(1, "#ff4500");
-  ctx.fillStyle = ballGrad;
-  ctx.beginPath();
-  ctx.arc(ballX, ballY, 45, 0, Math.PI * 2);
-  ctx.fill();
-  if (isGraspingCollar) {
-    drawRiderHands(ctx, centerX, bottomY, riderYOffset);
-    const collarY = bottomY - 165 + poodleYOffset;
-    ctx.fillStyle = "#ffd700";
-    ctx.fillRect(centerX - 80, collarY, 160, 30);
-    for (let i = 0; i < 5; i++) {
-      const x = centerX - 65 + i * 32;
-      ctx.fillStyle = i % 2 === 0 ? "#00ff00" : "#ff0000";
-      ctx.beginPath();
-      ctx.moveTo(x, collarY + 15);
-      ctx.lineTo(x + 10, collarY + 5);
-      ctx.lineTo(x + 20, collarY + 15);
-      ctx.lineTo(x + 10, collarY + 25);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.5)";
-      ctx.stroke();
-    }
-    ctx.fillStyle = "#e0ffff";
-    ctx.beginPath();
-    ctx.moveTo(centerX - 25, collarY + 50);
-    ctx.lineTo(centerX, collarY + 35);
-    ctx.lineTo(centerX + 25, collarY + 50);
-    ctx.lineTo(centerX, collarY + 65);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.beginPath();
-    ctx.arc(centerX - 5, collarY + 45, 4, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (isPetting) {
-    const petDuration = 0.7;
-    const elapsedTime = time2 - lastPetTime / 1e3;
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = tiaraY;
-    const endY = headY + 50;
-    const currentY = startY + (endY - startY) * progress2;
-    const handX = centerX - 40;
-    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
-    handGrad.addColorStop(0, "#3b2219");
-    handGrad.addColorStop(1, "#2a1811");
-    ctx.fillStyle = handGrad;
-    ctx.beginPath();
-    ctx.arc(handX, currentY, 25, 0, Math.PI * 2);
-    ctx.fill();
-    const rightHandY = bottomY - 120 + riderYOffset;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(centerX + 60, rightHandY, 20, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    const handY = bottomY - 120 + riderYOffset;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(centerX - 60, handY, 20, 0, Math.PI * 2);
-    ctx.arc(centerX + 60, handY, 20, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  drawAnninneAmeliaPaw(ctx, centerX - 120, bottomY - 25 + poodleYOffset);
-  drawAnninneAmeliaPaw(ctx, centerX + 120, bottomY - 25 + poodleYOffset);
-  ctx.restore();
-}
-const POODLE_CORE$1 = {
-  identity: {
-    name: "Abigail Marigold Kenyatta",
-    description: "Abigail Marigold Kenyatta is an elegant ally poodle standing 5 feet 3 inches at the shoulder and 7 feet long. She is a refined masterpiece with a slender athletic form."
-  },
-  design: {
-    appearance: "Abigail has a refined cream or marigold shaded coat, a slender athletic head form (excluding ears), a warm dry pink nose with a mirror shine and no nostrils, and royal blue eyes. Her skin is a peach color. She wears a magnificent rose-gold tiara adorned with floral white decorations and a pink flower-shaped gem at its center. She wears a luxurious rose-gold collar with an embossed diamond pattern. Your legs are molded into her fur, creating a fused appearance. Her tail is 3 feet long and she is designed only for riding.",
-    dimensions: {
-      shoulderHeightFeet: 5.25,
-      headWidthInches: 41.5,
-      // Slender athletic head, excludes ears (precision update)
-      headHeightInches: 38
-    }
-  }
-};
-let lastLogTime = 0;
-const LOG_INTERVAL = 5e3;
-Array.from({ length: 80 }, () => ({
-  angle: Math.random() * Math.PI * 2,
-  r: 35 + Math.random() * 20
-}));
-const ABIGAIL_DIMENSIONS = {
-  headWidth: 100.8,
-  // Excludes ears (precision update)
-  headHeight: 86.4,
-  // Excludes ears (precision update) 
-  headScale: 1.15
-};
-function drawAbigailRiderView(ctx, width, height, isLeaning, time2, isPetting = false, lastPetTime = 0) {
-  const centerX = width / 2;
-  const bottomY = height - 50;
-  ctx.save();
-  const gallopTime = time2 * 1e3 % 300;
-  const gallopBounce = Math.sin(gallopTime / 300 * Math.PI) * 4;
-  const leanOffset = isLeaning ? 45 : 0;
-  const poodleYOffset = gallopBounce;
-  const riderYOffset = leanOffset + gallopBounce;
-  const now2 = Date.now();
-  if (now2 - lastLogTime > LOG_INTERVAL) {
-    DiagnosticManager.logGraphics("AbigailRenderer", `Rendering Abigail. Gallop (300ms) Bounce: ${poodleYOffset.toFixed(1)}`);
-    lastLogTime = now2;
-  }
-  const breathing = Math.sin(time2 * 3.5) * 4;
-  const bodyY = bottomY - 150 + poodleYOffset;
-  const bodyRadius = 110 + breathing * 0.4;
-  const bodyGradFront = ctx.createRadialGradient(centerX - 35, bodyY - 20, 15, centerX, bodyY, bodyRadius);
-  bodyGradFront.addColorStop(0, "#fffaf0");
-  bodyGradFront.addColorStop(1, "#fdf5e6");
-  ctx.fillStyle = bodyGradFront;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bodyY, bodyRadius, 100 + breathing * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const backY = bodyY + 30;
-  const backRadius = 100 + breathing * 0.3;
-  const bodyGradBack = ctx.createRadialGradient(centerX - 30, backY - 15, 10, centerX, backY, backRadius);
-  bodyGradBack.addColorStop(0, "#fffaf0");
-  bodyGradBack.addColorStop(1, "#f5f5dc");
-  ctx.fillStyle = bodyGradBack;
-  ctx.beginPath();
-  ctx.ellipse(centerX, backY, backRadius, 90 + breathing * 0.3, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 200; i++) {
-    const isFront = i < 120;
-    const angle = i / 200 * Math.PI * 2;
-    const currentY = isFront ? bodyY : backY;
-    const currentRadius = isFront ? bodyRadius : backRadius;
-    const r = currentRadius * (0.1 + Math.random() * 0.9);
-    const fx2 = centerX + Math.cos(angle) * r;
-    const fy2 = currentY + Math.sin(angle) * r * 0.9;
-    ctx.beginPath();
-    ctx.moveTo(fx2, fy2);
-    ctx.lineTo(fx2 + Math.cos(angle) * 5, fy2 + Math.sin(angle) * 5);
-    ctx.stroke();
-  }
-  const riderY = bottomY - 210 + riderYOffset;
-  const riderWidth = 70;
-  const riderHeight = 90;
-  const riderGrad = ctx.createLinearGradient(centerX - riderWidth / 2, riderY, centerX + riderWidth / 2, riderY);
-  riderGrad.addColorStop(0, "#00008b");
-  riderGrad.addColorStop(0.5, "#0000ff");
-  riderGrad.addColorStop(1, "#00008b");
-  ctx.fillStyle = riderGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3b2219";
-  ctx.beginPath();
-  ctx.arc(centerX, riderY - 60, 20, 0, Math.PI * 2);
-  ctx.fill();
-  const legFusionDepth = 25;
-  ctx.save();
-  ctx.translate(0, legFusionDepth);
-  const legGrad = ctx.createLinearGradient(centerX - 80, bottomY - 140 + riderYOffset, centerX - 20, bottomY - 20 + riderYOffset);
-  legGrad.addColorStop(0, "#00008b");
-  legGrad.addColorStop(1, "#000044");
-  ctx.fillStyle = legGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX - 42, bottomY - 80 + riderYOffset, 25, 55, Math.PI / 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(centerX + 42, bottomY - 80 + riderYOffset, 25, 55, -Math.PI / 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  const headRadiusX = ABIGAIL_DIMENSIONS.headWidth / 2;
-  const headRadiusY = ABIGAIL_DIMENSIONS.headHeight / 2;
-  const headY = bottomY - 187.2 + poodleYOffset;
-  const hScale = ABIGAIL_DIMENSIONS.headScale;
-  ctx.save();
-  ctx.strokeStyle = "rgba(253, 245, 230, 0.8)";
-  ctx.lineWidth = 2;
-  for (let i = 0; i < 60; i++) {
-    const hairX = centerX - 90 + Math.random() * 180;
-    const hairY = headY - 40 + Math.random() * 20;
-    const hairLen = 120 + Math.random() * 40;
-    ctx.beginPath();
-    ctx.moveTo(hairX, hairY);
-    ctx.bezierCurveTo(hairX + 20, hairY + hairLen / 2, hairX - 20, hairY + hairLen, hairX, hairY + hairLen);
-    ctx.stroke();
-  }
-  ctx.restore();
-  const headGrad = ctx.createRadialGradient(centerX - 15 * hScale, headY - 15 * hScale, 10 * hScale, centerX, headY, headRadiusX);
-  headGrad.addColorStop(0, "#fffaf0");
-  headGrad.addColorStop(1, "#faf0e6");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, headY, headRadiusX, headRadiusY, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const tiaraY = headY - headRadiusY - 15;
-  ctx.fillStyle = "#b76e79";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 60, tiaraY);
-  ctx.quadraticCurveTo(centerX, tiaraY - 40, centerX + 60, tiaraY);
-  ctx.lineTo(centerX + 60, tiaraY + 15);
-  ctx.quadraticCurveTo(centerX, tiaraY - 25, centerX - 60, tiaraY + 15);
-  ctx.closePath();
-  ctx.fill();
-  for (let i = -2; i <= 2; i++) {
-    const fx2 = centerX + i * 25;
-    const fy2 = tiaraY - 5 - (Math.abs(i) === 0 ? 10 : 0);
-    ctx.fillStyle = "#fffaf0";
-    for (let p = 0; p < 5; p++) {
-      const pa = p / 5 * Math.PI * 2;
-      ctx.beginPath();
-      ctx.arc(fx2 + Math.cos(pa) * 6, fy2 + Math.sin(pa) * 6, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.fillStyle = "#ffdb58";
-    ctx.beginPath();
-    ctx.arc(fx2, fy2, 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  const fx = centerX;
-  const fy = tiaraY - 15;
-  ctx.fillStyle = "#ffb6c1";
-  for (let p = 0; p < 6; p++) {
-    const pa = p / 6 * Math.PI * 2;
-    ctx.beginPath();
-    ctx.ellipse(fx + Math.cos(pa) * 15, fy + Math.sin(pa) * 15, 12, 8, pa, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  const gemGrad = ctx.createRadialGradient(fx - 5, fy - 5, 2, fx, fy, 15);
-  gemGrad.addColorStop(0, "#ffffff");
-  gemGrad.addColorStop(0.3, "#ff69b4");
-  gemGrad.addColorStop(1, "#c71585");
-  ctx.fillStyle = gemGrad;
-  ctx.beginPath();
-  ctx.arc(fx, fy, 12, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
-  ctx.beginPath();
-  ctx.arc(fx - 4, fy - 4, 3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 165, 0, 0.15)";
-  ctx.beginPath();
-  ctx.ellipse(centerX + 20, headY - 30, 40, 20, Math.PI / 4, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#4169e1";
-  ctx.beginPath();
-  ctx.arc(centerX - 25 * hScale, headY - 5, 7 * hScale, 0, Math.PI * 2);
-  ctx.arc(centerX + 25 * hScale, headY - 5, 7 * hScale, 0, Math.PI * 2);
-  ctx.fill();
-  const noseY = headY + 25;
-  const noseWidth = 14 * hScale;
-  const noseHeight = 9 * hScale;
-  const noseGrad = ctx.createRadialGradient(centerX - 3 * hScale, noseY - 2 * hScale, 2 * hScale, centerX, noseY, noseWidth);
-  noseGrad.addColorStop(0, "#ffc0cb");
-  noseGrad.addColorStop(0.7, "#ffb6c1");
-  noseGrad.addColorStop(1, "#ff69b4");
-  ctx.fillStyle = noseGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, noseY, noseWidth, noseHeight, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 5 * hScale, noseY - 3 * hScale, 6 * hScale, 3 * hScale, -Math.PI / 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.beginPath();
-  ctx.arc(centerX - 7 * hScale, noseY - 4 * hScale, 1.5 * hScale, 0, Math.PI * 2);
-  ctx.fill();
-  const collarY = bottomY - 135 + poodleYOffset;
-  ctx.fillStyle = "#b76e79";
-  ctx.beginPath();
-  if (ctx.roundRect) {
-    ctx.roundRect(centerX - 65, collarY, 130, 25, 5);
-  } else {
-    ctx.rect(centerX - 65, collarY, 130, 25);
-  }
-  ctx.fill();
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 5; i++) {
-    const dx = centerX - 50 + i * 25;
-    ctx.beginPath();
-    ctx.moveTo(dx, collarY + 5);
-    ctx.lineTo(dx + 10, collarY + 12.5);
-    ctx.lineTo(dx, collarY + 20);
-    ctx.lineTo(dx - 10, collarY + 12.5);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fillStyle = "rgba(224, 255, 255, 0.9)";
-    ctx.beginPath();
-    ctx.moveTo(dx, collarY + 8);
-    ctx.lineTo(dx + 5, collarY + 12.5);
-    ctx.lineTo(dx, collarY + 17);
-    ctx.lineTo(dx - 5, collarY + 12.5);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(dx - 2, collarY + 10, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  if (isPetting) {
-    const petDuration = 0.7;
-    const elapsedTime = time2 - lastPetTime / 1e3;
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = headY + 20;
-    const endY = headY + 120;
-    const currentY = startY + (endY - startY) * progress2;
-    const handX = centerX - 55;
-    const handGrad = ctx.createRadialGradient(handX - 5, currentY - 5, 5, handX, currentY, 25);
-    handGrad.addColorStop(0, "#3b2219");
-    handGrad.addColorStop(1, "#2a1811");
-    ctx.fillStyle = handGrad;
-    ctx.beginPath();
-    ctx.arc(handX, currentY, 24, 0, Math.PI * 2);
-    ctx.fill();
-    const rightHandY = bottomY - 100 + riderYOffset;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(centerX + 60, rightHandY, 20, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    const handY = bottomY - 100 + riderYOffset;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(centerX - 60, handY, 20, 0, Math.PI * 2);
-    ctx.arc(centerX + 60, handY, 20, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-const POODLE_CORE = {
-  identity: {
-    name: "Dymond Daisy Qin-Reynolds",
-    description: "Dymond Daisy Qin-Reynolds is a special course poodle. She is a light-yellow poodle standing 5 feet 5 inches at the shoulder and 7 feet long. She is a specialized masterpiece for the Story Book courses."
-  },
-  design: {
-    appearance: "Dymond is a light-yellow poodle with green eyes, a warm dry dark-pink nose with a mirror shine and no nostrils, and peach skin with a 10% yellowish undertone. Her girl-like head (excluding ears) is perched slightly on top of her neck. She wears a dynamic color collar with a horizontal diamond charm and a tiara with a glowing heart gem. Her body is 7 feet long and 5 feet 5 inches tall at the shoulder, appearing as two fused spheres. Your legs are molded into her fur. Her paws have rounded toes and dark-pink pads. Her tail is 38 inches long with a 24-inch diameter ball tip.",
-    dimensions: {
-      shoulderHeightFeet: 5.416,
-      headWidthInches: 45,
-      // Excludes ears (precision update)
-      headHeightInches: 40
-      // Excludes ears (precision update)
-    }
-  }
-};
-function drawDymondRiderView(ctx, width, height, state, time2) {
-  const scale2 = Math.min(width, height) / 100;
-  ctx.save();
-  ctx.translate(width / 2, height / 2 + 20 * scale2);
-  const gallopTime = time2 * 1e3 % 400;
-  const gallopBounce = Math.sin(gallopTime / 400 * Math.PI) * 7;
-  const leanOffset = state.isLeaning ? 50 : 0;
-  const breathing = Math.sin(time2 / 1e3) * 1.5;
-  const poodleYOffset = gallopBounce;
-  const riderYOffset = leanOffset + gallopBounce;
-  ctx.translate(0, poodleYOffset);
-  ctx.fillStyle = "#fffff0";
-  ctx.beginPath();
-  ctx.arc(-10 * scale2, 0, 15 * scale2 + breathing, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.save();
-  ctx.translate(-25 * scale2, -5 * scale2);
-  const tailWagSpeed = state.isPetting ? 12 : 5;
-  const tailAngle = Math.PI / 4 + Math.sin(time2 / 1e3 * tailWagSpeed) * 0.2;
-  ctx.rotate(tailAngle);
-  ctx.fillRect(0, 0, -8 * scale2, 2 * scale2);
-  ctx.beginPath();
-  ctx.arc(-8 * scale2, 1 * scale2, 5 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  ctx.beginPath();
-  ctx.arc(10 * scale2, -5 * scale2, 18 * scale2 + breathing, 0, Math.PI * 2);
-  ctx.fill();
-  const riderY = -25 * scale2 + (riderYOffset - poodleYOffset);
-  if (state.isPetting) {
-    const petDuration = 0.7;
-    const elapsedTime = time2 / 1e3 - state.lastPetTime / 1e3;
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = riderY - 10 * scale2;
-    const endY = riderY + 15 * scale2;
-    const currentY = startY + (endY - startY) * progress2;
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(8 * scale2, currentY, 5 * scale2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(-5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    ctx.fillStyle = "#3b2219";
-    ctx.beginPath();
-    ctx.arc(-5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
-    ctx.arc(5 * scale2, riderY + 5 * scale2, 4 * scale2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.fillStyle = "#00008b";
-  ctx.beginPath();
-  ctx.ellipse(0, riderY, 15 * scale2, 22 * scale2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3b2219";
-  ctx.beginPath();
-  ctx.arc(0, riderY - 25 * scale2, 10 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.translate(20 * scale2, -25 * scale2);
-  ctx.fillStyle = "#fffff0";
-  ctx.beginPath();
-  ctx.arc(0, 0, 12 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#228B22";
-  ctx.beginPath();
-  ctx.arc(-4 * scale2, -2 * scale2, 2 * scale2, 0, Math.PI * 2);
-  ctx.arc(4 * scale2, -2 * scale2, 2 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.beginPath();
-  ctx.arc(-3.5 * scale2, -2.5 * scale2, 0.5 * scale2, 0, Math.PI * 2);
-  ctx.arc(4.5 * scale2, -2.5 * scale2, 0.5 * scale2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#ff1493";
-  ctx.beginPath();
-  ctx.ellipse(0, 3 * scale2, 3 * scale2, 2 * scale2, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const gradient = ctx.createRadialGradient(-1 * scale2, 2 * scale2, 0.5 * scale2, 0, 3 * scale2, 2 * scale2);
-  gradient.addColorStop(0, "rgba(255,255,255,0.8)");
-  gradient.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = gradient;
-  ctx.fill();
-  ctx.fillStyle = "#fffff0";
-  ctx.beginPath();
-  ctx.ellipse(-10 * scale2, 0, 6 * scale2, 15 * scale2, 0.2, 0, Math.PI * 2);
-  ctx.ellipse(10 * scale2, 0, 6 * scale2, 15 * scale2, -0.2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#00ffff";
-  ctx.beginPath();
-  ctx.moveTo(0, 15 * scale2);
-  ctx.lineTo(5 * scale2, 18 * scale2);
-  ctx.lineTo(0, 21 * scale2);
-  ctx.lineTo(-5 * scale2, 18 * scale2);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-function playDymondBow(ctx, sfxGain, createPanner, x = 0, y = 0, z = 0, disableInternalEcho = false, isInternalReverbEnabled2 = false) {
-  const now2 = ctx.currentTime;
-  const duration = 0.15;
-  const volume = 0.53;
-  const playSingleBow = (delay2, baseVol) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const panner = createPanner(x, y, z);
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(564.5, now2 + delay2);
-    osc.frequency.exponentialRampToValueAtTime(1042.2, now2 + delay2 + 0.03);
-    osc.frequency.exponentialRampToValueAtTime(304, now2 + delay2 + 0.13);
-    const filter2 = ctx.createBiquadFilter();
-    filter2.type = "bandpass";
-    filter2.frequency.setValueAtTime(1215.9, now2 + delay2);
-    filter2.Q.setValueAtTime(4, now2 + delay2);
-    gain.gain.setValueAtTime(0, now2 + delay2);
-    gain.gain.linearRampToValueAtTime(baseVol, now2 + delay2 + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.01, now2 + delay2 + 0.13);
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(1129, now2 + delay2);
-    osc2.frequency.exponentialRampToValueAtTime(1650.1, now2 + delay2 + 0.03);
-    osc2.frequency.exponentialRampToValueAtTime(416.9, now2 + delay2 + 0.13);
-    gain2.gain.setValueAtTime(0, now2 + delay2);
-    gain2.gain.linearRampToValueAtTime(baseVol * 0.45, now2 + delay2 + 0.015);
-    gain2.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.13);
-    osc.connect(filter2);
-    filter2.connect(gain);
-    gain.connect(panner);
-    osc2.connect(gain2);
-    gain2.connect(panner);
-    panner.connect(sfxGain);
-    osc.start(now2 + delay2);
-    osc2.start(now2 + delay2);
-    osc.stop(now2 + delay2 + duration);
-    osc2.stop(now2 + delay2 + duration);
-  };
-  playSingleBow(0, volume);
-  if (!disableInternalEcho) {
-    const echoVolume = isInternalReverbEnabled2 ? volume * 0.6 : volume * 0.4;
-    playSingleBow(0.15, echoVolume);
-    playSingleBow(0.3, echoVolume * 0.5);
-  }
-}
-function playElegantBark(ctx, sfxGainOrConnector, createPanner, x = 0, y = 0, z = 0, disableInternalEcho = false, isInternalReverbEnabled2 = false, type = "Generic", disableDescendingPitch = false) {
-  const now2 = ctx.currentTime;
-  if (createPanner) {
-    if (type === "BOW") {
-      playDymondBow(ctx, sfxGainOrConnector, createPanner, x, y, z, disableInternalEcho, isInternalReverbEnabled2);
-      return;
-    }
-    const createYip = (delay2, pitch, volume, isEcho = false) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const panner = createPanner(x, y, z);
-      const jitter = (Math.random() - 0.5) * (pitch * 25e-4);
-      const naturalPitch = pitch + jitter;
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(naturalPitch, now2 + delay2);
-      osc.frequency.exponentialRampToValueAtTime(naturalPitch * 0.7, now2 + delay2 + 0.08);
-      gain.gain.setValueAtTime(0, now2 + delay2);
-      gain.gain.linearRampToValueAtTime(isEcho ? volume * 0.5 : volume, now2 + delay2 + 0.01);
-      gain.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.08);
-      const filter2 = ctx.createBiquadFilter();
-      filter2.type = "bandpass";
-      filter2.frequency.setValueAtTime(pitch, now2 + delay2);
-      filter2.Q.setValueAtTime(2, now2 + delay2);
-      const warmFilter = ctx.createBiquadFilter();
-      warmFilter.type = "lowpass";
-      warmFilter.frequency.setValueAtTime(pitch * 1.5, now2 + delay2);
-      osc.connect(filter2);
-      filter2.connect(warmFilter);
-      warmFilter.connect(gain);
-      gain.connect(panner);
-      panner.connect(sfxGainOrConnector);
-      osc.start(now2 + delay2);
-      osc.stop(now2 + delay2 + 0.08);
-    };
-    const p1 = 868.5;
-    const p2 = 820.25;
-    createYip(0, p1, 0.4846);
-    createYip(0.01, p2, 0.4307);
-    if (!disableInternalEcho) {
-      const echoVolume = isInternalReverbEnabled2 ? 0.3229 : 0.2152;
-      createYip(0.15, p1, echoVolume, true);
-      createYip(0.3, p1, echoVolume * 0.5, true);
-    }
-  } else {
-    if (type === "BOW") {
-      const dummyPanner = (px2, py, pz) => {
-        const p = ctx.createPanner();
-        p.panningModel = "HRTF";
-        p.distanceModel = "inverse";
-        p.refDistance = 10;
-        p.maxDistance = 1e4;
-        p.rolloffFactor = 1;
-        p.positionX.setValueAtTime(px2, now2);
-        p.positionY.setValueAtTime(py, now2);
-        p.positionZ.setValueAtTime(pz, now2);
-        return p;
-      };
-      const dummyGain = ctx.createGain();
-      playDymondBow(ctx, dummyGain, dummyPanner, x, y, z, disableInternalEcho, isInternalReverbEnabled2);
-      sfxGainOrConnector(dummyGain, false);
-      return;
-    }
-    const createYipLegacy = (delay2, pitch, volume, isEcho = false) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const jitter = (Math.random() - 0.5) * (pitch * 25e-4);
-      const naturalPitch = pitch + jitter;
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(naturalPitch, now2 + delay2);
-      osc.frequency.exponentialRampToValueAtTime(naturalPitch * 0.7, now2 + delay2 + 0.08);
-      gain.gain.setValueAtTime(0, now2 + delay2);
-      gain.gain.linearRampToValueAtTime(isEcho ? volume * 0.5 : volume, now2 + delay2 + 0.01);
-      gain.gain.exponentialRampToValueAtTime(1e-3, now2 + delay2 + 0.08);
-      const filter2 = ctx.createBiquadFilter();
-      filter2.type = "bandpass";
-      filter2.frequency.setValueAtTime(pitch, now2 + delay2);
-      filter2.Q.setValueAtTime(2, now2 + delay2);
-      const warmFilter = ctx.createBiquadFilter();
-      warmFilter.type = "lowpass";
-      warmFilter.frequency.setValueAtTime(pitch * 1.5, now2 + delay2);
-      osc.connect(filter2);
-      filter2.connect(warmFilter);
-      warmFilter.connect(gain);
-      sfxGainOrConnector(gain, false);
-      osc.start(now2 + delay2);
-      osc.stop(now2 + delay2 + 0.08);
-    };
-    const p1_legacy = 868.5;
-    const p2_legacy = 820.25;
-    createYipLegacy(0, p1_legacy, 0.4846);
-    createYipLegacy(0.01, p2_legacy, 0.4307);
-    if (!disableInternalEcho) {
-      createYipLegacy(0.15, p1_legacy, 0.1615, true);
-      createYipLegacy(0.3, p1_legacy, 0.0808, true);
-    }
-  }
-}
-const index$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  POODLE_CORE,
-  drawDymondRiderView,
-  playElegantBark
-}, Symbol.toStringTag, { value: "Module" }));
-const MOTTLED_TEXTURE_OFFSETS_X = [
-  -30,
-  20,
-  -50,
-  45,
-  -15,
-  35,
-  -25,
-  10,
-  -40,
-  5,
-  25,
-  -5,
-  -35,
-  15,
-  -45,
-  30,
-  -20,
-  40,
-  -10,
-  50
-];
-const MOTTLED_TEXTURE_OFFSETS_Y = [
-  -10,
-  25,
-  40,
-  -35,
-  -15,
-  20,
-  30,
-  -45,
-  -5,
-  -20,
-  15,
-  45,
-  -30,
-  10,
-  5,
-  -25,
-  -40,
-  35,
-  20,
-  -15
-];
-function drawPriscillaJeansAndShoes(ctx, centerX, bottomY, leanOffset) {
-  ctx.fillStyle = "#111111";
-  ctx.beginPath();
-  ctx.ellipse(centerX - 35, bottomY - 32 + leanOffset, 11, 25, Math.PI / 15, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(centerX + 35, bottomY - 32 + leanOffset, 11, 25, -Math.PI / 15, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#f39c12";
-  ctx.strokeStyle = "#b77c0f";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.ellipse(centerX - 38, bottomY - 8 + leanOffset, 16, 7, Math.PI / 24, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.ellipse(centerX + 38, bottomY - 8 + leanOffset, 16, 7, -Math.PI / 24, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-}
-function drawPriscillaDressSkirt(ctx, centerX, bottomY, leanOffset) {
-  ctx.save();
-  const createSkirtPath = () => {
-    ctx.beginPath();
-    ctx.moveTo(centerX - 24, bottomY - 142 + leanOffset);
-    ctx.bezierCurveTo(
-      centerX - 75,
-      bottomY - 115 + leanOffset,
-      centerX - 92,
-      bottomY - 82 + leanOffset,
-      centerX - 88,
-      bottomY - 48 + leanOffset
-    );
-    ctx.bezierCurveTo(
-      centerX - 45,
-      bottomY - 40 + leanOffset,
-      centerX + 45,
-      bottomY - 40 + leanOffset,
-      centerX + 88,
-      bottomY - 48 + leanOffset
-    );
-    ctx.bezierCurveTo(
-      centerX + 92,
-      bottomY - 82 + leanOffset,
-      centerX + 75,
-      bottomY - 115 + leanOffset,
-      centerX + 24,
-      bottomY - 142 + leanOffset
-    );
-    ctx.closePath();
-  };
-  createSkirtPath();
-  ctx.fillStyle = "#ffd54f";
-  ctx.fill();
-  ctx.save();
-  ctx.clip();
-  ctx.strokeStyle = "#5d4037";
-  ctx.lineWidth = 2.5;
-  for (let xOffset = -180; xOffset < 180; xOffset += 24) {
-    ctx.beginPath();
-    ctx.moveTo(centerX + xOffset - 40, bottomY - 200 + leanOffset);
-    ctx.lineTo(centerX + xOffset + 40, bottomY - 20 + leanOffset);
-    ctx.stroke();
-  }
-  ctx.restore();
-  ctx.lineWidth = 3.5;
-  ctx.strokeStyle = "#7f8c8d";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 87, bottomY - 51 + leanOffset);
-  ctx.bezierCurveTo(
-    centerX - 45,
-    bottomY - 43 + leanOffset,
-    centerX + 45,
-    bottomY - 43 + leanOffset,
-    centerX + 87,
-    bottomY - 51 + leanOffset
-  );
-  ctx.stroke();
-  ctx.strokeStyle = "#7b1fa2";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 88, bottomY - 48 + leanOffset);
-  ctx.bezierCurveTo(
-    centerX - 45,
-    bottomY - 40 + leanOffset,
-    centerX + 45,
-    bottomY - 40 + leanOffset,
-    centerX + 88,
-    bottomY - 48 + leanOffset
-  );
-  ctx.stroke();
-  ctx.restore();
-}
-function drawPriscillaPOVHands(ctx, centerX, centerY, isGraspingCollar, isPetting = false, lastPetTime = 0, time2 = 0) {
-  let leftHandY = isGraspingCollar ? centerY - 90 : centerY + 60;
-  const rightHandY = isGraspingCollar ? centerY - 90 : centerY + 60;
-  if (isPetting) {
-    const petDuration = 0.8;
-    const elapsedTime = Math.max(0, time2 - lastPetTime / 1e3);
-    const progress2 = Math.min(elapsedTime / petDuration, 1);
-    const startY = leftHandY;
-    const peakY = centerY - 180;
-    const strokeEndY = centerY - 90;
-    if (progress2 < 0.25) {
-      leftHandY = startY + (peakY - startY) * (progress2 / 0.25);
-    } else {
-      const strokeProgress = (progress2 - 0.25) / 0.75;
-      leftHandY = peakY + (strokeEndY - peakY) * strokeProgress;
-    }
-  }
-  const leftHandGrad = ctx.createRadialGradient(
-    centerX - 90,
-    leftHandY + 20,
-    5,
-    centerX - 87,
-    leftHandY + 25,
-    25
-  );
-  leftHandGrad.addColorStop(0, "#ffe4c4");
-  leftHandGrad.addColorStop(1, "#ebd0b0");
-  const rightHandGrad = ctx.createRadialGradient(
-    centerX + 85,
-    rightHandY + 20,
-    5,
-    centerX + 88,
-    rightHandY + 25,
-    25
-  );
-  rightHandGrad.addColorStop(0, "#ffe4c4");
-  rightHandGrad.addColorStop(1, "#ebd0b0");
-  ctx.fillStyle = leftHandGrad;
-  ctx.fillRect(centerX - 108, leftHandY, 40, 100);
-  ctx.fillStyle = rightHandGrad;
-  ctx.fillRect(centerX + 68, rightHandY, 40, 100);
-  const sleeveWidth = 60;
-  const sleeveHeight = 150;
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(centerX - 118, leftHandY + 45, sleeveWidth, sleeveHeight);
-  ctx.clip();
-  ctx.fillStyle = "#ffd54f";
-  ctx.fill();
-  ctx.strokeStyle = "#5d4037";
-  ctx.lineWidth = 2;
-  for (let offset = -40; offset < 100; offset += 20) {
-    ctx.beginPath();
-    ctx.moveTo(centerX - 118 + offset - 20, leftHandY + 40);
-    ctx.lineTo(centerX - 118 + offset + 20, leftHandY + 200);
-    ctx.stroke();
-  }
-  ctx.restore();
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(centerX + 58, rightHandY + 45, sleeveWidth, sleeveHeight);
-  ctx.clip();
-  ctx.fillStyle = "#ffd54f";
-  ctx.fill();
-  ctx.strokeStyle = "#5d4037";
-  ctx.lineWidth = 2;
-  for (let offset = -40; offset < 100; offset += 20) {
-    ctx.beginPath();
-    ctx.moveTo(centerX + 58 + offset - 20, rightHandY + 40);
-    ctx.lineTo(centerX + 58 + offset + 20, rightHandY + 200);
-    ctx.stroke();
-  }
-  ctx.restore();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = "#7f8c8d";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 118, leftHandY + 47);
-  ctx.lineTo(centerX - 58, leftHandY + 47);
-  ctx.stroke();
-  ctx.strokeStyle = "#7b1fa2";
-  ctx.beginPath();
-  ctx.moveTo(centerX - 118, leftHandY + 50);
-  ctx.lineTo(centerX - 58, leftHandY + 50);
-  ctx.stroke();
-  ctx.strokeStyle = "#7f8c8d";
-  ctx.beginPath();
-  ctx.moveTo(centerX + 58, rightHandY + 47);
-  ctx.lineTo(centerX + 118, rightHandY + 47);
-  ctx.stroke();
-  ctx.strokeStyle = "#7b1fa2";
-  ctx.beginPath();
-  ctx.moveTo(centerX + 58, rightHandY + 50);
-  ctx.lineTo(centerX + 118, rightHandY + 50);
-  ctx.stroke();
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 2; i++) {
-    ctx.beginPath();
-    ctx.moveTo(centerX - 110 + i * 15, leftHandY + 55);
-    ctx.lineTo(centerX - 110 + i * 15, leftHandY + 180);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(centerX + 75 + i * 15, rightHandY + 55);
-    ctx.lineTo(centerX + 75 + i * 15, rightHandY + 180);
-    ctx.stroke();
-  }
-}
-function drawPriscillaPOV(ctx, GAME_WIDTH2, GAME_HEIGHT2, isJumping, isLeaning, isGraspingCollar, time2, isPetting = false, lastPetTime = 0) {
-  ctx.save();
-  const centerX = GAME_WIDTH2 / 2;
-  const bobbingTime = time2 * 1e3 % 300;
-  const bobbingOffset = Math.sin(bobbingTime / 300 * Math.PI) * 6;
-  const centerY = GAME_HEIGHT2 - 90 + (isJumping ? -35 : 0) + (isLeaning ? 40 : 0);
-  const poodleYOffset = (isJumping ? -35 : 0) + bobbingOffset;
-  const breathing = Math.sin(time2 * 4) * 3;
-  const bodyGrad = ctx.createRadialGradient(
-    centerX - 20,
-    centerY + 30 + poodleYOffset,
-    10,
-    centerX,
-    centerY + 45 + poodleYOffset,
-    100 + breathing
-  );
-  bodyGrad.addColorStop(0, "#555555");
-  bodyGrad.addColorStop(1, "#333333");
-  ctx.fillStyle = bodyGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, centerY + 45 + poodleYOffset, 90 + breathing * 0.4, 75 + breathing * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(10, 10, 10, 0.45)";
-  for (let i = 0; i < MOTTLED_TEXTURE_OFFSETS_X.length; i++) {
-    const px2 = centerX + MOTTLED_TEXTURE_OFFSETS_X[i] * 1.5;
-    const py = centerY + 45 + poodleYOffset + MOTTLED_TEXTURE_OFFSETS_Y[i] * 1.2;
-    ctx.fillRect(px2, py, 3, 3);
-  }
-  const neckWidth = 65;
-  const neckGrad = ctx.createLinearGradient(centerX - neckWidth / 2, centerY - 130 + poodleYOffset, centerX + neckWidth / 2, centerY - 130 + poodleYOffset);
-  neckGrad.addColorStop(0, "#3a3a3a");
-  neckGrad.addColorStop(0.5, "#505050");
-  neckGrad.addColorStop(1, "#3a3a3a");
-  ctx.fillStyle = neckGrad;
-  ctx.fillRect(centerX - neckWidth / 2, centerY - 130 + poodleYOffset, neckWidth, 90);
-  const headRadius = 65;
-  const headY = centerY - 165 + poodleYOffset;
-  const headGrad = ctx.createRadialGradient(centerX - 15, headY - 10, 5, centerX, headY, headRadius);
-  headGrad.addColorStop(0, "#5a5a5a");
-  headGrad.addColorStop(1, "#404040");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#333333";
-  ctx.lineWidth = 2.5;
-  const headHairSway = Math.sin(time2 * 5) * 0.08;
-  for (let i = 0; i < 360; i += 24) {
-    const angle = i * Math.PI / 180 + headHairSway;
-    ctx.beginPath();
-    ctx.moveTo(centerX + Math.cos(angle) * headRadius, headY + Math.sin(angle) * headRadius);
-    ctx.lineTo(centerX + Math.cos(angle) * (headRadius + 14), headY + Math.sin(angle) * (headRadius + 14));
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 3.5;
-  const browOffset = isPetting ? -2 : 0;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 28, headY - 18 + browOffset);
-  ctx.lineTo(centerX - 10, headY - 22 + browOffset);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(centerX + 10, headY - 22 + browOffset);
-  ctx.lineTo(centerX + 28, headY - 18 + browOffset);
-  ctx.stroke();
-  ctx.fillStyle = "#111111";
-  ctx.beginPath();
-  ctx.arc(centerX - 18, headY - 5, 6, 0, Math.PI * 2);
-  ctx.arc(centerX + 18, headY - 5, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.beginPath();
-  ctx.arc(centerX - 16, headY - 7, 2, 0, Math.PI * 2);
-  ctx.arc(centerX + 20, headY - 7, 2, 0, Math.PI * 2);
-  ctx.fill();
-  const noseY = headY + 15;
-  ctx.fillStyle = "#000000";
-  ctx.beginPath();
-  ctx.arc(centerX, noseY, 11, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
-  ctx.beginPath();
-  ctx.arc(centerX - 3, noseY - 3, 4, 0, Math.PI * 2);
-  ctx.fill();
-  const collarY = centerY - 80 + poodleYOffset;
-  ctx.fillStyle = "#3a3a3a";
-  ctx.fillRect(centerX - 35, collarY, 70, 18);
-  const charmY = collarY + 23;
-  ctx.fillStyle = "#666666";
-  ctx.fillRect(centerX - 8, charmY - 5, 16, 16);
-  ctx.strokeStyle = "#444444";
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(centerX - 8, charmY - 5, 16, 16);
-  drawPriscillaPOVHands(ctx, centerX, centerY, isGraspingCollar, isPetting, lastPetTime, time2);
-  ctx.restore();
-}
-function drawPriscillaRiderView(ctx, width, height, isLeaning, isGraspingCollar, time2, isPetting = false, lastPetTime = 0) {
-  const centerX = width / 2;
-  const bottomY = height - 50;
-  ctx.save();
-  const bobbingTime = time2 * 1e3 % 300;
-  const bobbingOffset = Math.sin(bobbingTime / 300 * Math.PI) * 6;
-  const leanOffset = isLeaning ? 40 : 0;
-  const poodleYOffset = bobbingOffset;
-  const riderYOffset = leanOffset + bobbingOffset;
-  const breathing = Math.sin(time2 * 4) * 4;
-  const frontGrad = ctx.createRadialGradient(
-    centerX - 30,
-    bottomY - 140 + poodleYOffset,
-    15,
-    centerX,
-    bottomY - 130 + poodleYOffset,
-    110 + breathing
-  );
-  frontGrad.addColorStop(0, "#505050");
-  frontGrad.addColorStop(1, "#333333");
-  ctx.fillStyle = frontGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 130 + poodleYOffset, 95 + breathing * 0.4, 85 + breathing * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  const backGrad = ctx.createRadialGradient(
-    centerX - 20,
-    bottomY - 110 + poodleYOffset,
-    15,
-    centerX,
-    bottomY - 100 + poodleYOffset,
-    100 + breathing
-  );
-  backGrad.addColorStop(0, "#484848");
-  backGrad.addColorStop(1, "#2b2b2b");
-  ctx.fillStyle = backGrad;
-  ctx.beginPath();
-  ctx.ellipse(centerX, bottomY - 100 + poodleYOffset, 85 + breathing * 0.35, 75 + breathing * 0.35, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(15, 15, 15, 0.4)";
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < 40; i++) {
-    const lx = centerX + MOTTLED_TEXTURE_OFFSETS_X[i % 20] * 1.6;
-    const ly = bottomY + (i < 20 ? -130 : -100) + poodleYOffset + MOTTLED_TEXTURE_OFFSETS_Y[i % 20] * 1.1;
-    ctx.beginPath();
-    ctx.moveTo(lx, ly);
-    ctx.lineTo(lx + 4, ly + 4);
-    ctx.stroke();
-  }
-  drawPriscillaJeansAndShoes(ctx, centerX, bottomY, riderYOffset);
-  const riderY = bottomY - 175 + riderYOffset;
-  const riderWidth = 65;
-  const riderHeight = 85;
-  ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(centerX, riderY, riderWidth / 2, riderHeight / 2, 0, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.fillStyle = "#ffd54f";
-  ctx.fill();
-  ctx.strokeStyle = "#5d4037";
-  ctx.lineWidth = 2;
-  for (let sx = -40; sx < 80; sx += 18) {
-    ctx.beginPath();
-    ctx.moveTo(centerX + sx - 15, riderY - 50);
-    ctx.lineTo(centerX + sx + 15, riderY + 50);
-    ctx.stroke();
-  }
-  ctx.restore();
-  ctx.fillStyle = "#7f8c8d";
-  ctx.fillRect(centerX - 24, riderY + 15, 48, 3);
-  ctx.fillStyle = "#7b1fa2";
-  ctx.fillRect(centerX - 24, riderY + 18, 48, 3);
-  ctx.fillStyle = "#ffe4c4";
-  ctx.beginPath();
-  ctx.arc(centerX, riderY - 55, 18, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#5d4037";
-  ctx.beginPath();
-  ctx.arc(centerX, riderY - 58, 22, Math.PI, 0, false);
-  ctx.lineTo(centerX + 26, riderY - 42);
-  ctx.lineTo(centerX + 18, riderY - 38);
-  ctx.quadraticCurveTo(centerX, riderY - 48, centerX - 18, riderY - 38);
-  ctx.lineTo(centerX - 26, riderY - 42);
-  ctx.closePath();
-  ctx.fill();
-  ctx.strokeStyle = "#8d6e63";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 10, riderY - 74);
-  ctx.quadraticCurveTo(centerX, riderY - 71, centerX + 10, riderY - 74);
-  ctx.stroke();
-  drawPriscillaDressSkirt(ctx, centerX, bottomY, riderYOffset);
-  const headY = bottomY - 260 + poodleYOffset;
-  const headRadius = 55;
-  const headGrad = ctx.createRadialGradient(centerX - 10, headY - 10, 5, centerX, headY, headRadius);
-  headGrad.addColorStop(0, "#555555");
-  headGrad.addColorStop(1, "#3c3c3c");
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#2d2d2d";
-  ctx.lineWidth = 2.5;
-  for (let i = 0; i < 360; i += 30) {
-    const angle = i * Math.PI / 180;
-    ctx.beginPath();
-    ctx.moveTo(centerX + Math.cos(angle) * headRadius, headY + Math.sin(angle) * headRadius);
-    ctx.lineTo(centerX + Math.cos(angle) * (headRadius + 12), headY + Math.sin(angle) * (headRadius + 12));
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 3.5;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 22, headY - 15);
-  ctx.lineTo(centerX - 6, headY - 18);
-  ctx.moveTo(centerX + 6, headY - 18);
-  ctx.lineTo(centerX + 22, headY - 15);
-  ctx.stroke();
-  const noseY = headY + 18;
-  ctx.fillStyle = "#000000";
-  ctx.beginPath();
-  ctx.arc(centerX, noseY, 10, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-  ctx.beginPath();
-  ctx.arc(centerX - 3, noseY - 3, 3, 0, Math.PI * 2);
-  ctx.fill();
-  const collarY = bottomY - 185 + poodleYOffset;
-  ctx.fillStyle = "#3a3a3a";
-  ctx.fillRect(centerX - 30, collarY, 60, 16);
-  const charmY = collarY + 22;
-  ctx.fillStyle = "#666666";
-  ctx.fillRect(centerX - 7, charmY - 4, 14, 14);
-  ctx.strokeStyle = "#333333";
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(centerX + 80, bottomY - 100 + poodleYOffset);
-  const tailSway = Math.sin(time2 * 6) * 12;
-  ctx.quadraticCurveTo(centerX + 110, bottomY - 120 + poodleYOffset, centerX + 125, bottomY - 150 + tailSway + poodleYOffset);
-  ctx.stroke();
-  ctx.restore();
-}
-function getRelativePosition(x, y, originX, originY) {
-  return {
-    dx: x - originX,
-    dy: y - originY
+    isLegacy,
+    isMobile,
+    isiPad,
+    isAndroid,
+    targetFPS: isLegacy ? 30 : 60,
+    useGPU: !isLegacy,
+    ramLimitMB: ram * 1024 * 0.1,
+    isBabylonFree: true,
+    maxDPR,
+    canvasMemoryOptimized: isMobile
   };
 }
-function getRelativePositionDescription(x, y, originX, originY) {
-  const relPos = getRelativePosition(x, y, originX, originY);
-  const dxFeet = getFootage(relPos.dx);
-  const dyFeet = getFootage(relPos.dy);
-  return `Relative to origin: ${dxFeet} East, ${dyFeet} North.`;
+function applyLegacyConstraints(ctx) {
+  ctx.imageSmoothingEnabled = false;
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
 }
-function renderCanvasFrame(params, requestNextFrame) {
-  const {
-    canvas,
-    ctx,
-    time: time2,
-    hardwareProfile,
-    gameStateRef,
-    lastRenderTime
-  } = params;
-  const hw = hardwareProfile.current;
-  const state = gameStateRef.current;
-  const fpsLimit = hw.targetFPS;
-  const interval = 1e3 / fpsLimit;
-  if (time2 - lastRenderTime.current < interval) {
-    requestNextFrame(time2);
-    return;
-  }
-  lastRenderTime.current = time2;
-  const cstDate = getCSTTime();
-  const currentHour = cstDate.getHours();
-  const lighting = getLightingMode(currentHour);
-  const isNight = lighting === "Night";
-  applyLegacyConstraints(ctx);
-  const nowSeconds = Date.now() / 1e3;
-  const dpr = Math.min(hw.maxDPR, window.devicePixelRatio || 1);
-  if (state.visualPrefs === "2D") {
-    const physicalWidth2 = Math.round(GAME_WIDTH * dpr);
-    const physicalHeight2 = Math.round(GAME_HEIGHT * dpr);
-    if (canvas.width !== physicalWidth2 || canvas.height !== physicalHeight2) {
-      canvas.width = physicalWidth2;
-      canvas.height = physicalHeight2;
-    }
-    ctx.save();
-    ctx.scale(dpr, dpr);
-    draw2DView(ctx, GAME_WIDTH, GAME_HEIGHT, state);
-    ctx.restore();
-    requestNextFrame(time2);
-    return;
-  }
-  let pixelRatio = state.visualPrefs === "Auto" ? state.pixelRatio : state.visualPrefs === "Simulated3D" ? 0.5 : state.visualPrefs === "Super3D" ? 1.5 : state.visualPrefs === "3DPlus" ? 1.2 : 1;
-  if (state.visualPrefs === "Auto" && hw.isLegacy) {
-    pixelRatio = 0.75;
-  }
-  const physicalScale = dpr * pixelRatio;
-  const physicalWidth = Math.round(GAME_WIDTH * physicalScale);
-  const physicalHeight = Math.round(GAME_HEIGHT * physicalScale);
-  if (canvas.width !== physicalWidth || canvas.height !== physicalHeight) {
-    canvas.width = physicalWidth;
-    canvas.height = physicalHeight;
-  }
-  ctx.save();
-  if (pixelRatio < 1) {
-    const renderScale = dpr * pixelRatio * pixelRatio;
-    ctx.scale(renderScale, renderScale);
-    const sw = GAME_WIDTH / pixelRatio;
-    const sh = GAME_HEIGHT / pixelRatio;
-    ctx.fillStyle = isNight ? "#000000" : "#050505";
-    ctx.fillRect(0, 0, sw, sh);
-    const { isLeaning, isGraspingCollar } = state;
-    drawEnvironment(ctx, sw, sh, state, nowSeconds);
-    drawWorldObjects(ctx, sw, sh, state, nowSeconds);
-    drawWindowViews(ctx, sw, sh, state, nowSeconds, cstDate);
-    if (state.viewMode === "Rider") {
-      if (state.visualPrefs === "Active3D") {
-        drawPoodle3D(ctx, sw, sh, nowSeconds, 0);
-      } else {
-        if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
-          drawPriscillaRiderView(
-            ctx,
-            sw,
-            sh,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.ridingAnimal === "Anninne-Amelia Rose Julisus") {
-          drawAnninneAmeliaRiderView(
-            ctx,
-            sw,
-            sh,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isUmbrellaEquipped,
-            state.isUmbrellaOpen,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.ridingAnimal === "Abigail Marigold Kenyatta") {
-          drawAbigailRiderView(
-            ctx,
-            sw,
-            sh,
-            isLeaning,
-            nowSeconds,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.isRidingToy) {
-          drawToyInterface(ctx, sw, sh, state);
-        } else if (state.ridingAnimal === "Dymond Daisy Qin-Reynolds") {
-          drawDymondRiderView(ctx, sw, sh, state, nowSeconds);
-        } else {
-          drawPoodleRiderView(
-            ctx,
-            sw,
-            sh,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isUmbrellaEquipped,
-            state.isUmbrellaOpen,
-            state.isPetting,
-            state.lastPetTime
-          );
-        }
-      }
-    } else {
-      if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
-        drawPriscillaPOV(
-          ctx,
-          sw,
-          sh,
-          state.isJumping,
-          isLeaning,
-          isGraspingCollar,
-          nowSeconds,
-          state.isPetting,
-          state.lastPetTime
-        );
-      } else {
-        drawPoodlePOV(
-          ctx,
-          sw,
-          sh,
-          state.isJumping,
-          isLeaning,
-          isGraspingCollar,
-          nowSeconds,
-          state.ridingAnimal,
-          state.isPetting,
-          state.lastPetTime
-        );
-      }
-    }
-  } else {
-    ctx.scale(physicalScale, physicalScale);
-    ctx.fillStyle = isNight ? "#000000" : "#050505";
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-    const { isLeaning, isGraspingCollar } = state;
-    drawEnvironment(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-    drawWorldObjects(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-    drawWindowViews(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds, cstDate);
-    if (state.viewMode === "Rider") {
-      if (state.visualPrefs === "Active3D") {
-        drawPoodle3D(ctx, GAME_WIDTH, GAME_HEIGHT, nowSeconds, 0);
-      } else {
-        if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
-          drawPriscillaRiderView(
-            ctx,
-            GAME_WIDTH,
-            GAME_HEIGHT,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.ridingAnimal === "Anninne-Amelia Rose Julisus") {
-          drawAnninneAmeliaRiderView(
-            ctx,
-            GAME_WIDTH,
-            GAME_HEIGHT,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isUmbrellaEquipped,
-            state.isUmbrellaOpen,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.ridingAnimal === "Abigail Marigold Kenyatta") {
-          drawAbigailRiderView(
-            ctx,
-            GAME_WIDTH,
-            GAME_HEIGHT,
-            isLeaning,
-            nowSeconds,
-            state.isPetting,
-            state.lastPetTime
-          );
-        } else if (state.isRidingToy) {
-          drawToyInterface(ctx, GAME_WIDTH, GAME_HEIGHT, state);
-        } else if (state.ridingAnimal === "Dymond Daisy Qin-Reynolds") {
-          drawDymondRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
-        } else {
-          drawPoodleRiderView(
-            ctx,
-            GAME_WIDTH,
-            GAME_HEIGHT,
-            isLeaning,
-            isGraspingCollar,
-            nowSeconds,
-            state.isUmbrellaEquipped,
-            state.isUmbrellaOpen,
-            state.isPetting,
-            state.lastPetTime
-          );
-        }
-      }
-    } else {
-      if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
-        drawPriscillaPOV(
-          ctx,
-          GAME_WIDTH,
-          GAME_HEIGHT,
-          state.isJumping,
-          isLeaning,
-          isGraspingCollar,
-          nowSeconds,
-          state.isPetting,
-          state.lastPetTime
-        );
-      } else {
-        drawPoodlePOV(
-          ctx,
-          GAME_WIDTH,
-          GAME_HEIGHT,
-          state.isJumping,
-          isLeaning,
-          isGraspingCollar,
-          nowSeconds,
-          state.ridingAnimal,
-          state.isPetting,
-          state.lastPetTime
-        );
-      }
-    }
-    if (state.visualPrefs === "Hybrid") {
-      ctx.save();
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-      for (let i = 0; i < GAME_HEIGHT; i += 4) {
-        ctx.fillRect(0, i, GAME_WIDTH, 2);
-      }
-      ctx.restore();
-    }
-    if (state.visualPrefs === "3DPlus") {
-      ctx.save();
-      const bloomGrad = ctx.createRadialGradient(
-        GAME_WIDTH / 2,
-        GAME_HEIGHT / 2,
-        50,
-        GAME_WIDTH / 2,
-        GAME_HEIGHT / 2,
-        GAME_WIDTH
-      );
-      bloomGrad.addColorStop(0, "rgba(255, 192, 203, 0.05)");
-      bloomGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = bloomGrad;
-      ctx.globalCompositeOperation = "lighter";
-      ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-      ctx.restore();
-    }
-    if (state.visualPrefs === "Super3D") {
-      ctx.save();
-      ctx.globalAlpha = 0.05;
-      ctx.fillStyle = "#ffffff";
-      for (let i = 0; i < 50; i++) {
-        ctx.fillRect(Math.random() * GAME_WIDTH, Math.random() * GAME_HEIGHT, 1, 1);
-      }
-      ctx.restore();
-    }
-  }
-  if (state.isCSTEnabled) {
-    ctx.save();
-    const timeStr = cstDate.toLocaleTimeString("en-US", {
-      hour12: true,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
-    ctx.fillStyle = "#00ff00";
-    ctx.font = "bold 14px monospace";
-    ctx.fillText(`CST: ${timeStr} (Chicago)`, 20, 30);
-    ctx.restore();
-  }
-  if (state.isPaused || !state.isStarted || state.isPositioningEnabled) {
-    ctx.save();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-    ctx.font = "10px monospace";
-    ctx.textAlign = "right";
-    ctx.fillText("BABYLON-FREE CRAFTSMANSHIP", GAME_WIDTH - 10, 20);
-    ctx.restore();
-  }
-  if (state.isPositioningEnabled) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.fillRect(10, 10, 250, 60);
-    ctx.fillStyle = "#00ff00";
-    ctx.font = "10px monospace";
-    ctx.textAlign = "left";
-    const currentAreaMetrics = formulateAreaMetrics(state.area);
-    const currentDims = { width: currentAreaMetrics.width, height: currentAreaMetrics.height };
-    ctx.fillText(`POSITIONING ACTIVE`, 20, 25);
-    if (state.useCoordinates) {
-      ctx.fillText(
-        `POS: ${getRelativePositionDescription(
-          state.gridX,
-          state.gridY,
-          currentDims.width / 2,
-          currentDims.height
-        )}`,
-        20,
-        40
-      );
-    }
-    if (state.showMeasurements) {
-      ctx.fillText(`FEET: ${getFootage(state.gridX)}x${getFootage(state.gridY)}`, 20, 55);
-    }
-  }
-  ctx.restore();
-  requestNextFrame(time2);
-}
-const CRAFTED_POODLES = [
-  {
-    id: "abigay_rose_kone",
-    name: "Abigay Rose Kone",
-    description: POODLE_CORE$3.identity.description,
-    category: "Crafted",
-    color: "#FFD1DC",
-    // Pastel Pink / White
-    supportsBarkToggle: true,
-    barkTypes: ["Classic", "Generic", "BOW"]
-  },
-  {
-    id: "anninne_amelia_rose_julisus",
-    name: "Anninne-Amelia Rose Julisus",
-    description: POODLE_CORE$2.identity.description,
-    category: "Crafted",
-    color: "#D2B48C",
-    // Tan
-    supportsBarkToggle: true,
-    barkTypes: ["Classic", "Generic", "BOW"]
-  },
-  {
-    id: "dymond_daisy_qin_reynolds",
-    name: "Dymond Daisy Qin-Reynolds",
-    description: POODLE_CORE.identity.description,
-    category: "Crafted",
-    color: "#E0B0FF",
-    // Mauve/Lavender
-    supportsBarkToggle: true,
-    barkTypes: ["Classic", "Generic", "BOW"]
-  },
-  {
-    id: "abigail_marigold_kenyatta",
-    name: "Abigail Marigold Kenyatta",
-    description: POODLE_CORE$1.identity.description,
-    category: "Crafted",
-    color: "#F5DEB3",
-    // Wheat/Marigold
-    supportsBarkToggle: true,
-    barkTypes: ["Classic", "Generic", "BOW"]
-  }
-];
-const CLASSIC_POODLES = [
-  {
-    id: "white_poodle",
-    name: "White Poodle",
-    description: "The default classic companion poodle. Sized conventionally with standard elegant white coat.",
-    category: "Classic",
-    color: "#F8F8FF",
-    // Ghost White
-    supportsBarkToggle: false,
-    barkTypes: ["Classic"]
-  },
-  {
-    id: "olga_olivia",
-    name: "Olga-Olivia",
-    description: "A Babylonian companion with chaotic, jerky 2-D movements and unique petting sounds. Expressive and vanity-focused.",
-    category: "Classic",
-    color: "#708090",
-    // Slate Grey
-    supportsBarkToggle: false,
-    barkTypes: ["Classic"]
-  }
-];
-const POODLES = [
-  ...CRAFTED_POODLES,
-  ...CLASSIC_POODLES
-];
-const handleAbigayRoseKoneAboutAI = (speak2) => {
-  const { identity, design } = POODLE_CORE$3;
-  const d = design.dimensions;
-  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightFeet} feet tall. ${design.appearance}`;
-  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
-};
-const handleAnninneAmeliaRoseJulisusAboutAI = (speak2) => {
-  const { identity, design } = POODLE_CORE$2;
-  const d = design.dimensions;
-  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
-  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
-};
-const handleDymondDaisyQinReynoldsAboutAI = (speak2) => {
-  const { identity, design } = POODLE_CORE;
-  const d = design.dimensions;
-  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
-  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
-};
-const handleAbigailMarigoldKenyattaAboutAI = (speak2) => {
-  const { identity, design } = POODLE_CORE$1;
-  const d = design.dimensions;
-  let desc = `${identity.name}. She stands ${d.shoulderHeightFeet} feet at the shoulder. Her head is ${d.headWidthInches} inches wide and ${d.headHeightInches} inches tall. ${design.appearance}`;
-  speak2(desc.replace(/\s+/g, " ").trim(), "EN_US");
-};
-const handlePoodleAboutAI = (id2, speak2) => {
-  switch (id2) {
-    case "abigay_rose_kone":
-      handleAbigayRoseKoneAboutAI(speak2);
-      break;
-    case "anninne_amelia_rose_julisus":
-      handleAnninneAmeliaRoseJulisusAboutAI(speak2);
-      break;
-    case "dymond_daisy_qin_reynolds":
-      handleDymondDaisyQinReynoldsAboutAI(speak2);
-      break;
-    case "abigail_marigold_kenyatta":
-      handleAbigailMarigoldKenyattaAboutAI(speak2);
-      break;
-    default:
-      speak2("A majestic poodle companion.", "EN_US");
-      break;
-  }
-};
-const General = ({ state, setGameState, speak: speak2, audio: audio2 }) => {
-  const currentArea = state.area;
-  const [activeTab, setActiveTab] = reactExports.useState("Crafted");
-  const [activeFocus, setActiveFocus] = reactExports.useState("Tabs");
-  const allAvailablePoodles = POODLES.filter((p) => {
-    var _a2;
-    return !p.isSpecial || ((_a2 = p.requiredArea) == null ? void 0 : _a2.includes(currentArea));
-  });
-  const availablePoodles = allAvailablePoodles.filter((p) => p.category === activeTab);
-  const { selectedPoodleIndex, poodleMenuMode, selectedPoodleActionIndex, poodleBarkType } = state;
-  const validSelectedIndex = selectedPoodleIndex >= -1 && selectedPoodleIndex < availablePoodles.length ? selectedPoodleIndex : -1;
-  const selectedPoodle = availablePoodles[validSelectedIndex];
-  const actions = ["Ride Now", "About"];
-  if (selectedPoodle && selectedPoodle.supportsBarkToggle !== false) {
-    actions.push("Bark Type");
-  }
-  actions.push("Go Back");
-  const handleSelection = () => {
-    if (activeFocus === "Tabs") {
-      setActiveFocus("Grid");
-      setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
-      speak2("Go Back");
-      return;
-    }
-    if (poodleMenuMode === "Selection") {
-      if (validSelectedIndex === -1) {
-        setActiveFocus("Tabs");
-        speak2(activeTab);
-      } else {
-        setGameState((prev) => ({ ...prev, poodleMenuMode: "Action", selectedPoodleActionIndex: 0 }));
-        speak2("Ride Now");
-      }
-    } else {
-      const poodle = availablePoodles[validSelectedIndex];
-      const isCurrentlyRiding = poodle.name === state.ridingAnimal;
-      const currentAction = actions[selectedPoodleActionIndex];
-      switch (currentAction) {
-        case "Ride Now":
-          if (isCurrentlyRiding) {
-            speak2(`Already riding ${poodle.name}`);
-          } else {
-            handleRideNow(poodle.name);
-          }
-          break;
-        case "About":
-          handlePoodleAboutAI(poodle.id, speak2);
-          break;
-        case "Bark Type":
-          if (poodle.supportsBarkToggle && poodle.barkTypes && poodle.barkTypes.length > 0) {
-            const currentTypeIdx = poodle.barkTypes.indexOf(poodleBarkType);
-            const nextType = poodle.barkTypes[(currentTypeIdx + 1) % poodle.barkTypes.length];
-            setGameState((prev) => ({ ...prev, poodleBarkType: nextType }));
-            const displayName = nextType === "Generic" ? "Classic" : nextType;
-            speak2(displayName);
-          } else {
-            speak2("Classic");
-          }
-          break;
-        case "Go Back":
-          setGameState((prev) => ({ ...prev, poodleMenuMode: "Selection" }));
-          speak2(poodle.name);
-          break;
-      }
-    }
-  };
-  const handleRideNow = (name) => {
-    audio2.playMagicWand();
-    setTimeout(() => {
-      setGameState((prev) => ({
-        ...prev,
-        ridingAnimal: name,
-        isPoodleSelectionOpen: false,
-        poodleMenuMode: "Selection"
-      }));
-      speak2(`${name} is now ready to ride!`);
-    }, 2e3);
-  };
-  reactExports.useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!state.isPoodleSelectionOpen) return;
-      e.stopPropagation();
-      const isSelectKey = e.code === "Enter" || e.code === "Space" || state.keyboardLayout === "Cedella" && e.code === "KeyO" || state.keyboardLayout === "Arden Denis" && e.code === "KeyE";
-      const isBackKey = e.code === "Escape" || state.keyboardLayout === "Cedella" && e.code === "KeyX" || state.keyboardLayout === "Arden Denis" && e.code === "KeyF";
-      const isUpKey = e.code === "ArrowUp" || state.keyboardLayout === "Arden Denis" && e.code === "KeyW";
-      const isDownKey = e.code === "ArrowDown" || state.keyboardLayout === "Arden Denis" && e.code === "KeyS";
-      const isLeftKey = e.code === "ArrowLeft" || state.keyboardLayout === "Arden Denis" && e.code === "KeyA";
-      const isRightKey = e.code === "ArrowRight" || state.keyboardLayout === "Arden Denis" && e.code === "KeyD";
-      if (activeFocus === "Tabs") {
-        if (isLeftKey || isRightKey) {
-          e.preventDefault();
-          const newTab = activeTab === "Crafted" ? "Classic" : "Crafted";
-          setActiveTab(newTab);
-          speak2(newTab);
-        } else if (isSelectKey) {
-          e.preventDefault();
-          setActiveFocus("Grid");
-          setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
-          speak2("Go Back");
-        } else if (isBackKey) {
-          e.preventDefault();
-          setGameState((prev) => ({ ...prev, isPoodleSelectionOpen: false }));
-          speak2("Closing");
-        }
-        return;
-      }
-      if (isUpKey) {
-        e.preventDefault();
-        if (poodleMenuMode === "Selection") {
-          if (validSelectedIndex > -1) {
-            const next = validSelectedIndex - 1;
-            setGameState((prev) => ({ ...prev, selectedPoodleIndex: next }));
-            speak2(next === -1 ? "Go Back" : availablePoodles[next].name);
-          }
-        } else {
-          if (selectedPoodleActionIndex > 0) {
-            const next = selectedPoodleActionIndex - 1;
-            setGameState((prev) => ({ ...prev, selectedPoodleActionIndex: next }));
-            speak2(actions[next]);
-          }
-        }
-      } else if (isDownKey) {
-        e.preventDefault();
-        if (poodleMenuMode === "Selection") {
-          if (validSelectedIndex < availablePoodles.length - 1) {
-            const next = validSelectedIndex + 1;
-            setGameState((prev) => ({ ...prev, selectedPoodleIndex: next }));
-            speak2(availablePoodles[next].name);
-          }
-        } else {
-          if (selectedPoodleActionIndex < actions.length - 1) {
-            const next = selectedPoodleActionIndex + 1;
-            setGameState((prev) => ({ ...prev, selectedPoodleActionIndex: next }));
-            speak2(actions[next]);
-          }
-        }
-      } else if (isLeftKey || isRightKey) {
-        e.preventDefault();
-      } else if (isSelectKey) {
-        e.preventDefault();
-        handleSelection();
-      } else if (isBackKey) {
-        e.preventDefault();
-        if (poodleMenuMode === "Action") {
-          setGameState((prev) => ({ ...prev, poodleMenuMode: "Selection" }));
-          speak2(availablePoodles[validSelectedIndex].name);
-        } else if (poodleMenuMode === "Selection") {
-          setActiveFocus("Tabs");
-          speak2(activeTab);
-        }
-      } else {
-        if (["ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(e.code)) {
-          e.preventDefault();
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [state.isPoodleSelectionOpen, poodleMenuMode, validSelectedIndex, selectedPoodleActionIndex, poodleBarkType, activeFocus, activeTab, actions]);
-  const tabs = ["Crafted", "Classic"];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md p-8", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-4 mb-4", children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: `px-8 py-3 rounded-t-xl border-4 text-2xl font-bold uppercase transition-all duration-300 shadow-xl ${activeTab === tab ? "bg-neutral-800 border-pink-500 text-pink-400" : "bg-neutral-900 border-neutral-700 text-neutral-500 opacity-50"} ${activeFocus === "Tabs" && activeTab === tab ? "ring-4 ring-pink-500/50 scale-105" : ""}`,
-        children: tab
-      },
-      tab
-    )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      motion.div,
-      {
-        initial: { opacity: 0, scale: 0.9 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 0.9 },
-        className: `w-full max-w-5xl h-[70vh] bg-neutral-900 border-4 border-neutral-700 rounded-3xl overflow-hidden flex shadow-2xl relative ${activeFocus === "Grid" ? "ring-inset ring-4 ring-pink-500/50" : ""}`,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/2 border-r-4 border-neutral-700 flex flex-col", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 bg-neutral-800 border-b-4 border-neutral-700", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-3xl font-bold text-white flex items-center gap-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-8 h-8 bg-pink-500 rounded-full animate-pulse" }),
-                "POODLE SELECTION"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 mt-2 text-lg", children: "Use Up/Down to navigate. Press Select to choose." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 p-6 overflow-y-auto space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  className: `w-full p-6 rounded-2xl text-left transition-all flex items-center gap-4 ${validSelectedIndex === -1 && activeFocus === "Grid" ? "bg-white text-black scale-[1.02]" : "bg-neutral-800 text-neutral-400"}`,
-                  onClick: () => {
-                    setGameState((prev) => ({ ...prev, selectedPoodleIndex: -1 }));
-                    setActiveFocus("Grid");
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `w-12 h-12 rounded-full flex items-center justify-center border-2 ${validSelectedIndex === -1 ? "border-black" : "border-neutral-600"}`, children: "←" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xl font-bold uppercase tracking-widest", children: "Go Back" })
-                  ]
-                }
-              ),
-              availablePoodles.map((poodle, idx) => {
-                const isCurrentlyRiding = poodle.name === state.ridingAnimal;
-                const isSelected = validSelectedIndex === idx && activeFocus === "Grid";
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    className: `w-full p-6 rounded-2xl text-left transition-all flex items-center gap-4 ${isSelected ? "bg-white text-black scale-[1.02]" : "bg-neutral-800 text-neutral-400"} ${isCurrentlyRiding ? "opacity-40 grayscale-[0.5]" : ""}`,
-                    onClick: () => {
-                      setGameState((prev) => ({ ...prev, selectedPoodleIndex: idx }));
-                      setActiveFocus("Grid");
-                    },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "div",
-                        {
-                          className: "w-12 h-12 rounded-full border-2 border-current shadow-inner flex-shrink-0",
-                          style: { backgroundColor: poodle.color }
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xl font-bold uppercase tracking-tight", children: poodle.name }),
-                        isCurrentlyRiding && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] uppercase font-black tracking-widest opacity-60", children: "Currently Riding" }),
-                        isSelected && poodleMenuMode === "Action" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 flex gap-2", children: actions.map((action, i) => {
-                          let label = action;
-                          if (action === "Ride Now") {
-                            label = isCurrentlyRiding ? "Currently Riding" : "Ride";
-                          } else if (action === "About") {
-                            label = "Info";
-                          } else if (action === "Bark Type") {
-                            if (!poodle.supportsBarkToggle) {
-                              label = "Bark: Classic";
-                            } else {
-                              label = `Bark: ${poodleBarkType === "Generic" ? "Classic" : "BOW"}`;
-                            }
-                          } else if (action === "Go Back") {
-                            label = "Exit";
-                          }
-                          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `px-2 py-1 text-xs rounded border ${selectedPoodleActionIndex === i ? "bg-black text-white" : "border-neutral-500"}`, children: label }, action);
-                        }) })
-                      ] })
-                    ]
-                  },
-                  poodle.id
-                );
-              })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1/2 bg-neutral-950 flex flex-col p-12 relative overflow-hidden", children: validSelectedIndex !== -1 && availablePoodles[validSelectedIndex] ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-0 right-0 p-8 opacity-10 pointer-events-none", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-9xl font-black text-white uppercase rotate-90 origin-top-right whitespace-nowrap", children: availablePoodles[validSelectedIndex].name }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center text-center space-y-8 z-10", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "div",
-                {
-                  className: "w-64 h-64 rounded-full shadow-2xl border-8 border-white/10 flex items-center justify-center",
-                  style: { backgroundColor: availablePoodles[validSelectedIndex].color },
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-8xl", children: "🐩" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-4xl font-black text-white tracking-tighter uppercase italic", children: availablePoodles[validSelectedIndex].name }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 text-lg leading-relaxed max-w-md mx-auto line-clamp-4", children: availablePoodles[validSelectedIndex].description })
-              ] })
-            ] })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col items-center justify-center text-center z-10", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-6xl font-black text-white/20", children: "BACK" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-neutral-400 text-lg mt-4", children: "Select to close the menu." })
-          ] }) })
-        ]
-      }
-    )
-  ] });
-};
-const PoodleSelectionMenu = (props) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(General, { ...props });
-};
 const TOY_DIMENSIONS = {
   INTERACTION: {
     X_MIN: 8,
@@ -66863,6 +62826,2738 @@ const TOY_DIMENSIONS = {
     Y_TRIGGER: 49
   }
 };
+const calculateMovement = (state, keysPressed, dt, now2, lastRotateTime) => {
+  let newSpeed = state.speed;
+  let newRotation = state.rotation;
+  let strafeSpeed = 0;
+  let announcement;
+  const isUp = keysPressed.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyW");
+  const isDown = keysPressed.has("ArrowDown") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyS");
+  const isLeft = keysPressed.has("ArrowLeft") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyA");
+  const isRight = keysPressed.has("ArrowRight") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyD");
+  const isShift = keysPressed.has("ShiftLeft") || keysPressed.has("ShiftRight");
+  let joystickAngle = null;
+  if (state.keyboardLayout === "Cedella") {
+    const n8 = keysPressed.has("Numpad8");
+    const n2 = keysPressed.has("Numpad2");
+    const n4 = keysPressed.has("Numpad4");
+    const n6 = keysPressed.has("Numpad6");
+    const n7 = keysPressed.has("Numpad7");
+    const n9 = keysPressed.has("Numpad9");
+    const n1 = keysPressed.has("Numpad1");
+    const n3 = keysPressed.has("Numpad3");
+    if (n4) newRotation -= 180 * dt;
+    if (n6) newRotation += 180 * dt;
+    let moveAngleOffset = null;
+    if (n8) moveAngleOffset = 0;
+    else if (n2) moveAngleOffset = 180;
+    else if (n7) moveAngleOffset = -45;
+    else if (n9) moveAngleOffset = 45;
+    else if (n1) moveAngleOffset = -135;
+    else if (n3) moveAngleOffset = 135;
+    if (moveAngleOffset !== null) {
+      joystickAngle = (newRotation + moveAngleOffset) % 360;
+      if (joystickAngle < 0) joystickAngle += 360;
+    }
+  }
+  state.visualPrefs === "3D" || state.visualPrefs === "3DPlus" || state.visualPrefs === "Super3D";
+  let maxSpeed = 600;
+  let accel = 300;
+  let effectiveMode = state.movementMode;
+  if (state.area === "MeditationHallLibrary") {
+    if (effectiveMode === "Gallop" || effectiveMode === "Canter" || effectiveMode === "Trot") {
+      effectiveMode = "Walk";
+    }
+  } else if (state.area === "NarrowDressageGym" && state.level === "Sky") {
+    if (effectiveMode === "Gallop" || effectiveMode === "Canter" || effectiveMode === "Trot") {
+      effectiveMode = "Walk";
+    }
+  }
+  switch (effectiveMode) {
+    case "Walk":
+      maxSpeed = 100;
+      accel = 50;
+      break;
+    case "Slow Walk":
+      maxSpeed = 50;
+      accel = 25;
+      break;
+    case "Very Slow Walk":
+      maxSpeed = 25;
+      accel = 12.5;
+      break;
+    case "Trot":
+      maxSpeed = 250;
+      accel = 125;
+      break;
+    case "Canter":
+      maxSpeed = 450;
+      accel = 225;
+      break;
+    case "Gallop":
+    default:
+      maxSpeed = 600;
+      accel = 300;
+      break;
+  }
+  if (isShift) {
+    maxSpeed *= 1.5;
+    accel *= 1.5;
+  }
+  const targetSpeed = state.targetSpeed || 0;
+  if (joystickAngle !== null) {
+    newSpeed += accel * dt;
+    if (state.keyboardLayout !== "Cedella") {
+      newRotation = joystickAngle;
+    }
+  } else if (isUp) {
+    newSpeed += accel * dt;
+  } else if (isDown) {
+    newSpeed -= accel * dt;
+  } else if (targetSpeed !== 0) {
+    if (newSpeed < targetSpeed) newSpeed = Math.min(targetSpeed, newSpeed + accel * dt);
+    else if (newSpeed > targetSpeed) newSpeed = Math.max(targetSpeed, newSpeed - accel * dt);
+  } else {
+    if (newSpeed > 0) newSpeed = Math.max(0, newSpeed - 100 * dt);
+    else if (newSpeed < 0) newSpeed = Math.min(0, newSpeed + 100 * dt);
+  }
+  newSpeed = Math.max(-maxSpeed / 2, Math.min(maxSpeed, newSpeed));
+  let actualIsLeft = isLeft;
+  let actualIsRight = isRight;
+  if (state.isStrafingEnabled) {
+    if (isLeft) {
+      strafeSpeed = -150;
+      actualIsLeft = false;
+      if (now2 - lastRotateTime > 1e3) {
+        announcement = "Strafing Left";
+      }
+    }
+    if (isRight) {
+      strafeSpeed = 150;
+      actualIsRight = false;
+      if (now2 - lastRotateTime > 1e3) {
+        announcement = "Strafing Right";
+      }
+    }
+  }
+  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(state.area);
+  const turningMode = state.arrowKeyTurningMode || "FourDirection";
+  const isPhysicalLeft = keysPressed.has("ArrowLeft") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyA");
+  const isPhysicalRight = keysPressed.has("ArrowRight") || state.keyboardLayout === "Arden Denis" && keysPressed.has("KeyD");
+  if (!isAdventurePathArea) {
+    if (turningMode === "Full360") {
+      if (actualIsLeft) newRotation -= 180 * dt;
+      else if (actualIsRight) newRotation += 180 * dt;
+    } else {
+      if ((isPhysicalLeft || isPhysicalRight) && !state.isStrafingEnabled && now2 - lastRotateTime > 300) {
+        const delta = isPhysicalLeft ? -1 : 1;
+        let nextDirection;
+        if (turningMode === "FourDirection") {
+          const CARDINALS = ["North", "East", "South", "West"];
+          const currentDir2 = state.direction;
+          const currentIndex = CARDINALS.indexOf(currentDir2);
+          if (currentIndex !== -1) {
+            const nextIndex = (currentIndex + delta + CARDINALS.length) % CARDINALS.length;
+            nextDirection = CARDINALS[nextIndex];
+          } else {
+            if (currentDir2 === "Northeast") nextDirection = delta === -1 ? "North" : "East";
+            else if (currentDir2 === "Southeast") nextDirection = delta === -1 ? "East" : "South";
+            else if (currentDir2 === "Southwest") nextDirection = delta === -1 ? "South" : "West";
+            else nextDirection = delta === -1 ? "West" : "North";
+          }
+        } else {
+          const currentIndex = DIRECTIONS.indexOf(state.direction);
+          const nextIndex = (currentIndex + delta + DIRECTIONS.length) % DIRECTIONS.length;
+          nextDirection = DIRECTIONS[nextIndex];
+        }
+        if (nextDirection === "North") newRotation = 0;
+        else if (nextDirection === "Northeast") newRotation = 45;
+        else if (nextDirection === "East") newRotation = 90;
+        else if (nextDirection === "Southeast") newRotation = 135;
+        else if (nextDirection === "South") newRotation = 180;
+        else if (nextDirection === "Southwest") newRotation = 225;
+        else if (nextDirection === "West") newRotation = 270;
+        else if (nextDirection === "Northwest") newRotation = 315;
+        const turnDir = delta === -1 ? "left" : "right";
+        announcement = state.notifications.truncateTurning ? nextDirection : `Turning ${turnDir}. Facing ${nextDirection}`;
+      }
+    }
+  }
+  const normalized = (newRotation % 360 + 360) % 360;
+  const prevNormalized = (state.rotation % 360 + 360) % 360;
+  const points = [
+    { angle: 0, label: "North" },
+    { angle: 45, label: "Northeast" },
+    { angle: 90, label: "East" },
+    { angle: 135, label: "Southeast" },
+    { angle: 180, label: "South" },
+    { angle: 225, label: "Southwest" },
+    { angle: 270, label: "West" },
+    { angle: 315, label: "Northwest" },
+    { angle: 360, label: "North" }
+  ];
+  const match = points.find((p) => Math.abs(normalized - p.angle) < 2.5);
+  const wasMatching = points.find((p) => Math.abs(prevNormalized - p.angle) < 2.5);
+  if (match && (!wasMatching || match.label !== wasMatching.label)) {
+    announcement = state.notifications.truncateTurning ? match.label : `Facing ${match.label}`;
+  }
+  let currentDir = "North";
+  if (normalized >= 22.5 && normalized < 67.5) currentDir = "Northeast";
+  else if (normalized >= 67.5 && normalized < 112.5) currentDir = "East";
+  else if (normalized >= 112.5 && normalized < 157.5) currentDir = "Southeast";
+  else if (normalized >= 157.5 && normalized < 202.5) currentDir = "South";
+  else if (normalized >= 202.5 && normalized < 247.5) currentDir = "Southwest";
+  else if (normalized >= 247.5 && normalized < 292.5) currentDir = "West";
+  else if (normalized >= 292.5 && normalized < 337.5) currentDir = "Northwest";
+  const travelAngle = joystickAngle !== null ? joystickAngle : newRotation;
+  const moveAngleRad = travelAngle * Math.PI / 180;
+  const dx = newSpeed * Math.sin(moveAngleRad) * dt;
+  const dy = newSpeed * Math.cos(moveAngleRad) * dt;
+  const strafeAngle = (newRotation + 90) * Math.PI / 180;
+  const sdx = strafeSpeed * Math.sin(strafeAngle) * dt;
+  const sdy = strafeSpeed * Math.cos(strafeAngle) * dt;
+  return {
+    gridX: state.gridX + dx + sdx,
+    gridY: state.gridY + dy + sdy,
+    speed: newSpeed,
+    rotation: newRotation,
+    direction: currentDir,
+    strafeSpeed,
+    announcement
+  };
+};
+const STORY_PAGES = [
+  {
+    title: "Page 1",
+    content: [
+      "[Graphic: A majestic stone manor with a large wooden door.]",
+      "The sun sets over Rasta Manor, casting long shadows across the rugged play field.",
+      "Abigay Rose Kone trots gracefully, her nose warm and dry, catching the scent of the evening dew.",
+      "[Graphic: A close-up of Abigay's shiny nose.]",
+      "[List Item: North Wall - Main Entrance]",
+      "[List Item: South Wall - Garden Access]",
+      "The air is cool, carrying the promise of a peaceful night in the kennel."
+    ]
+  },
+  {
+    title: "Page 2",
+    content: [
+      "Wait, what's that sound?",
+      "Abigay's ears perk up. A soft yip echoes through the foyer.",
+      "[Graphic: Abigay looking towards the elevator.]",
+      "The interactive steel doors hum slightly as the elevator descends.",
+      "Everything is peaceful in Rasta Manor today."
+    ]
+  },
+  {
+    title: "Page 3",
+    content: [
+      "The lift stops at Level 0.",
+      "A familiar scent fills the air. It's Empress Abigay's favorite treat!",
+      "She wags her tail at a 45-degree angle, showing her excitement."
+    ]
+  },
+  {
+    title: "Page 4",
+    content: [
+      "The adventure continues into the simulated garden area.",
+      "Flowers bloom in vibrant colors, despite being underground.",
+      "The warm and dry nose of Abigay nudges a nearby blossom."
+    ]
+  }
+];
+const InventoryMenu = ({ state }) => {
+  var _a2, _b, _c, _d;
+  if (!state.isInventoryOpen) return null;
+  const tabs = ["Items", "Heart", "Map", "Storybook", "Exit"];
+  const actions = ["Use", "Check", "Combine", "Equip"];
+  const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+  const storybookItems = ["Reading", "Layout", "Theme"];
+  const themes = ["White", "Cream", "Night"];
+  const layouts = ["Webpage", "Emulated"];
+  const pages = STORY_PAGES.map((p) => p.title);
+  const getStorybookContent = () => {
+    var _a3;
+    const item = storybookItems[state.selectedStorybookItemIndex];
+    const mode = state.storybookMenuMode;
+    if (item === "Reading") {
+      if (mode === "Selection") {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Reading Menu" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: 'Select "Reading" and press Enter to browse pages.' }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center text-3xl", children: "📖" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 space-y-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-white font-bold", children: "The Grand Manor Adventure" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-zinc-500 uppercase tracking-widest", children: "Storybook Collection" })
+            ] })
+          ] })
+        ] });
+      } else if (mode === "Pages") {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Select a Page" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2 max-h-48 overflow-y-auto scrollbar-hide p-1", children: pages.map((p, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              id: `storybook-page-${i}`,
+              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.selectedStorybookPageListIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
+              children: p
+            },
+            p
+          )) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-zinc-500 uppercase tracking-widest", children: "Select a page to read its contents" })
+        ] });
+      } else if (mode === "PageContent") {
+        const isWebpage = state.storybookLayoutMode === "Webpage";
+        const pageContentLines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_a3 = STORY_PAGES[state.storybookPage]) == null ? void 0 : _a3.content) || [];
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: isWebpage ? "Storybook Webpage View" : `Reading: Page ${state.storybookPage + 1}` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white/5 rounded-xl p-4 border border-white/10 max-h-40 overflow-y-auto scrollbar-hide space-y-2", children: pageContentLines.map((line, i) => {
+            const isHeading = line.startsWith("[Heading:");
+            const isGraphic = line.startsWith("[Graphic:");
+            const cleanLine = line.replace(/^\[Heading: /, "").replace(/\]$/, "").replace(/^\[Graphic: /, "").replace(/\]$/, "");
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                id: `storybook-content-line-${i}`,
+                className: `p-2 rounded-lg transition-all text-sm leading-relaxed ${state.selectedStorybookContentIndex === i ? "bg-white text-black font-medium" : "text-zinc-300 opacity-60"} ${isHeading ? "text-lg font-black text-orange-400 mt-4 border-b border-orange-500/30" : ""} ${isGraphic ? "italic text-zinc-400 border-l-2 border-zinc-700 pl-4" : ""}`,
+                children: [
+                  isHeading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mr-2", children: "📄" }),
+                  isGraphic && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mr-2", children: "🖼️" }),
+                  cleanLine
+                ]
+              },
+              i
+            );
+          }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-zinc-500 uppercase tracking-widest font-bold", children: isWebpage ? "End of Storybook Webpage" : "End of Page Content" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-orange-500 font-black", children: isWebpage ? "X: Back to menu" : "X: Back to pages" })
+          ] })
+        ] });
+      }
+    } else if (item === "Layout") {
+      if (mode === "Selection") {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Layout Settings" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: "Configure how the storybook looks." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-white/5 rounded-xl border border-white/10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-zinc-500 uppercase tracking-widest block mb-1", children: "Active Layout" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-black text-lg", children: state.storybookLayoutMode })
+          ] })
+        ] });
+      } else {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Choose Layout" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: layouts.map((l, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              id: `storybook-layout-option-${i}`,
+              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.storybookSecondaryIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
+              children: [
+                l,
+                " Mode ",
+                state.storybookLayoutMode === l ? "(Current)" : ""
+              ]
+            },
+            l
+          )) })
+        ] });
+      }
+    } else if (item === "Theme") {
+      if (mode === "Selection") {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Theme Settings" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed italic", children: "Personalize the artistic colors." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-white/5 rounded-xl border border-white/10", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-zinc-500 uppercase tracking-widest block mb-1", children: "Active Theme" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-black text-lg", children: state.storybookTheme })
+          ] })
+        ] });
+      } else {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Select Theme" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: themes.map((t, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              id: `storybook-theme-option-${i}`,
+              className: `p-3 rounded-xl font-bold transition-all border-2 ${state.storybookSecondaryIndex === i ? "bg-orange-600 text-white border-orange-400" : "bg-white/5 text-zinc-500 border-transparent"}`,
+              children: [
+                t,
+                " Theme ",
+                state.storybookTheme === t ? "(Current)" : ""
+              ]
+            },
+            t
+          )) })
+        ] });
+      }
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    motion.div,
+    {
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      className: "absolute inset-0 z-50 flex flex-col bg-black/60 backdrop-blur-sm pointer-events-none",
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center gap-4 p-4", children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            id: `inventory-tab-${tab.toLowerCase()}`,
+            className: `px-6 py-2 rounded-full font-black tracking-widest text-sm transition-all shadow-lg ${state.inventoryTab === tab ? state.inventoryFocus === "Tabs" ? "bg-white text-black scale-110 ring-4 ring-orange-500" : "bg-white text-black scale-110" : "bg-zinc-900/80 text-zinc-500"}`,
+            children: tab.toUpperCase()
+          },
+          tab
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `flex-1 flex p-8 gap-8 items-end transition-opacity ${state.inventoryFocus === "Content" ? "opacity-100" : "opacity-60"}`, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 h-72 bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col justify-center", children: [
+            state.inventoryTab === "Items" && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: state.isWalletOpen ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: "Wallet Contents" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-zinc-300 leading-relaxed", children: [
+                "Viewing: ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-bold", children: walletItems[state.selectedWalletIndex] }),
+                ". Press O to read more about this item. Press X to return."
+              ] })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-orange-500 font-black text-xl uppercase tracking-tighter", children: ((_a2 = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _a2.name) || "No Item Selected" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-zinc-300 leading-relaxed", children: ((_b = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _b.description) || "Select an item to see its details." }),
+              ((_c = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _c.id) === "wallet" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-zinc-500 italic", children: "Press O to view contents." })
+            ] }) }),
+            state.inventoryTab === "Storybook" && getStorybookContent(),
+            state.inventoryTab === "Heart" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-red-500 font-black text-xl uppercase tracking-tighter", children: "Heart Meter Status" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: (state.characterName === "Priscilla" ? [
+                { label: "Kindness Level", value: "Empty" },
+                { label: "Heart Count", value: "0 Hearts" },
+                { label: "Recent Deeds", value: "Vain posturing, collecting possessions." }
+              ] : [
+                { label: "Kindness Level", value: state.heartMeter > 5 ? "Saintly" : "Developing" },
+                { label: "Heart Count", value: `${state.heartMeter} Hearts` },
+                { label: "Recent Deeds", value: "Helped a poodle navigate the manor." }
+              ]).map((detail, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: `p-2 rounded-lg transition-all ${state.selectedHeartDetailIndex === i ? "bg-red-600/20 border-l-4 border-red-600 pl-4" : "opacity-60"}`,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-red-400 uppercase tracking-widest block", children: detail.label }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-medium", children: detail.value })
+                  ]
+                },
+                detail.label
+              )) })
+            ] }),
+            state.inventoryTab === "Map" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-blue-500 font-black text-xl uppercase tracking-tighter", children: "Area Map" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: [
+                { label: "Current Building", value: state.area.includes("Manor") ? "Allison's Manor" : "Rasta Manor" },
+                { label: "Nearby Landmarks", value: "The grand foyer and the north ramps." },
+                { label: "Area Description", value: `You are currently in the ${state.area}.` }
+              ].map((detail, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: `p-2 rounded-lg transition-all ${state.selectedMapDetailIndex === i ? "bg-blue-600/20 border-l-4 border-blue-600 pl-4" : "opacity-60"}`,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold text-blue-400 uppercase tracking-widest block", children: detail.label }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-white font-medium", children: detail.value })
+                  ]
+                },
+                detail.label
+              )) })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-80 space-y-4", children: [
+            state.inventoryTab === "Items" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-4 shadow-2xl", children: state.isWalletOpen ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-2", children: walletItems.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                id: `wallet-item-${index2}`,
+                className: `p-3 rounded-xl font-bold transition-all ${state.selectedWalletIndex === index2 ? "bg-white text-black translate-x-2" : "text-zinc-500"}`,
+                children: item
+              },
+              item
+            )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 gap-2", children: state.inventory.items.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
+              {
+                id: `inventory-item-${index2}`,
+                className: `p-3 rounded-xl font-bold flex justify-between items-center transition-all ${state.selectedInventoryIndex === index2 ? "bg-orange-600 text-white translate-x-2" : "bg-zinc-800/50 text-zinc-400"}`,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs opacity-50", children: [
+                    "x",
+                    item.quantity
+                  ] })
+                ]
+              },
+              item.id
+            )) }) }),
+            state.inventoryTab === "Storybook" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-zinc-900/90 border-2 border-white/10 rounded-2xl p-4 shadow-2xl space-y-2", children: storybookItems.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                id: `storybook-item-${index2}`,
+                className: `p-3 rounded-xl font-bold transition-all ${state.selectedStorybookItemIndex === index2 ? "bg-orange-600 text-white translate-x-2" : "bg-zinc-800/50 text-zinc-400"}`,
+                children: item
+              },
+              item
+            )) }),
+            state.inventoryMenuMode === "Action" && !state.isWalletOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              motion.div,
+              {
+                initial: { x: 20, opacity: 0 },
+                animate: { x: 0, opacity: 1 },
+                className: "bg-white text-black rounded-2xl p-4 shadow-2xl space-y-1",
+                children: (((_d = state.inventory.items[state.selectedInventoryIndex]) == null ? void 0 : _d.id) === "umbrella" ? state.isUmbrellaEquipped ? ["Unequip", "Open", "Close", "Check"] : ["Equip", "Check"] : actions).map((action, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    className: `p-2 rounded-lg font-black text-center uppercase tracking-tighter text-sm ${state.selectedActionIndex === index2 ? "bg-black text-white" : "text-zinc-400"}`,
+                    children: action
+                  },
+                  action
+                ))
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 bg-black/40 text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex justify-center gap-8", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Arrows: Navigate / Tabs" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "O: Select / Action" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "X: Back / Exit" })
+        ] })
+      ]
+    }
+  );
+};
+function addItemToInventory(state, item) {
+  const existingItemIndex = state.inventory.items.findIndex((i) => i.id === item.id);
+  if (existingItemIndex !== -1) {
+    const newItems = [...state.inventory.items];
+    newItems[existingItemIndex] = {
+      ...newItems[existingItemIndex],
+      quantity: newItems[existingItemIndex].quantity + 1
+    };
+    return {
+      ...state,
+      inventory: {
+        ...state.inventory,
+        items: newItems
+      }
+    };
+  } else {
+    if (state.inventory.items.length >= state.inventory.maxItems) {
+      return state;
+    }
+    return {
+      ...state,
+      inventory: {
+        ...state.inventory,
+        items: [...state.inventory.items, { ...item, quantity: 1 }]
+      }
+    };
+  }
+}
+const UMBRELLA_ITEM_ID = "umbrella";
+const UMBRELLA_METADATA = {
+  id: UMBRELLA_ITEM_ID,
+  actions: ["Open", "Close", "Check", "Combine", "Equip"]
+};
+const WALLET_ITEM_ID = "wallet";
+const WALLET_METADATA = {
+  id: WALLET_ITEM_ID
+};
+const PHOTO_OF_ABIGAY_DESCRIPTION = "A beautiful picture of your massive white poodle partner Abigay.";
+const INVENTORY_ITEMS_REGISTRY = {
+  umbrella: UMBRELLA_METADATA,
+  wallet: WALLET_METADATA,
+  photoOfAbigay: {
+    description: PHOTO_OF_ABIGAY_DESCRIPTION
+  }
+};
+const HEART_METER_DETAILS = [
+  {
+    id: "kindness",
+    title: "Kindness Level",
+    description: "Tracks your overall benevolence and gentle care during your poodle rides."
+  },
+  {
+    id: "hearts",
+    title: "Heart Count",
+    description: "The number of pure hearts you have earned. Keep petting and loving your poodles."
+  },
+  {
+    id: "deeds",
+    title: "Recent Deeds",
+    description: "A summary of your latest actions reflecting your connection with your animal friends."
+  }
+];
+const HEART_METER_TITLES = HEART_METER_DETAILS.map((d) => d.title);
+const MAPS_DETAILS = [
+  {
+    id: "building",
+    title: "Current Building",
+    description: "Displays the name and level of the grand structure or estate you are currently traversing."
+  },
+  {
+    id: "landmarks",
+    title: "Nearby Landmarks",
+    description: "Lists architectural, floral, or geographic markers of significance in your immediate vicinity."
+  },
+  {
+    id: "description",
+    title: "Area Description",
+    description: "Provides a rich acoustic and spatial summary of the current play space."
+  }
+];
+const MAPS_TITLES = MAPS_DETAILS.map((d) => d.title);
+const STORYBOOK_MAIN_OPTIONS = ["Reading", "Layout", "Theme"];
+const STORYBOOK_LAYOUT_OPTIONS = ["Webpage", "Emulated"];
+const STORYBOOK_THEME_OPTIONS = ["White", "Cream", "Night"];
+const STORYBOOK_REGISTRY = {
+  main: STORYBOOK_MAIN_OPTIONS,
+  layouts: STORYBOOK_LAYOUT_OPTIONS,
+  themes: STORYBOOK_THEME_OPTIONS
+};
+const handleCommonInventoryKeys = (e, ctx) => {
+  var _a2, _b, _c, _d;
+  const { gameState: state, setGameState, audio: audio2, speak: speak2 } = ctx;
+  const isShift = e.shiftKey;
+  if (!state.isInventoryOpen) return false;
+  if (e.code === "Space" || e.code === "Escape") {
+    return true;
+  }
+  if (isShift && e.code === "KeyM") return false;
+  const tabs = ["Items", "Heart", "Map", "Storybook", "Exit"];
+  if (state.inventoryFocus === "Tabs") {
+    if (e.code === "ArrowRight") {
+      const currentIndex = tabs.indexOf(state.inventoryTab);
+      const nextIndex = (currentIndex + 1) % tabs.length;
+      setGameState((prev) => ({ ...prev, inventoryTab: tabs[nextIndex] }));
+      speak2(`Tab: ${tabs[nextIndex]}`, "EN_US");
+      return true;
+    }
+    if (e.code === "ArrowLeft") {
+      const currentIndex = tabs.indexOf(state.inventoryTab);
+      const nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      setGameState((prev) => ({ ...prev, inventoryTab: tabs[nextIndex] }));
+      speak2(`Tab: ${tabs[nextIndex]}`, "EN_US");
+      return true;
+    }
+    if (e.code === "ArrowDown") {
+      if (state.inventoryTab === "Exit") return true;
+      setGameState((prev) => ({ ...prev, inventoryFocus: "Content" }));
+      speak2("Focus moved to content area.", "EN_US");
+      return true;
+    }
+    if (e.code === "Enter" || e.code === "KeyO" || e.code === "KeyE") {
+      if (state.inventoryTab === "Exit") {
+        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
+        speak2("Inventory closed.", "EN_US");
+      } else {
+        setGameState((prev) => ({ ...prev, inventoryFocus: "Content" }));
+        speak2(`Focus moved to ${state.inventoryTab} content area.`, "EN_US");
+      }
+      return true;
+    }
+    if (e.code === "KeyX" || e.code === "KeyF") {
+      setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
+      speak2("Inventory closed.", "EN_US");
+      return true;
+    }
+    return true;
+  }
+  if (state.inventoryFocus === "Content") {
+    if (e.code === "ArrowUp") {
+      if (state.inventoryTab === "Items") {
+        if (state.isWalletOpen) {
+          const wLength = state.characterName === "Priscilla" ? 2 : 4;
+          const nextIndex = (state.selectedWalletIndex - 1 + wLength) % wLength;
+          setGameState((prev) => ({ ...prev, selectedWalletIndex: nextIndex }));
+          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+          speak2(walletItems[nextIndex], "EN_US");
+        } else if (state.inventoryMenuMode === "Selection") {
+          const nextIndex = Math.max(0, state.selectedInventoryIndex - 1);
+          setGameState((prev) => ({ ...prev, selectedInventoryIndex: nextIndex }));
+          speak2(((_a2 = state.inventory.items[nextIndex]) == null ? void 0 : _a2.name) || "Empty", "EN_US");
+        } else {
+          const item = state.inventory.items[state.selectedInventoryIndex];
+          const actionCount = (item == null ? void 0 : item.id) === "umbrella" ? 5 : 4;
+          const nextIndex = (state.selectedActionIndex - 1 + actionCount) % actionCount;
+          setGameState((prev) => ({ ...prev, selectedActionIndex: nextIndex }));
+          let actions = ["Use", "Check", "Combine", "Equip"];
+          if ((item == null ? void 0 : item.id) === "umbrella") actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
+          speak2(actions[nextIndex], "EN_US");
+        }
+      } else if (state.inventoryTab === "Heart") {
+        const nextIndex = (state.selectedHeartDetailIndex - 1 + HEART_METER_TITLES.length) % HEART_METER_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
+        speak2(HEART_METER_TITLES[nextIndex], "EN_US");
+      } else if (state.inventoryTab === "Map") {
+        const nextIndex = (state.selectedMapDetailIndex - 1 + MAPS_TITLES.length) % MAPS_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
+        speak2(MAPS_TITLES[nextIndex], "EN_US");
+      } else if (state.inventoryTab === "Storybook") {
+        const mode = state.storybookMenuMode;
+        if (mode === "Selection") {
+          const nextIndex = (state.selectedStorybookItemIndex - 1 + STORYBOOK_REGISTRY.main.length) % STORYBOOK_REGISTRY.main.length;
+          setGameState((prev) => ({ ...prev, selectedStorybookItemIndex: nextIndex }));
+          speak2(STORYBOOK_REGISTRY.main[nextIndex], "EN_US");
+        } else if (mode === "Pages") {
+          const nextIndex = (state.selectedStorybookPageListIndex - 1 + STORY_PAGES.length) % STORY_PAGES.length;
+          setGameState((prev) => ({ ...prev, selectedStorybookPageListIndex: nextIndex }));
+          speak2(STORY_PAGES[nextIndex].title, "EN_US");
+        } else if (mode === "PageContent") {
+          const isWebpage = state.storybookLayoutMode === "Webpage";
+          const lines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_b = STORY_PAGES[state.storybookPage]) == null ? void 0 : _b.content) || [];
+          const nextIndex = Math.max(0, state.selectedStorybookContentIndex - 1);
+          if (nextIndex === state.selectedStorybookContentIndex && state.selectedStorybookContentIndex === 0) {
+            speak2("Beginning of content.", "EN_US");
+          } else {
+            setGameState((prev) => ({ ...prev, selectedStorybookContentIndex: nextIndex }));
+            speak2(lines[nextIndex], "EN_US");
+          }
+        } else if (mode === "Layouts" || mode === "Themes") {
+          const limit = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts.length : STORYBOOK_REGISTRY.themes.length;
+          const nextIndex = (state.storybookSecondaryIndex - 1 + limit) % limit;
+          setGameState((prev) => ({ ...prev, storybookSecondaryIndex: nextIndex }));
+          const options = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts : STORYBOOK_REGISTRY.themes;
+          speak2(options[nextIndex], "EN_US");
+        }
+      }
+      return true;
+    }
+    if (e.code === "ArrowDown") {
+      if (state.inventoryTab === "Items") {
+        if (state.isWalletOpen) {
+          const wLength = state.characterName === "Priscilla" ? 2 : 4;
+          const nextIndex = (state.selectedWalletIndex + 1) % wLength;
+          setGameState((prev) => ({ ...prev, selectedWalletIndex: nextIndex }));
+          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+          speak2(walletItems[nextIndex], "EN_US");
+        } else if (state.inventoryMenuMode === "Selection") {
+          const nextIndex = (state.selectedInventoryIndex + 1) % Math.max(1, state.inventory.items.length);
+          setGameState((prev) => ({ ...prev, selectedInventoryIndex: nextIndex }));
+          speak2(((_c = state.inventory.items[nextIndex]) == null ? void 0 : _c.name) || "Empty", "EN_US");
+        } else {
+          const item = state.inventory.items[state.selectedInventoryIndex];
+          const actionCount = (item == null ? void 0 : item.id) === "umbrella" ? 5 : 4;
+          const nextIndex = (state.selectedActionIndex + 1) % actionCount;
+          setGameState((prev) => ({ ...prev, selectedActionIndex: nextIndex }));
+          let actions = ["Use", "Check", "Combine", "Equip"];
+          if ((item == null ? void 0 : item.id) === "umbrella") actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
+          speak2(actions[nextIndex], "EN_US");
+        }
+      } else if (state.inventoryTab === "Heart") {
+        const nextIndex = (state.selectedHeartDetailIndex + 1) % HEART_METER_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
+        speak2(HEART_METER_TITLES[nextIndex], "EN_US");
+      } else if (state.inventoryTab === "Map") {
+        const nextIndex = (state.selectedMapDetailIndex + 1) % MAPS_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
+        speak2(MAPS_TITLES[nextIndex], "EN_US");
+      } else if (state.inventoryTab === "Storybook") {
+        const mode = state.storybookMenuMode;
+        if (mode === "Selection") {
+          const nextIndex = (state.selectedStorybookItemIndex + 1) % STORYBOOK_REGISTRY.main.length;
+          setGameState((prev) => ({ ...prev, selectedStorybookItemIndex: nextIndex }));
+          speak2(STORYBOOK_REGISTRY.main[nextIndex], "EN_US");
+        } else if (mode === "Pages") {
+          const nextIndex = (state.selectedStorybookPageListIndex + 1) % STORY_PAGES.length;
+          setGameState((prev) => ({ ...prev, selectedStorybookPageListIndex: nextIndex }));
+          speak2(STORY_PAGES[nextIndex].title, "EN_US");
+        } else if (mode === "PageContent") {
+          const isWebpage = state.storybookLayoutMode === "Webpage";
+          const lines = isWebpage ? STORY_PAGES.flatMap((p) => [`[Heading: ${p.title}]`, ...p.content]) : ((_d = STORY_PAGES[state.storybookPage]) == null ? void 0 : _d.content) || [];
+          const nextIndex = Math.min(lines.length - 1, state.selectedStorybookContentIndex + 1);
+          if (nextIndex === state.selectedStorybookContentIndex && lines.length > 0) {
+            speak2("End of content.", "EN_US");
+          } else {
+            setGameState((prev) => ({ ...prev, selectedStorybookContentIndex: nextIndex }));
+            speak2(lines[nextIndex], "EN_US");
+          }
+        } else if (mode === "Layouts" || mode === "Themes") {
+          const limit = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts.length : STORYBOOK_REGISTRY.themes.length;
+          const nextIndex = (state.storybookSecondaryIndex + 1) % limit;
+          setGameState((prev) => ({ ...prev, storybookSecondaryIndex: nextIndex }));
+          const options = mode === "Layouts" ? STORYBOOK_REGISTRY.layouts : STORYBOOK_REGISTRY.themes;
+          speak2(options[nextIndex], "EN_US");
+        }
+      }
+      return true;
+    }
+    if (e.code === "ArrowRight" || e.code === "ArrowLeft") {
+      if (state.inventoryTab === "Storybook") {
+        const mode = state.storybookMenuMode;
+        if (mode === "PageContent") {
+          speak2("Horizontal navigation not active in page content mode. Use up and down arrows.", "EN_US");
+        } else {
+          speak2("Use up and down arrows to browse items. Use Action Key to activate.", "EN_US");
+        }
+        return true;
+      }
+      if (state.inventoryTab === "Items" && state.inventoryMenuMode === "Selection" && !state.isWalletOpen) {
+        speak2("Navigating within items area.");
+      } else if (state.inventoryTab === "Heart") {
+        speak2("Cycling through heart meter items.");
+        const nextIndex = (state.selectedHeartDetailIndex + (e.code === "ArrowRight" ? 1 : -1) + HEART_METER_TITLES.length) % HEART_METER_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedHeartDetailIndex: nextIndex }));
+        speak2(HEART_METER_TITLES[nextIndex]);
+      } else if (state.inventoryTab === "Map") {
+        speak2("Cycling through map information.");
+        const nextIndex = (state.selectedMapDetailIndex + (e.code === "ArrowRight" ? 1 : -1) + MAPS_TITLES.length) % MAPS_TITLES.length;
+        setGameState((prev) => ({ ...prev, selectedMapDetailIndex: nextIndex }));
+        speak2(MAPS_TITLES[nextIndex]);
+      }
+      return true;
+    }
+    if (e.code === "Enter" || e.code === "KeyO" || e.code === "KeyE") {
+      if (state.inventoryTab === "Items") {
+        if (state.isWalletOpen) {
+          const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+          const item = walletItems[state.selectedWalletIndex];
+          let desc = "A very important item kept safely in your wallet.";
+          if (state.characterName === "Priscilla") {
+            if (item === "Priscilla ID Card") {
+              desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
+            } else if (item === "Priscilla Gold Card") {
+              desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
+            }
+          } else {
+            if (item === "Photo of Abigay") {
+              desc = INVENTORY_ITEMS_REGISTRY.photoOfAbigay.description;
+            } else if (item === "ID Card") {
+              desc = "This is your ID Card proving you are a certified poodle rider.";
+            } else if (item === "Credit Card") {
+              desc = "A golden card with infinite credit for elite canine styling.";
+            } else if (item === "Library Card") {
+              desc = "A laminated card allowing you to borrow books from the manor libraries.";
+            }
+          }
+          speak2(`Description of ${item}: ${desc}`);
+          return true;
+        }
+        if (state.inventoryMenuMode === "Selection") {
+          const item = state.inventory.items[state.selectedInventoryIndex];
+          if ((item == null ? void 0 : item.id) === INVENTORY_ITEMS_REGISTRY.wallet.id) {
+            setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
+            speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
+            return true;
+          }
+          if (item) {
+            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
+            const actionMsg = item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
+            speak2(actionMsg);
+          }
+        } else {
+          const item = state.inventory.items[state.selectedInventoryIndex];
+          if (item) {
+            let actions = ["Use", "Check", "Combine", "Equip"];
+            if (item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id) actions = INVENTORY_ITEMS_REGISTRY.umbrella.actions;
+            const action = actions[state.selectedActionIndex];
+            if (item.id === INVENTORY_ITEMS_REGISTRY.umbrella.id) {
+              if (action === "Equip") {
+                const nextEquipped = !state.isUmbrellaEquipped;
+                setGameState((prev) => ({
+                  ...prev,
+                  isUmbrellaEquipped: nextEquipped,
+                  inventoryMenuMode: "Selection"
+                }));
+                const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
+                speak2(msg);
+              } else if (action === "Open" || action === "Close") {
+                if (!state.isUmbrellaEquipped) {
+                  speak2("You must equip the umbrella first before you can open or close it.");
+                } else {
+                  const nextOpen = action === "Open";
+                  setGameState((prev) => ({
+                    ...prev,
+                    isUmbrellaOpen: nextOpen,
+                    inventoryMenuMode: "Selection"
+                  }));
+                  speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
+                }
+              } else {
+                speak2(`${action}ing ${item.name}`);
+                setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+              }
+            } else {
+              speak2(`${action}ing ${item.name}`);
+              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+            }
+          }
+        }
+      } else if (state.inventoryTab === "Heart") {
+        speak2(`Viewing Heart status: ${HEART_METER_TITLES[state.selectedHeartDetailIndex]}.`);
+      } else if (state.inventoryTab === "Map") {
+        speak2(`Viewing Map status: ${MAPS_TITLES[state.selectedMapDetailIndex]}.`);
+      } else if (state.inventoryTab === "Storybook") {
+        const mode = state.storybookMenuMode;
+        if (mode === "Selection") {
+          const items = STORYBOOK_REGISTRY.main;
+          const selected = items[state.selectedStorybookItemIndex];
+          if (selected === "Reading") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages", selectedStorybookPageListIndex: 0 }));
+            speak2("Story pages list. Use up and down arrows to browse.");
+          } else if (selected === "Layout") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Layouts", storybookSecondaryIndex: 0 }));
+            speak2("Select layout layout: Webpage, or Emulated.");
+          } else if (selected === "Theme") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Themes", storybookSecondaryIndex: 0 }));
+            speak2("Select theme: White, Cream, or Night.");
+          }
+        } else if (mode === "Pages") {
+          setGameState((prev) => ({
+            ...prev,
+            storybookMenuMode: "PageContent",
+            storybookPage: state.selectedStorybookPageListIndex,
+            selectedStorybookContentIndex: 0
+          }));
+          speak2(`Opened chapter: ${STORY_PAGES[state.selectedStorybookPageListIndex].title}. Reading content.`);
+        } else if (mode === "Layouts") {
+          const layouts = STORYBOOK_REGISTRY.layouts;
+          const chosen = layouts[state.storybookSecondaryIndex];
+          setGameState((prev) => ({ ...prev, storybookLayoutMode: chosen, storybookMenuMode: "Selection" }));
+          speak2(`Layout changed to ${chosen}.`);
+        } else if (mode === "Themes") {
+          const themes = STORYBOOK_REGISTRY.themes;
+          const chosen = themes[state.storybookSecondaryIndex];
+          setGameState((prev) => ({ ...prev, storybookTheme: chosen, storybookMenuMode: "Selection" }));
+          speak2(`Theme changed to ${chosen}.`);
+        }
+      }
+      return true;
+    }
+    if (e.code === "KeyX" || e.code === "KeyF") {
+      if (state.isWalletOpen) {
+        setGameState((prev) => ({ ...prev, isWalletOpen: false }));
+        speak2("Back to items list.");
+      } else if (state.inventoryMenuMode === "Action") {
+        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+        speak2("Back to item selection.");
+      } else if (state.inventoryTab === "Storybook") {
+        if (state.storybookMenuMode === "PageContent") {
+          setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
+          speak2("Back to pages list.");
+        } else if (state.storybookMenuMode !== "Selection") {
+          setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
+          speak2("Back to storybook menu.");
+        } else {
+          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+          speak2("Back to tabs navigation.");
+        }
+      } else {
+        setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+        speak2("Back to tabs navigation.");
+      }
+      return true;
+    }
+    return true;
+  }
+  return false;
+};
+const MANOR_OBJECTS = [
+  {
+    id: "fairy_queen_figurine",
+    name: "Brass figurine of a fairy queen",
+    area: "AllisonsRooftop",
+    x: 900,
+    y: 100,
+    width: 2,
+    height: 2,
+    type: "item",
+    description: "A beautiful brass figurine of a fairy queen.",
+    onInteract: (state) => {
+      return state;
+    }
+  },
+  {
+    id: "manor_key",
+    name: "Manor Key",
+    area: "Allisons2ndFloor",
+    x: 800,
+    // East end
+    y: 350,
+    width: 2,
+    height: 2,
+    type: "item",
+    description: "A shiny key found on a table.",
+    onInteract: (state) => {
+      return state;
+    }
+  },
+  {
+    id: "wall_lever_3rd_floor",
+    name: "Pull-down wall lever",
+    area: "Allisons3rdFloor",
+    x: 50,
+    // West room
+    y: 350,
+    width: 5,
+    height: 10,
+    type: "lever",
+    state: "up",
+    description: "A yellow-bordered vertical rectangle with a red-violet interior and a white lever.",
+    onInteract: (state) => {
+      state.isLeverDown ? "up" : "down";
+      return { ...state, isLeverDown: !state.isLeverDown };
+    }
+  },
+  ...Array.from({ length: 32 }).map((_, i) => ({
+    id: `rainbow_coin_${i}`,
+    name: "Rainbow Coin",
+    area: "AllisonsPorch",
+    // Scattered
+    x: 100 + i * 25,
+    y: 100 + i * 15,
+    width: 2,
+    height: 2,
+    type: "item",
+    description: "A shiny coin that shimmers with all the colors of the rainbow.",
+    onInteract: (state) => {
+      return { ...state, rainbowCoins: state.rainbowCoins + 1 };
+    }
+  })),
+  {
+    id: "tea_room_key",
+    name: "Tea Room Key",
+    area: "Allisons2ndFloor",
+    x: 950,
+    // East end of table
+    y: 150,
+    width: 5,
+    height: 5,
+    type: "item",
+    description: "A small silver key found on the tea table. It has a delicate floral pattern.",
+    onInteract: (state) => state
+  },
+  {
+    id: "statue_boy_dog",
+    name: "Statue of Boy and Dog",
+    area: "Allisons2ndFloor",
+    x: 900,
+    y: 700,
+    width: 20,
+    height: 20,
+    type: "item",
+    description: "A beautiful statue of a boy riding a white dog-like creature with a pink nose and blue eyes. The boy wears a yellow onesie.",
+    onInteract: (state) => state
+  },
+  {
+    id: "wallet",
+    name: "Wallet",
+    area: "AllisonsFoyer",
+    x: 100,
+    y: 100,
+    width: 5,
+    height: 5,
+    type: "item",
+    description: "A high-quality leather wallet. It contains your ID and some cards. Press O to view contents.",
+    onInteract: (state) => state
+  },
+  {
+    id: "umbrella",
+    name: "Umbrella",
+    area: "AllisonsFoyer",
+    x: 120,
+    y: 100,
+    width: 5,
+    height: 5,
+    type: "item",
+    description: "A sturdy umbrella with a curved handle. Useful for rainy days.",
+    onInteract: (state) => state
+  },
+  ...Array.from({ length: 10 }).map((_, i) => ({
+    id: `tea_coin_${i}`,
+    name: "Rainbow Coin",
+    area: "Allisons2ndFloor",
+    // Tea Room perimeter
+    x: 800 + i * 20,
+    y: 50 + (i % 2 === 0 ? 0 : 250),
+    width: 2,
+    height: 2,
+    type: "item",
+    description: "A shiny coin that shimmers with all the colors of the rainbow.",
+    onInteract: (state) => {
+      return { ...state, rainbowCoins: state.rainbowCoins + 1 };
+    }
+  }))
+];
+function handleInteraction(state, speak2, audio2) {
+  const { gridX, gridY, area } = state;
+  const nearbyObject = MANOR_OBJECTS.find(
+    (obj) => obj.area === area && Math.abs(obj.x - gridX) < 10 && Math.abs(obj.y - gridY) < 10
+  );
+  if (nearbyObject) {
+    if (nearbyObject.type === "item") {
+      if (nearbyObject.name === "Rainbow Coin") {
+        speak2("Collected a Rainbow Coin!", "EN_US");
+        audio2.playPointEarned();
+        return nearbyObject.onInteract(state);
+      }
+      speak2(`Picked up ${nearbyObject.name}.`, "EN_US");
+      let newState = addItemToInventory(state, {
+        id: nearbyObject.id,
+        name: nearbyObject.name,
+        description: nearbyObject.description,
+        type: "misc"
+      });
+      return newState;
+    }
+    if (nearbyObject.type === "lever") {
+      const isDown = !state.isLeverDown;
+      speak2(isDown ? "Pulled the lever down. A door opens at the second floor." : "Pushed the lever up. The door closes.", "EN_US");
+      audio2.playCustomBeep(isDown ? 440 : 220);
+      return { ...state, isLeverDown: isDown };
+    }
+  }
+  if (area === "ElevatedPath" && gridY > 980) {
+    const hasKey = state.inventory.items.some((i) => i.id === "barn_house_key");
+    if (hasKey) {
+      speak2("Using Barn House Key automatically. The door is now unlocked.", "EN_US");
+      audio2.playDoorOpen();
+      return state;
+    } else {
+      speak2("The barn door is locked. You need the Barn House Key.", "EN_US");
+      return state;
+    }
+  }
+  if (area === "MeditationHall" && gridY > 980 && gridX >= 980 && gridX <= 1020 || area === "SimulatedGardenArea" && gridY < 20 && gridX >= 980 && gridX <= 1020) {
+    const isOpening = !state.isSimulatedGardenDoorOpen;
+    speak2(isOpening ? "Opening the sliding door. It glides with a magical Tarsis shimmer." : "Closing the sliding door.", "EN_US");
+    audio2.playSimulatedGardenSlidingDoorSound(gridX, gridY);
+    return { ...state, isSimulatedGardenDoorOpen: isOpening };
+  }
+  const isNearElevatorDoor = (area === "LobbyStairwayAndRamps" || area === "SouthwestMezzanineStairwayAndRamps") && gridX >= 970 && gridX <= 985 && gridY >= 980 && gridY <= 1e3;
+  if (isNearElevatorDoor) {
+    const isOpening = !state.isElevatorDoorOpen;
+    speak2(isOpening ? "Opening the elevator door." : "Closing the elevator door.", "EN_US");
+    audio2.playElevatorButtonIntersection(gridX, gridY);
+    return { ...state, isElevatorDoorOpen: isOpening };
+  }
+  speak2("Nothing to interact with here.", "EN_US");
+  return state;
+}
+const handleWorldInteraction = (ctx) => {
+  const { gameState: state, setGameState, speak: speak2, announceToScreenReader, audio: audio2 } = ctx;
+  const newState = handleInteraction(state, speak2, audio2);
+  if (newState !== state) {
+    setGameState(newState);
+  }
+  return true;
+};
+const MANORSVILLE_STREET_DESCRIPTION = "This is the street that enables you to go anywhere in this city. Each street has a name associated. If you are familiar with a city; each street is unique, so you can know where you are actually going.";
+const MANORSVILLE_PORCH_AHEAD_DESCRIPTION = "This is the front porch of your Rasta-Manor; it has a pink and white checked flooring, skylights that are located at the overhang of this porch, and it has a set of blue doors ahead.";
+const MANORSVILLE_PORCH_BEHIND_DESCRIPTION = "The front porch of your manor is behind you. You are currently on the sidewalk. The street is ahead of you.";
+const MANORSVILLE_STREET_EDGE_DESCRIPTION = "This is the edge of the sidewalk, the street is like any other street. However; this car-free street is wide enough to support use of public transit vehicles, trucks that deliver food and supplies,--and other gooes via delivery, and emergency vehicles.";
+const MANORSVILLE_STREET_BEHIND_DESCRIPTION = "The street is behind you, and you on an sidewalk.. Rasta-Manor is ahead of you.";
+const MANORSVILLE_SIDEWALK_GENERAL_DESCRIPTION = "This is the streets of manorsville. It's a 'car-free' community that is composed of super blocks. It has a subway to help reduce traffic, large gardens for growing plants, and they have lots of manors. Its called 'Manorsville' because, there are large manors in this community";
+function getManorsvilleStreetInfoDescription() {
+  return MANORSVILLE_STREET_DESCRIPTION;
+}
+function getManorsvilleSidewalkInfoDescription(sidewalkLength = 8e3) {
+  return MANORSVILLE_SIDEWALK_GENERAL_DESCRIPTION;
+}
+const SW_RECT_X_MAX = 20;
+const RAMP_Y_MIN$1 = 1e3;
+const RAMP_Y_MAX$1 = 2e3;
+function getWallInteractionDescription(state) {
+  const { area, gridX, gridY, direction, level } = state;
+  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
+  const isUpper = level === "Sky";
+  let desc = "";
+  if (area === "Foyer") {
+    if (gridY === 1980 && gridX <= 20 && direction === "South") {
+      desc += `${FOYER_DESCRIPTIONS.RHINO_BARRIER}. `;
+    } else if (level === "Sky" && gridX === 1 && gridY >= 1320 && gridY <= 1340 && direction === "West") {
+      desc += `${FOYER_DESCRIPTIONS.PLAYGROUND_ARCHWAY}. `;
+    }
+    if (gridX <= 10 && !desc) {
+      if (gridY >= 1 && gridY <= 7) {
+        desc += `West wall: ${FOYER_DESCRIPTIONS.LIONS_PICTURE}. `;
+      } else {
+        desc += level === "Sky" ? "West wall of the Sky Foyer. " : "West wall of the Floor Foyer. ";
+      }
+    }
+    if (gridX >= currentDims.width - 10 && !desc) {
+      desc += isUpper ? `East wall: ${FOYER_DESCRIPTIONS.TAPESTRY}. ` : "East wall. ";
+    }
+    if (gridX <= SW_RECT_X_MAX && gridY >= 1 && gridY <= 1320 && !desc) {
+      desc += `You are in the Southwest Rectangle. ${FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE}. `;
+    }
+    if (gridY >= currentDims.height - 36 && !desc) {
+      if (isUpper) {
+        if (gridX >= 300 && gridX <= 700) {
+          desc += `On the North wall of the Sky Foyer here is the ${FOYER_DESCRIPTIONS.LIONS_PICTURE}. `;
+        } else if (gridX >= 1300 && gridX <= 1700) {
+          desc += `On the North wall of the Sky Foyer here are the ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}. `;
+        } else {
+          desc += `North wall of the Sky Foyer: ${FOYER_DESCRIPTIONS.NORTH_DOOR}, ${FOYER_DESCRIPTIONS.NORTH_WINDOWS}, and relocated artwork nearby. `;
+        }
+      } else {
+        desc += `North wall: ${FOYER_DESCRIPTIONS.NORTH_DOOR} and ${FOYER_DESCRIPTIONS.NORTH_WINDOWS}. `;
+      }
+    }
+    if (gridY <= 36 && !desc) {
+      if (level === "Sky") {
+        desc += "South wall of the Sky Foyer. A solid wall high above the South doors. ";
+      } else {
+        desc += `South wall: ${FOYER_DESCRIPTIONS.SOUTH_DOOR} and ${FOYER_DESCRIPTIONS.SOUTH_WINDOWS}. `;
+      }
+    }
+    if (gridX <= SW_RECT_X_MAX && gridY >= 1820 && gridY <= 1835 && !desc) {
+      desc += `Cellar Door: ${FOYER_DESCRIPTIONS.CELLAR_DOOR}. `;
+    }
+    if (!desc) {
+      if (level === "Sky") {
+        const isNearInnerEdge = gridX === 90 || gridX === currentDims.width - 90 || gridY === 90 || gridY === currentDims.height - 90;
+        const isNearRhinoBarrier = gridY === RAMP_Y_MAX$1 && gridX >= 1 && gridX <= 8 || gridX === 8 && gridY >= RAMP_Y_MIN$1 && gridY <= RAMP_Y_MAX$1;
+        if (isNearRhinoBarrier) {
+          desc = FOYER_DESCRIPTIONS.RHINO_BARRIER;
+        } else if (isNearInnerEdge) {
+          desc = "You are at the inner edge of the sky foyer, 25 feet above the floor level. A glass barrier with a shiny brass rail prevents you from falling into the center of the foyer.";
+        } else if (gridY > currentDims.height - 90) {
+          desc = "You are at the North wall of the sky foyer. A grand window offers a view of the street below, far above the North door.";
+        } else if (gridY < 90) {
+          desc = "You are at the South wall of the sky foyer. A grand window offers a view of the garden below, far above the rainbow glass doors.";
+        } else if (gridX < 90) {
+          desc = "You are at the West wall of the sky foyer, 25 feet above the floor level.";
+        } else if (gridX > currentDims.width - 90) {
+          desc = "You are at the East wall of the sky foyer, 25 feet above the floor level.";
+        } else {
+          desc = "You are on the sky foyer perimeter walkway, elevated 25 feet high with a 20-foot ceiling above.";
+        }
+      } else {
+        desc = "You are in the grand foyer. The ceiling is a staggering 45 feet high and the floor is polished.";
+      }
+    }
+  } else if (area === "RuggedPlayField") {
+    if (gridY >= currentDims.height - 10) desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.NORTH_ARCHWAY;
+    else if (gridY <= 10) desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.SOUTH_DOORWAY;
+    else desc = RUGGED_PLAY_FIELD_DESCRIPTIONS.MAIN;
+  } else if (area === "MeditationHall") {
+    if (gridY >= currentDims.height - 10) desc = MEDITATION_HALL_DESCRIPTIONS.NORTH_DOORWAY;
+    else if (gridY <= 10) desc = MEDITATION_HALL_DESCRIPTIONS.SOUTH_DOOR + " " + MEDITATION_HALL_DESCRIPTIONS.SOUTH_WINDOWS;
+    else desc = MEDITATION_HALL_DESCRIPTIONS.MAIN;
+  } else if (area === "Garden") {
+    if (gridX < currentDims.width * 0.2) {
+      desc = "You are at the West fence. It's a peaceful spot with a bench. Opossums are active here at night.";
+    } else if (gridY < currentDims.height * 0.2) {
+      desc = "You are at the South barrier. You can hear the rumble of the railway tracks below.";
+    } else if (gridY > currentDims.height * 0.8) {
+      desc = GARDEN_DESCRIPTIONS.NORTH_DOORS;
+    } else {
+      desc = GARDEN_DESCRIPTIONS.MAIN;
+    }
+  } else if (area === "CellarRamp") {
+    desc = CELLAR_DESCRIPTIONS.RAMP;
+  } else if (area === "Cellar") {
+    desc = CELLAR_DESCRIPTIONS.CELLAR;
+  } else if (area === "Sidewalk") {
+    let sidewalkInputDesc = "";
+    if (direction === "North") {
+      sidewalkInputDesc = "This is the north of 1900 block. 32,000 feet long. The AdventureHouse is located across the street. The brick sidewalk is red and its built with craftsmanship by everyday people. The sidewalk stretches from the east and west ends of this block. There are houses that are aligned neatly to make it easier for you to find your house with ease.";
+    } else if (direction === "South") {
+      sidewalkInputDesc = "This is the south of the 1900 block.";
+    } else if (direction === "West") {
+      sidewalkInputDesc = "This is the west of the 1900 block.";
+    } else if (direction === "East") {
+      sidewalkInputDesc = "This is the east of the 1900 block.";
+    }
+    if (gridY <= 8) {
+      if (direction === "South") {
+        desc = MANORSVILLE_PORCH_AHEAD_DESCRIPTION;
+      } else if (direction === "North") {
+        desc = MANORSVILLE_PORCH_BEHIND_DESCRIPTION;
+      } else {
+        desc = sidewalkInputDesc;
+      }
+    } else if (gridY >= currentDims.height - 10) {
+      if (direction === "North") {
+        desc = MANORSVILLE_STREET_EDGE_DESCRIPTION;
+      } else if (direction === "South") {
+        desc = MANORSVILLE_STREET_BEHIND_DESCRIPTION;
+      } else {
+        desc = sidewalkInputDesc;
+      }
+    } else {
+      desc = sidewalkInputDesc;
+    }
+  } else if (area === "Street") {
+    if (direction === "East") {
+      desc = "From markers 8000 to 16,000 from the west; Rasta-Manor is located on your right, south of this street. The Adventure house is located on your left, north of this street.";
+    } else if (direction === "West") {
+      desc = "From the markers of 16,000 to 24,000 from the east; Rasta-Manor is on your left, south of this street. The AdventureHouse is on your right, north of this street.";
+    } else {
+      desc = getManorsvilleStreetInfoDescription();
+    }
+  } else {
+    desc = getWallDescription(direction, area, gridX, gridY, level);
+  }
+  return desc;
+}
+const getSkyFoyerWestArchwayDescription = (gridX, gridY) => {
+  const distance2 = gridX;
+  return `You are at ${gridX}x, ${gridY}y of the Sky Foyer. Facing west. The archway to the grand playground's perimeter is ${distance2} feet ahead.`;
+};
+const getSkyFoyerGlassBarrierAheadDescription = (direction) => {
+  if (direction === "East") {
+    return "A crafted glass barrier is ahead at the 90 feet marker from the west wall.";
+  } else if (direction === "North") {
+    return "A crafted glass barrier is ahead at the 90 feet marker from the south wall.";
+  } else if (direction === "West") {
+    return "A crafted glass barrier is ahead at the 1910 feet marker from the east wall.";
+  } else if (direction === "South") {
+    return "A crafted glass barrier is ahead at the 1910 feet marker from the north wall (precisely 90 feet from the north wall).";
+  }
+  return "A crafted glass barrier is ahead.";
+};
+const formatDistance$4 = (val) => {
+  const rounded = Math.round(val);
+  if (rounded === 0) {
+    if (val > 0) {
+      const inches = Math.round(val * 12);
+      if (inches === 1) return "1 inch";
+      if (inches > 0) return `${inches} inches`;
+    }
+    return "0 feet";
+  }
+  if (rounded === 1) {
+    return "1 Foot";
+  }
+  return `${rounded} feet`;
+};
+const getFloorFoyerSWRectangleDescription = (gridX, gridY, paces) => {
+  return `You are at ${gridX}x, ${gridY}y of the Floor Foyer... inside the southwest rectangle beneath the Sky Foyer. Facing north. The cellar entrance is ${formatDistance$4(paces)} ahead.`;
+};
+const getFloorFoyerNorthDoorsAhead = (paces) => {
+  return `The high blue doors are ${formatDistance$4(paces)} ahead.`;
+};
+const getFloorFoyerSouthArchwayAhead = (paces) => {
+  return `The green and gold striped archway is ${formatDistance$4(paces)} ahead.`;
+};
+const getFloorFoyerWestArchwayAhead = (paces) => {
+  return `The archway to the grand playground floor is ${formatDistance$4(paces)} ahead.`;
+};
+const getFoyerBoundaryAhead = (direction, paces) => {
+  return `The ${direction} boundary is ${formatDistance$4(paces)} ahead.`;
+};
+const getRuggedPlayFieldDescription = (x, y, direction) => {
+  if (x <= 10) return "You are at the West wall of the Rugged Play Field.";
+  if (x >= 1990) return "You are at the East wall of the Rugged Play Field.";
+  if (y <= 10) return "You are at the South wall of the Rugged Play Field. The pink and white archway to the Simulated Garden Area is here.";
+  if (y >= 1990) return "You are at the North wall of the Rugged Play Field. The green and gold striped archway leads back to the Foyer.";
+  return `You are in the 2000x2000 foot Rugged Play Field. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}. ${RUGGED_PLAY_FIELD_DESCRIPTIONS.MAIN}`;
+};
+const formatDistance$3 = (val) => {
+  const rounded = Math.round(val);
+  if (rounded === 0) {
+    if (val > 0) {
+      const inches = Math.round(val * 12);
+      if (inches === 1) return "1 inch";
+      if (inches > 0) return `${inches} inches`;
+    }
+    return "0 feet";
+  }
+  if (rounded === 1) {
+    return "1 Foot";
+  }
+  return `${rounded} feet`;
+};
+const getRuggedPlayFieldAhead = (x, y, direction) => {
+  if (direction === "North") {
+    const dist = 2e3 - y;
+    if (x >= 990 && x <= 1010) return `The archway back to the Foyer is ${formatDistance$3(dist)} ahead.`;
+    return `The North wall is ${formatDistance$3(dist)} ahead.`;
+  }
+  if (direction === "South") {
+    if (x >= 990 && x <= 1010) return `The pink and white archway to the Simulated Garden Area is ${formatDistance$3(y)} ahead.`;
+    return `The South wall is ${formatDistance$3(y)} ahead.`;
+  }
+  if (direction === "East") return `The East boundary is ${formatDistance$3(2e3 - x)} ahead.`;
+  if (direction === "West") return `The West boundary is ${formatDistance$3(x)} ahead.`;
+  return "";
+};
+const getSimulatedGardenAreaDescription = (x, y, direction) => {
+  if (x <= 10) return "You are at the West wall of the Simulated Garden Area. The walls are beautifully decorated with garden scene paintings.";
+  if (x >= 1990) return "You are at the East wall of the Simulated Garden Area. 100 circular windows with brass trim overlook the manor's dining facilities.";
+  if (y <= 10) return "You are at the South wall of the Simulated Garden Area. The 20-foot wide sliding door with Japanese and Ethiopian windows leads to the Meditation Hall.";
+  if (y >= 1990) return "You are at the North wall of the Simulated Garden Area. The pink and white striped archway leads to the Rugged Play Field.";
+  return `You are in the 2000x2000 foot Simulated Garden Area. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
+};
+const formatDistance$2 = (val) => {
+  const rounded = Math.round(val);
+  if (rounded === 0) {
+    if (val > 0) {
+      const inches = Math.round(val * 12);
+      if (inches === 1) return "1 inch";
+      if (inches > 0) return `${inches} inches`;
+    }
+    return "0 feet";
+  }
+  if (rounded === 1) {
+    return "1 Foot";
+  }
+  return `${rounded} feet`;
+};
+const getSimulatedGardenAreaAhead = (x, y, direction) => {
+  if (direction === "North") {
+    const dist = 2e3 - y;
+    if (x >= 990 && x <= 1010) return `The pink and white archway to the Rugged Play Field is ${formatDistance$2(dist)} ahead.`;
+    return `The North wall is ${formatDistance$2(dist)} ahead.`;
+  }
+  if (direction === "South") {
+    if (x >= 990 && x <= 1010) return `The sliding door to the Meditation Hall is ${formatDistance$2(y)} ahead.`;
+    return `The South wall is ${formatDistance$2(y)} ahead.`;
+  }
+  if (direction === "East") return `The East boundary is ${formatDistance$2(2e3 - x)} ahead.`;
+  if (direction === "West") return `The West boundary is ${formatDistance$2(x)} ahead.`;
+  return "";
+};
+const getMeditationHallDescription = (x, y, direction) => {
+  if (y <= 10) return "You are at the South wall of the Meditation Hall. Magnificent rainbow glass doors lead to the Garden of Peace.";
+  if (y >= 1990) return "You are at the North wall of the Meditation Hall. The Tarsis sliding door leads to the Simulated Garden Area.";
+  return `You are in the 2000x2000 foot Meditation Hall. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
+};
+const formatDistance$1 = (val) => {
+  const rounded = Math.round(val);
+  if (rounded === 0) {
+    if (val > 0) {
+      const inches = Math.round(val * 12);
+      if (inches === 1) return "1 inch";
+      if (inches > 0) return `${inches} inches`;
+    }
+    return "0 feet";
+  }
+  if (rounded === 1) {
+    return "1 Foot";
+  }
+  return `${rounded} feet`;
+};
+const getMeditationHallAhead = (x, y, direction) => {
+  if (direction === "North") {
+    const dist = 2e3 - y;
+    if (x >= 990 && x <= 1010) return `The Simulated Garden Area is ${formatDistance$1(dist)} ahead.`;
+    return `The North wall is ${formatDistance$1(dist)} ahead.`;
+  }
+  if (direction === "South") {
+    if (x >= 990 && x <= 1010) return `The Back Porch and Garden are ${formatDistance$1(y)} ahead.`;
+    return `The South wall is ${formatDistance$1(y)} ahead.`;
+  }
+  if (direction === "East") return `The East boundary is ${formatDistance$1(2e3 - x)} ahead.`;
+  if (direction === "West") {
+    if (y >= 1 && y <= 20) return `The archway leading to the Meditation Hall's Library is ${formatDistance$1(x)} ahead.`;
+    return `The West boundary is ${formatDistance$1(x)} ahead.`;
+  }
+  return "";
+};
+const getLibraryDescription = (x, y, direction) => {
+  return `You are in the Meditation Hall's Library, a 200x480 space. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}. Polished wood shelves line the North wall.`;
+};
+const getLibraryAhead = (x, y, direction) => {
+  if (direction === "East") {
+    if (y >= 1 && y <= 20) return `The archway back to the Meditation Hall is ${formatDistance$1(200 - x)} ahead.`;
+  }
+  if (direction === "West") return `The West boundary towards the Lobby is ${formatDistance$1(x)} ahead.`;
+  return `The boundary is ahead.`;
+};
+const getPlaygroundDescription = (x, y, direction, level) => {
+  const isSky = level === "Sky";
+  const name = isSky ? "Sky Playground Perimeter" : "Grand Indoor Playground";
+  return `You are in ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
+};
+const getPlaygroundAhead = (x, y, direction, level) => {
+  if (level === "Floor") {
+    if (direction === "South") {
+      if (x <= 10) return "Ahead is an archway to the west grand arcade crafted at the 1 foot marker.";
+      if (x >= 1980) return "Ahead is the west grand arcade and archway.";
+    }
+    if (direction === "North" && x >= 1980) return "Ahead is a ramp to the grand playground's perimeter walkway (660 feet from the north wall).";
+    if (direction === "East" && y >= 1980) return "The archway to the Floor Foyer is ahead.";
+  }
+  return `The boundary is ahead.`;
+};
+const getArcadeDescription = (name, x, y, direction) => {
+  return `You are in the ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
+};
+const getArcadeAhead = (name, x, y, direction) => {
+  if (name === "West Grand Arcade") {
+    if (direction === "South" && x >= 1980) return "The archway to the gym is ahead.";
+    if (direction === "North" && x >= 1980) return "The archway to the grand indoor playground is ahead.";
+    if (direction === "East" && y >= 990 && y <= 1010) return "The archway to the Rugged Play Field is ahead.";
+  }
+  return `The boundary is ahead.`;
+};
+const getGymDescription = (name, x, y, direction) => {
+  return `You are in ${name}. Position: ${x}x, ${y}y. Facing ${direction.toLowerCase()}.`;
+};
+const getGymAhead = (name, x, y, direction) => {
+  if (name === "The Grand Gym") {
+    if (direction === "North" && x >= 1980) return "The west grand arcade archway is ahead.";
+    if (direction === "West" && y >= 990 && y <= 1010) return "The archway leading to narrow dressage gym is ahead.";
+  }
+  if (name === "Narrow Dressage Gym") {
+    if (direction === "East" && y >= 990 && y <= 1010) return "The grand gym archway is ahead.";
+    if (direction === "West" && y >= 990 && y <= 1010) return "The door to the west side brick path is ahead.";
+  }
+  return `The barrier is ahead.`;
+};
+const SW_RECT_Y_MAX = 1320;
+const RAMP_Y_MIN = 1e3;
+const RAMP_Y_MAX = 2e3;
+const formatDistance = (val, system = "Imperial") => {
+  const rounded = Math.round(val);
+  if (system === "Metric") {
+    const meters = val * 0.3048;
+    if (meters < 0.1) {
+      const cm = Math.round(meters * 100);
+      if (cm === 1) return "1 centimeter";
+      return `${cm} centimeters`;
+    }
+    return `${meters.toFixed(2)} meters`;
+  }
+  if (rounded === 0) {
+    if (val > 0) {
+      const inches = Math.round(val * 12);
+      if (inches === 1) return "1 inch";
+      if (inches > 0) return `${inches} inches`;
+    }
+    return "0 feet";
+  }
+  if (rounded === 1) {
+    return "1 Foot";
+  }
+  return `${rounded} feet`;
+};
+function handleShiftMultiTap(count, state, speak2, announce) {
+  if (count !== 3) return;
+  const { direction, gridX, gridY, level, area, measurementSystem } = state;
+  const mt = (t) => convertText(t, measurementSystem);
+  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
+  const doorMin = currentDims.width * 0.48;
+  const doorMax = currentDims.width * 0.52;
+  let desc = "";
+  if (area === "Foyer") {
+    const isSky = level === "Sky";
+    const areaName = isSky ? "Sky Foyer" : "Floor Foyer";
+    if (isSky && direction === "North" && gridX >= 1 && gridX <= 20 && gridY <= 1341) {
+      desc = "Ahead is a tarsis rampway that leads back to Floor Foyer.";
+    } else if (isSky && direction === "West" && gridX >= 1 && gridX <= 90 && gridY >= 1320 && gridY <= 1340) {
+      desc = getSkyFoyerWestArchwayDescription(gridX, gridY);
+    } else if (isSky && direction === "West" && gridX >= 70 && gridX <= 90 && gridY >= 1341 && gridY <= 1980) {
+      desc = "A barrier is ahead.";
+    } else if (isSky) {
+      if (direction === "East" && gridX <= 90 && gridY >= 90 && gridY <= 1910 || direction === "North" && gridY <= 90 && gridX >= 90 && gridX <= 1910 || direction === "West" && gridX >= 1910 && gridY >= 90 && gridY <= 1910 || direction === "South" && gridY >= 1910 && gridX >= 90 && gridX <= 1910) {
+        desc = getSkyFoyerGlassBarrierAheadDescription(direction);
+      }
+    }
+    if (!desc) {
+      if (gridY === 1980 && gridX <= 20 && direction === "South") {
+        desc = `${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
+      } else if (gridX <= 10) {
+        if (gridY >= 1 && gridY <= 7) {
+          desc = `On the west wall here is a ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
+        } else {
+          desc = `You are at the West wall of the ${areaName}.`;
+        }
+      } else if (gridY <= 36) {
+        if (isSky) {
+          desc = "You are at the South wall of the Sky Foyer. It is a solid wall high above the South doors.";
+        } else {
+          desc = `You are at the South wall: ${FOYER_DESCRIPTIONS.SOUTH_DOOR} and ${FOYER_DESCRIPTIONS.SOUTH_WINDOWS}.`;
+        }
+      } else if (gridX <= 20 && gridY >= 1 && gridY <= 1320) {
+        desc = `You are in the Southwest Rectangle. ${FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE}`;
+      } else if (isSky) {
+        if (gridY >= currentDims.height - 36) {
+          if (gridX >= 300 && gridX <= 700) {
+            desc = `On the North wall of the Sky Foyer here is the ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
+          } else if (gridX >= 1300 && gridX <= 1700) {
+            desc = `On the North wall of the Sky Foyer here are the ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}`;
+          } else {
+            desc = `You are at the North wall of the Sky Foyer. Relocated artwork is displayed nearby.`;
+          }
+        }
+      }
+    }
+    if (desc) {
+      speak2(mt(desc), "EN_US");
+      announce(mt(desc));
+      return;
+    }
+  }
+  if (level === "Floor") {
+    if (direction === "South" && gridX <= 36 && gridY >= SW_RECT_Y_MAX) {
+      desc = "You are facing south in the northwest corner of the foyer. On your right, the west wall features an elegant brass railing. Just ahead, the brass-railed ramp begins its ascent south to the upper foyer. To your left is the vast, open expanse of the main foyer floor. The ceiling above the center is a staggering 45 feet high, while the upper foyer floor straddles the doors 25 feet above you.";
+    } else if (gridX <= 36 && gridY >= RAMP_Y_MIN) {
+      let artwork = "";
+      if (gridX === 1 && gridY >= 1 && gridY <= 7) {
+        artwork = ` On the west wall here is a ${FOYER_DESCRIPTIONS.LIONS_PICTURE}`;
+      } else if (gridY === currentDims.height && gridX >= doorMin && gridX <= doorMax) {
+        artwork = ` On the north wall here are ${FOYER_DESCRIPTIONS.RABBIT_CARVINGS}`;
+      } else if (gridY === RAMP_Y_MAX && gridX >= 1 && gridX <= 8) {
+        artwork = ` To your south is the ${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
+      } else if (gridX === 8 && gridY >= RAMP_Y_MIN && gridY <= RAMP_Y_MAX) {
+        artwork = ` To your west is the ${FOYER_DESCRIPTIONS.RHINO_BARRIER}`;
+      }
+      desc = `You are in the northwest corner area of the foyer. Position: ${gridX}x, ${gridY}y. Facing ${direction.toLowerCase()}.${artwork}`;
+    } else {
+      desc = getWallDescription(direction, area, gridX, gridY, level);
+    }
+  } else {
+    desc = getWallDescription(direction, area, gridX, gridY, level);
+  }
+  if (desc) {
+    speak2(mt(desc), "EN_US");
+    announce(mt(desc));
+  }
+}
+function handleRegularMultiTap(count, state, speak2, announce) {
+  const { area, gridX, gridY, direction, level, obstacles, isStrafingEnabled, measurementSystem } = state;
+  const mt = (t) => convertText(t, measurementSystem);
+  const currentDims = AREA_DIMENSIONS[area] || { width: GRID_SIZE, height: GRID_SIZE };
+  if (count === 2) {
+    let desc = "";
+    if (area === "Foyer") {
+      desc = `You are in a massive ${currentDims.width}x${currentDims.height} foyer with high ceilings and a pink and white checked floor. To the North are the high blue doors leading to the street, and to the South is the green and gold striped archway leading to the Rugged Play Field.`;
+    } else if (area === "RuggedPlayField") {
+      desc = getRuggedPlayFieldDescription(gridX, gridY, direction);
+    } else if (area === "SimulatedGardenArea") {
+      desc = getSimulatedGardenAreaDescription(gridX, gridY, direction);
+    } else if (area === "MeditationHall") {
+      desc = getMeditationHallDescription(gridX, gridY, direction);
+    } else if (area.includes("MeditationHallLibrary")) {
+      desc = getLibraryDescription(gridX, gridY, direction);
+    } else if (area === "TheGrandPlayground") {
+      desc = getPlaygroundDescription(gridX, gridY, direction, level);
+    } else if (area.includes("Arcade")) {
+      desc = getArcadeDescription(area, gridX, gridY, direction);
+    } else if (area.includes("Gym")) {
+      desc = getGymDescription(area, gridX, gridY, direction);
+    } else if (area === "Garden") {
+      desc = `You are in the ${currentDims.width}x${currentDims.height} Garden of Peace. To the North are the rainbow glass doors leading back into the Meditation Hall. To the South is a 40-foot barrier overlooking railway tracks.`;
+    } else if (area === "FrontPorch" || area === "BackPorch") {
+      desc = area === "FrontPorch" ? `You are on the massive ${currentDims.width}x${currentDims.height} foot Front Porch. The floor is pink and white checked ceramic. To the South is the house, and to the North is the red brick sidewalk.` : `You are on the massive ${currentDims.width}x${currentDims.height} foot Back Porch. The floor is white. To the North is the house, and to the South is the garden.`;
+    } else if (area === "Sidewalk") {
+      desc = getManorsvilleSidewalkInfoDescription(currentDims.height);
+    } else if (area === "Street") {
+      desc = getManorsvilleStreetInfoDescription();
+    } else if (area === "Soca_Path") {
+      desc = `You are on the Soca Path, a snaking path with rolling hills that leads to Allison's Manor. The path is ${currentDims.height} feet long. You can feel the rise and fall of the hills as you ride forward.`;
+    } else if (area === "AllisonsPorch") {
+      desc = `You are on the grand white porch of Allison's Manor. The entrance to the foyer is to the North.`;
+    } else if (area === "AllisonsFoyer") {
+      desc = `You are in the grand ${currentDims.width}x${currentDims.height} foyer of Allison's Manor. The floor is polished marble and the ceilings are 35 feet high. To the West is Allison's Store and the Northwest Corner Ramps. To the East is the Southeast Warp Room and the Restaurant Communal Dining Facility.`;
+    } else if (area === "WesternWarpRoom") {
+      desc = `You are in the Western Specific Warp Station. A barn-themed room with a pink rocking pony and mural walls. To the East is a warp picture of Pablo's Pony Field with a barn frame and a mirror nearby.`;
+    } else if (area === "AllisonsStore") {
+      desc = `You are in Allison's Store, a busy ${currentDims.width}x${currentDims.height} retail space. Cash registers chime and staff are busy helping customers. A large glass door leads back to the Foyer.`;
+    } else if (area === "AllisonsMountainsWarpRoom") {
+      desc = `You are in the Mountains Specific Warp Room. The walls are decorated with mountain murals. A picture of a Mountain Pass with a rock frame sits on the North wall near a small table and a separator.`;
+    } else if (area === "AllisonsRestaurant") {
+      desc = `You are in the Restaurant-Communal Dining Facility. A large space with tables and a busy kitchen where Rastafarian cooks are preparing food.`;
+    } else if (area === "AdventureHouseFoyer") {
+      desc = `You are in the Adventure House Foyer, ${currentDims.width} feet wide, 15 feet high, and ${currentDims.height} feet deep. It has checked black and red flooring, white walls, and circular lights of many colors: pink, green, blue, gold, red, yellow, orange, purple, and indigo. There is a statue of a yellow kangaroo reading a book 5 feet from the hallway door, and a large rocking goat with pink horns and hooves 9 feet from the front door.`;
+    } else if (area === "AdventureHouseHallway") {
+      desc = `You are in a ${currentDims.width} foot wide, ${currentDims.height} foot long hallway. The door ahead is brown, just like the front door.`;
+    } else if (area === "AdventureHouseTeaRoom") {
+      desc = `You are in a ${currentDims.width} by ${currentDims.height} foot tea room with 4 tables. A couple is having tea, and a baby rocks on a red and white rocking horse. The walls are light green and the floor is white ceramic.`;
+    } else if (area === "AdventureHouseNarrowHallway") {
+      desc = `You are in a narrow hallway with green carpet and dimmed lighting. The walls are a soft cream color.`;
+    } else if (area === "AdventureHouseMusicRoom") {
+      desc = `You are in a small music room with a piano at its center. A pianist is playing public domain music. The walls are dark blue and the floor is polished wood.`;
+    } else if (area === "AdventureHouseBridgeHallway") {
+      desc = `You are on a bridge hallway over a town, with 12-foot high safety barriers. You can hear the sounds of the town below through the open windows.`;
+    } else if (area === "AdventureHouseTrenchHallway") {
+      desc = `You are in a functional trench hallway with 3 lanes. Gardens are visible above. The floors are ceramic with white and green squares, and the walls and ceiling are blue. You can hear the barks of a Bulldog and a Yellow Poodle from a distance.`;
+    } else if (area === "AdventurePath") {
+      desc = `You are on the Outside Path. This is the first of four segments of the Adventure Path. You see Xavier riding a poodle ahead of you!`;
+    } else if (area === "HedgePath") {
+      desc = `You are on the Hedge Path. This is the second of four segments. Hedges line both sides. You see Jela riding a poodle in the distance.`;
+    } else if (area === "RastafariCave") {
+      desc = `You are in the Rastafari Cave. This is the third of four segments. A gentle glow illuminates the path. You hear the echo of poodle paws.`;
+    } else if (area === "Overpass") {
+      desc = `You are on the Overpass Trench Path. This is the fourth of four segments. You can see cars zooming below on the highway.`;
+    } else if (area === "Suburb") {
+      desc = `You are in a quiet Suburb. The suburb path is 500 feet long. Houses with gardens line the street.`;
+    } else if (area === "OpenTrench") {
+      desc = `You are at the Open Trench. The trench is 800 feet long. Be ready to jump over the water!`;
+    } else if (area === "Cellar") {
+      desc = `You are in the Manor Cellar. It is a large, cool space with stone walls and a dusty floor. Shelves of supplies line the perimeter.`;
+    } else if (area === "MeditationHallLibrary") {
+      desc = `You are in the Meditation Hall's Library, a ${currentDims.width}x${currentDims.height} space filled with knowledge and peaceful energy. Polished wood shelves line the North wall. At the West end is an archway leading back toward the Lobby, and at the East end is an archway back to the Meditation Hall. A special librarian door with double steel doors and an LED light is at the South center.`;
+    } else if (area === "LobbyStairwayAndRamps") {
+      desc = `You are in the Lobby's Southwest Stairway and Ramps, part of Rasta-Manor's 1st Floor. This area connects the Main Lobby with the Mezzanine and the Cellar. The air here is cool, and the sounds of the manor's activities are slightly muffled. You see elegant brass railings and sturdy ramps.`;
+    } else if (area === "SouthwestMezzanineStairwayAndRamps") {
+      desc = `You are on the Mezzanine's 1st Floor Stairway and Ramps at the Southwest corner. This elevated area provides a view of the foyer's Northwest corner and features large windows overlooking the manor's surroundings. The floor is well-maintained, and the architecture emphasizes verticality and accessibility.`;
+    }
+    speak2(mt(desc), "EN_US");
+    announce(mt(desc));
+  } else if (count === 3) {
+    const { level: level2 } = state;
+    const isSky = level2 === "Sky";
+    let ahead = "";
+    let paces = 0;
+    if (direction === "South") {
+      paces = gridY;
+      if (area === "Foyer") {
+        if (gridX >= 990 && gridX <= 1010) {
+          ahead = getFloorFoyerSouthArchwayAhead(paces);
+        } else {
+          ahead = getFoyerBoundaryAhead("South", paces);
+        }
+      } else if (area === "RuggedPlayField") {
+        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
+      } else if (area === "SimulatedGardenArea") {
+        ahead = getSimulatedGardenAreaAhead(gridX, gridY, direction);
+      } else if (area === "MeditationHall") {
+        ahead = getMeditationHallAhead(gridX, gridY, direction);
+      } else if (area.includes("MeditationHallLibrary")) {
+        ahead = getLibraryAhead(gridX, gridY, direction);
+      } else if (area === "TheGrandPlayground") {
+        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
+      } else if (area.includes("Arcade")) {
+        ahead = getArcadeAhead(area, gridX, gridY, direction);
+      } else if (area.includes("Gym")) {
+        ahead = getGymAhead(area, gridX, gridY, direction);
+      } else if (area === "Garden") ahead = `The 40-foot barrier is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "FrontPorch") ahead = `The house doors are ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "BackPorch") ahead = `The garden is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "Sidewalk") ahead = `The porch is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "Street") ahead = `The sidewalk is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else ahead = `The South boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
+    } else if (direction === "North") {
+      paces = currentDims.height - gridY;
+      if (area === "Foyer") {
+        if (isSky) {
+          ahead = getFoyerBoundaryAhead("North", paces);
+        } else if (gridX >= 1 && gridX <= 20 && gridY < 1320) {
+          ahead = getFloorFoyerSWRectangleDescription(gridX, gridY, paces);
+        } else if (gridX >= 990 && gridX <= 1010) {
+          ahead = getFloorFoyerNorthDoorsAhead(paces);
+        } else {
+          ahead = getFoyerBoundaryAhead("North", paces);
+        }
+      } else if (area === "RuggedPlayField") {
+        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
+      } else if (area === "SimulatedGardenArea") {
+        ahead = getSimulatedGardenAreaAhead(gridX, gridY, direction);
+      } else if (area === "MeditationHall") {
+        ahead = getMeditationHallAhead(gridX, gridY, direction);
+      } else if (area.includes("MeditationHallLibrary")) {
+        ahead = getLibraryAhead(gridX, gridY, direction);
+      } else if (area === "TheGrandPlayground") {
+        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
+      } else if (area.includes("Arcade")) {
+        ahead = getArcadeAhead(area, gridX, gridY, direction);
+      } else if (area.includes("Gym")) {
+        ahead = getGymAhead(area, gridX, gridY, direction);
+      } else if (area === "Garden") ahead = `The rainbow glass doors are ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "FrontPorch") ahead = `The sidewalk is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "BackPorch") ahead = `The house doors are ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "Sidewalk") ahead = `The street is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else if (area === "Street") ahead = `The Adventure House is ${formatDistance(paces, measurementSystem)} ahead.`;
+      else ahead = `The North boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
+    } else if (direction === "East") {
+      paces = currentDims.width - gridX;
+      if (area === "TheGrandPlayground") {
+        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
+      } else if (area === "RuggedPlayField") {
+        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
+      } else if (area.includes("Arcade")) {
+        ahead = getArcadeAhead(area, gridX, gridY, direction);
+      } else if (area.includes("Gym")) {
+        ahead = getGymAhead(area, gridX, gridY, direction);
+      } else if (area.includes("MeditationHallLibrary")) {
+        ahead = getLibraryAhead(gridX, gridY, direction);
+      } else {
+        ahead = `The East boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
+      }
+    } else if (direction === "West") {
+      paces = gridX;
+      if (area === "TheGrandPlayground") {
+        ahead = getPlaygroundAhead(gridX, gridY, direction, level2);
+      } else if (area === "RuggedPlayField") {
+        ahead = getRuggedPlayFieldAhead(gridX, gridY, direction);
+      } else if (area.includes("Arcade")) {
+        ahead = getArcadeAhead(area, gridX, gridY, direction);
+      } else if (area.includes("Gym")) {
+        ahead = getGymAhead(area, gridX, gridY, direction);
+      } else if (area === "MeditationHall" || area === "MeditationHallLibrary") {
+        ahead = area === "MeditationHall" ? getMeditationHallAhead(gridX, gridY, direction) : getLibraryAhead(gridX, gridY, direction);
+      } else if (area === "Foyer" && gridY >= 1980 && gridY <= 2e3) {
+        ahead = getFloorFoyerWestArchwayAhead(paces);
+      } else {
+        ahead = `The West boundary is ${formatDistance(paces, measurementSystem)} ahead.`;
+      }
+    }
+    const nextObstacle = obstacles.find((o) => !o.isJumped && o.distance > gridY);
+    let obstacleMsg = "";
+    if (nextObstacle) {
+      obstacleMsg = ` Next ${nextObstacle.type} is ${formatDistance(nextObstacle.distance - gridY, measurementSystem)} ahead.`;
+    }
+    let strafeMsg = "";
+    if (isStrafingEnabled) {
+      const centerX = currentDims.width / 2;
+      const offset = Math.round(gridX - centerX);
+      const side = offset < 0 ? "West" : offset > 0 ? "East" : "Center";
+      strafeMsg = ` Strafing Position: ${formatDistance(Math.abs(offset), measurementSystem)} ${side} of the center.`;
+    }
+    let areaDisplay = area;
+    if (area === "Foyer") areaDisplay = isSky ? "Sky Foyer" : "Floor Foyer";
+    else if (area === "AllisonsFoyer") areaDisplay = "Allison's Manor";
+    else if (area === "TheGrandPlayground") areaDisplay = "The Grand Playground";
+    const ofKeyword = area === "TheGrandPlayground" || area === "AllisonsFoyer" ? "of" : "of the";
+    const msg = `You are at position ${gridX}, ${gridY} ${ofKeyword} ${areaDisplay}, facing ${direction}. ${ahead}${obstacleMsg}${strafeMsg}`;
+    speak2(mt(msg), "EN_US");
+    announce(mt(msg));
+  }
+}
+const handleCedellaKeyDown = (e, ctx) => {
+  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, lastKeyTime, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, handlers } = ctx;
+  const isShift = e.shiftKey;
+  const now2 = Date.now();
+  if (handleCommonInventoryKeys(e, ctx)) return true;
+  if (e.code === "KeyZ" && isShift) {
+    const prevTime = (lastKeyTime == null ? void 0 : lastKeyTime.current) ? lastKeyTime.current["KeyZ_Shift"] || 0 : 0;
+    if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
+      lastKeyTime.current["KeyZ_Shift"] = now2;
+    }
+    if (now2 - prevTime < 400) {
+      setGameState((prev) => {
+        const next = !prev.isTTSEnabled;
+        const msg = next ? "Speech synthesis enabled." : "Speech synthesis disabled.";
+        speak2(msg);
+        announceToScreenReader(msg);
+        return { ...prev, isTTSEnabled: next };
+      });
+      if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
+        lastKeyTime.current["KeyZ_Shift"] = 0;
+      }
+    }
+    return true;
+  }
+  if (e.code === "KeyA") {
+    if (isShift) {
+      if (aShiftTapCount) {
+        aShiftTapCount.current++;
+        if (aShiftTapTimeout == null ? void 0 : aShiftTapTimeout.current) clearTimeout(aShiftTapTimeout.current);
+        if (aShiftTapTimeout) {
+          aShiftTapTimeout.current = setTimeout(() => {
+            handleShiftMultiTap(aShiftTapCount.current, state, speak2, announceToScreenReader);
+            aShiftTapCount.current = 0;
+          }, 400);
+        }
+      }
+    } else {
+      if (aTapCount) {
+        aTapCount.current++;
+        if (aTapTimeout == null ? void 0 : aTapTimeout.current) clearTimeout(aTapTimeout.current);
+        if (aTapTimeout) {
+          aTapTimeout.current = setTimeout(() => {
+            handleRegularMultiTap(aTapCount.current, state, speak2, announceToScreenReader);
+            aTapCount.current = 0;
+          }, 400);
+        }
+      }
+    }
+    return false;
+  }
+  if (e.code === "KeyW" && !isShift) {
+    if (state.isInventoryOpen || state.isPoodleSelectionOpen) return true;
+    if (state.ridingAnimal === "Classic White Poodle") {
+      return true;
+    }
+    const modes = ["Gallop", "Canter", "Trot", "Walk", "Slow Walk", "Very Slow Walk"];
+    const currentIndex = modes.indexOf(state.movementMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    const nextMode = modes[nextIndex];
+    setGameState((prev) => ({ ...prev, movementMode: nextMode }));
+    const msg = `Movement mode toggled to ${nextMode}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyR" && !isShift) {
+    if (state.isInventoryOpen || state.isPoodleSelectionOpen) return true;
+    const msg = `You are currently riding ${state.ridingAnimal}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "BracketLeft" && !isShift) {
+    const nextSpeed = Math.max(0, state.targetSpeed - 5);
+    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
+    const msg = `Target speed decreased to ${nextSpeed}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "BracketRight" && !isShift) {
+    const nextSpeed = Math.min(100, state.targetSpeed + 5);
+    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
+    const msg = `Target speed increased to ${nextSpeed}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyJ" && !isShift) {
+    const next = !state.isInventoryOpen;
+    setGameState((prev) => ({
+      ...prev,
+      isInventoryOpen: next,
+      inventoryTab: "Items",
+      inventoryMenuMode: "Selection",
+      selectedInventoryIndex: 0,
+      selectedStorybookItemIndex: 0,
+      isWalletOpen: false,
+      inventoryFocus: "Tabs"
+    }));
+    const msg = next ? "Inventory opened." : "Inventory closed.";
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyI" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    const wallDesc = getWallInteractionDescription(state);
+    speak2(wallDesc);
+    announceToScreenReader(wallDesc);
+    return true;
+  }
+  if (e.code === "KeyO" && !isShift) {
+    if (state.isPaused) return true;
+    if (!state.isInventoryOpen) {
+      handleWorldInteraction(ctx);
+      return true;
+    }
+  }
+  if (e.code === "Enter" && !isShift) {
+    if (state.isPoodleSelectionOpen || state.isInventoryOpen) {
+      return false;
+    }
+    return true;
+  }
+  if (e.code === "Slash" && !isShift) {
+    const next = !state.isPoodleSelectionOpen;
+    setGameState((prev) => ({
+      ...prev,
+      isPoodleSelectionOpen: next,
+      selectedPoodleIndex: 0,
+      poodleMenuMode: "Selection",
+      selectedPoodleActionIndex: 0
+    }));
+    const msg = next ? "Poodle selection menu opened. Use arrow keys to pick a poodle." : "Poodle selection menu closed.";
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyO" && !isShift) {
+    if (state.isInventoryOpen) {
+      if (state.inventoryTab === "Heart" || state.inventoryTab === "Map") {
+        speak2(`Viewing ${state.inventoryTab} status.`);
+        return true;
+      }
+      if (state.isWalletOpen) {
+        const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+        const item = walletItems[state.selectedWalletIndex];
+        let desc = "A very important item kept safely in your wallet.";
+        if (state.characterName === "Priscilla") {
+          if (item === "Priscilla ID Card") {
+            desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
+          } else if (item === "Priscilla Gold Card") {
+            desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
+          }
+        } else {
+          if (item === "Photo of Abigay") {
+            desc = "A beautiful picture of your massive white poodle partner Abigay.";
+          }
+        }
+        speak2(`Description of ${item}: ${desc}`);
+        return true;
+      }
+      if (state.inventoryMenuMode === "Selection") {
+        const item = state.inventory.items[state.selectedInventoryIndex];
+        if ((item == null ? void 0 : item.id) === "wallet") {
+          setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
+          speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
+          return true;
+        }
+        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
+        const actionMsg = (item == null ? void 0 : item.id) === "umbrella" ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
+        speak2(actionMsg);
+      } else {
+        const item = state.inventory.items[state.selectedInventoryIndex];
+        if (item) {
+          let actions = ["Use", "Check", "Combine", "Equip"];
+          if (item.id === "umbrella") actions = ["Open", "Close", "Check", "Combine", "Equip"];
+          const action = actions[state.selectedActionIndex];
+          if (item.id === "umbrella") {
+            if (action === "Equip") {
+              const nextEquipped = !state.isUmbrellaEquipped;
+              setGameState((prev) => ({
+                ...prev,
+                isUmbrellaEquipped: nextEquipped,
+                inventoryMenuMode: "Selection"
+              }));
+              const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
+              speak2(msg);
+              announceToScreenReader(msg);
+            } else if (action === "Open" || action === "Close") {
+              if (!state.isUmbrellaEquipped) {
+                speak2("You must equip the umbrella first before you can open or close it.");
+              } else {
+                const nextOpen = action === "Open";
+                setGameState((prev) => ({
+                  ...prev,
+                  isUmbrellaOpen: nextOpen,
+                  inventoryMenuMode: "Selection"
+                }));
+                speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
+              }
+            } else {
+              speak2(`${action}ing ${item.name}`);
+              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+            }
+          } else {
+            speak2(`${action}ing ${item.name}`);
+            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+          }
+        }
+      }
+      return true;
+    } else {
+      handleWorldInteraction(ctx);
+    }
+    return true;
+  }
+  if (e.code === "KeyX" && !isShift) {
+    if (state.isInventoryOpen) {
+      if (state.inventoryFocus === "Content") {
+        if (state.isWalletOpen) {
+          setGameState((prev) => ({ ...prev, isWalletOpen: false }));
+          speak2("Back to items list.");
+        } else if (state.inventoryMenuMode === "Action") {
+          setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+          speak2("Back to item selection.");
+        } else if (state.inventoryTab === "Storybook") {
+          if (state.storybookMenuMode === "PageContent") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
+            speak2("Back to pages list.");
+          } else if (state.storybookMenuMode !== "Selection") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
+            speak2("Back to storybook menu.");
+          } else {
+            setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+            speak2("Back to tabs navigation.");
+          }
+        } else {
+          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+          speak2("Back to tabs navigation.");
+        }
+      } else {
+        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
+        speak2("Inventory closed.");
+      }
+      return true;
+    }
+  }
+  if (e.code === "ControlLeft" || e.code === "ControlRight") {
+    audio2.stopSpeech();
+    return true;
+  }
+  return false;
+};
+const handleCedellaMovement = (ctx) => {
+  const { gameState, keysPressed, moveForward, moveReverse, rotate: rotate2, announceToScreenReader, time: time2 } = ctx;
+  const results = {};
+  const isJoystickUp = keysPressed.has("Numpad8");
+  const isJoystickDown = keysPressed.has("Numpad2");
+  const isJoystickUpLeft = keysPressed.has("Numpad7");
+  const isJoystickUpRight = keysPressed.has("Numpad9");
+  const isJoystickDownLeft = keysPressed.has("Numpad1");
+  const isJoystickDownRight = keysPressed.has("Numpad3");
+  const isArrowUp = keysPressed.has("ArrowUp");
+  const isArrowDown = keysPressed.has("ArrowDown");
+  const isArrowLeft = keysPressed.has("ArrowLeft");
+  const isArrowRight = keysPressed.has("ArrowRight");
+  if (isJoystickUp) {
+    moveForward();
+    results.lastMoveTime = time2;
+  }
+  if (isJoystickDown) {
+    moveReverse();
+    results.lastMoveTime = time2;
+  }
+  if (isJoystickUpLeft) {
+    moveForward(false, void 0, (gameState.rotation - 45 + 360) % 360);
+    results.lastMoveTime = time2;
+  }
+  if (isJoystickUpRight) {
+    moveForward(false, void 0, (gameState.rotation + 45) % 360);
+    results.lastMoveTime = time2;
+  }
+  if (isJoystickDownLeft) {
+    moveForward(false, void 0, (gameState.rotation - 135 + 360) % 360, true);
+    results.lastMoveTime = time2;
+  }
+  if (isJoystickDownRight) {
+    moveForward(false, void 0, (gameState.rotation + 135) % 360, true);
+    results.lastMoveTime = time2;
+  }
+  if (isArrowUp) {
+    moveForward();
+    results.lastMoveTime = time2;
+  }
+  if (isArrowDown) {
+    moveReverse();
+    results.lastMoveTime = time2;
+  }
+  const hasManualMove = isJoystickUp || isJoystickDown || isJoystickUpLeft || isJoystickUpRight || isJoystickDownLeft || isJoystickDownRight || isArrowUp || isArrowDown;
+  if (!hasManualMove) {
+    if (gameState.targetSpeed > 0) {
+      moveForward();
+      results.lastMoveTime = time2;
+    } else if (gameState.targetSpeed < 0) {
+      moveReverse();
+      results.lastMoveTime = time2;
+    }
+  }
+  if (gameState.isStrafingEnabled) {
+    const isJoystickLeft = keysPressed.has("Numpad4");
+    const isJoystickRight = keysPressed.has("Numpad6");
+    if (isJoystickLeft || isArrowLeft) {
+      moveForward(false, "Left");
+      results.lastMoveTime = time2;
+    }
+    if (isJoystickRight || isArrowRight) {
+      moveForward(false, "Right");
+      results.lastMoveTime = time2;
+    }
+  } else {
+    const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
+    if (time2 - (ctx.lastRotateTime || 0) > 300) {
+      if (isArrowLeft) {
+        if (isAdventurePathArea) {
+          announceToScreenReader("Turning is disabled on the Adventure Path.");
+        } else {
+          rotate2(-1);
+        }
+        results.lastRotateTime = time2;
+      } else if (isArrowRight) {
+        if (isAdventurePathArea) {
+          announceToScreenReader("Turning is disabled on the Adventure Path.");
+        } else {
+          rotate2(1);
+        }
+        results.lastRotateTime = time2;
+      }
+    }
+  }
+  return results;
+};
+const handleCedellaJoystick = (ctx, lastReactUpdateTime) => {
+  const {
+    gameState,
+    keysPressed,
+    time: time2,
+    lastJoystickRotationTime,
+    lastAnnouncedJoystickAngle,
+    audio: audio2,
+    speak: speak2,
+    announceToScreenReader,
+    setGameState
+  } = ctx;
+  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
+  const isJoystickLeft = keysPressed.has("Numpad4");
+  const isJoystickRight = keysPressed.has("Numpad6");
+  const results = {};
+  if ((isJoystickLeft || isJoystickRight) && !gameState.isStrafingEnabled) {
+    if (isAdventurePathArea) {
+      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
+        announceToScreenReader("Turning is disabled on the Adventure Path.");
+        results.lastRotateTime = time2;
+      }
+    } else {
+      const isShift = keysPressed.has("ShiftLeft") || keysPressed.has("ShiftRight");
+      const baseRotationSpeed = 180;
+      const rotationSpeed = isShift ? baseRotationSpeed / 4 : baseRotationSpeed;
+      const dt = lastJoystickRotationTime ? Math.min(0.1, (time2 - lastJoystickRotationTime) / 1e3) : 0.016;
+      results.lastJoystickRotationTime = time2;
+      let rotationDelta = 0;
+      if (isJoystickLeft) rotationDelta -= rotationSpeed * dt;
+      if (isJoystickRight) rotationDelta += rotationSpeed * dt;
+      if (rotationDelta !== 0) {
+        const oldRotation = gameState.rotation;
+        const newRotation = (oldRotation + rotationDelta + 360) % 360;
+        const oldInt = Math.floor(oldRotation);
+        const newInt = Math.floor(newRotation);
+        if (oldInt !== newInt) {
+          const isMajor = newInt % 15 === 0;
+          audio2.playRotationTick(isMajor);
+        }
+        const points = [
+          { angle: 0 },
+          { angle: 45 },
+          { angle: 90 },
+          { angle: 135 },
+          { angle: 180 },
+          { angle: 225 },
+          { angle: 270 },
+          { angle: 315 },
+          { angle: 360 }
+        ];
+        const match = points.find((p) => Math.abs(newRotation - p.angle) < 2.5);
+        if (match) {
+          const announcedAngle = lastAnnouncedJoystickAngle;
+          const normalizedAngle = match.angle === 360 ? 0 : match.angle;
+          if (announcedAngle !== normalizedAngle) {
+            const msg = `${normalizedAngle} degrees`;
+            speak2(msg);
+            announceToScreenReader(msg);
+            results.lastAnnouncedJoystickAngle = normalizedAngle;
+          }
+        }
+        gameState.rotation = newRotation;
+        if (time2 - lastReactUpdateTime > 33) {
+          setGameState((prev) => ({ ...prev, rotation: newRotation }));
+          results.lastReactUpdateTime = time2;
+        }
+      }
+    }
+  } else {
+    results.lastJoystickRotationTime = time2;
+  }
+  return results;
+};
+const handleArdenDenisKeyDown = (e, ctx) => {
+  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, lastKeyTime, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, handlers } = ctx;
+  const isShift = e.shiftKey;
+  const now2 = Date.now();
+  if (handleCommonInventoryKeys(e, ctx)) return true;
+  if (e.code === "KeyZ" && isShift) {
+    const prevTime = (lastKeyTime == null ? void 0 : lastKeyTime.current) ? lastKeyTime.current["KeyZ_Shift"] || 0 : 0;
+    if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
+      lastKeyTime.current["KeyZ_Shift"] = now2;
+    }
+    if (now2 - prevTime < 400) {
+      setGameState((prev) => {
+        const next = !prev.isTTSEnabled;
+        const msg = next ? "Speech synthesis enabled." : "Speech synthesis disabled.";
+        speak2(msg);
+        announceToScreenReader(msg);
+        return { ...prev, isTTSEnabled: next };
+      });
+      if (lastKeyTime == null ? void 0 : lastKeyTime.current) {
+        lastKeyTime.current["KeyZ_Shift"] = 0;
+      }
+    }
+    return true;
+  }
+  if (e.code === "KeyL" && !isShift) {
+    if (state.isInventoryOpen) return true;
+    handleWorldInteraction(ctx);
+    return true;
+  }
+  if (e.code === "Slash" && !isShift) {
+    const next = !state.isInventoryOpen;
+    setGameState((prev) => ({
+      ...prev,
+      isInventoryOpen: next,
+      inventoryTab: "Items",
+      inventoryMenuMode: "Selection",
+      selectedInventoryIndex: 0,
+      selectedStorybookItemIndex: 0,
+      isWalletOpen: false,
+      inventoryFocus: "Tabs"
+    }));
+    const msg = next ? "Inventory opened. Use arrow keys to pick a tab or item." : "Inventory closed.";
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyI" && !isShift) {
+    const nextSpeed = Math.min(100, state.targetSpeed + 5);
+    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
+    const msg = `Target speed increased to ${nextSpeed}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyK" && !isShift) {
+    const nextSpeed = Math.max(0, state.targetSpeed - 5);
+    setGameState((prev) => ({ ...prev, targetSpeed: nextSpeed }));
+    const msg = `Target speed decreased to ${nextSpeed}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyE" && !isShift) {
+    if (state.isInventoryOpen) {
+      if (state.inventoryTab === "Heart" || state.inventoryTab === "Map") {
+        speak2(`Viewing ${state.inventoryTab} status.`);
+        return true;
+      }
+      if (state.isWalletOpen) {
+        const walletItems = state.characterName === "Priscilla" ? ["Priscilla ID Card", "Priscilla Gold Card"] : ["ID Card", "Credit Card", "Library Card", "Photo of Abigay"];
+        const item = walletItems[state.selectedWalletIndex];
+        let desc = "A very important item kept safely in your wallet.";
+        if (state.characterName === "Priscilla") {
+          if (item === "Priscilla ID Card") {
+            desc = "This is Priscilla's unique ID Card showing her name, address at the Vanity House, with no picture of Abigay.";
+          } else if (item === "Priscilla Gold Card") {
+            desc = "This is a shiny solid-gold credit card designed for premium vanity and extreme financial greed.";
+          }
+        } else {
+          if (item === "Photo of Abigay") {
+            desc = "A beautiful picture of your massive white poodle partner Abigay.";
+          }
+        }
+        speak2(`Description of ${item}: ${desc}`);
+        return true;
+      }
+      if (state.inventoryMenuMode === "Selection") {
+        const item = state.inventory.items[state.selectedInventoryIndex];
+        if ((item == null ? void 0 : item.id) === "wallet") {
+          setGameState((prev) => ({ ...prev, isWalletOpen: true, selectedWalletIndex: 0 }));
+          speak2("Wallet opened. View items in wallet. Use arrows to navigate.");
+          return true;
+        }
+        setGameState((prev) => ({ ...prev, inventoryMenuMode: "Action", selectedActionIndex: 0 }));
+        const actionMsg = (item == null ? void 0 : item.id) === "umbrella" ? `Action menu for Umbrella opened. It is currently ${state.isUmbrellaEquipped ? "equipped" : "not equipped"}. Use arrows to pick: Open, Close, Check, Combine, or Equip.` : "Action menu opened. Use, Check, Combine, or Equip.";
+        speak2(actionMsg);
+      } else {
+        const item = state.inventory.items[state.selectedInventoryIndex];
+        if (item) {
+          let actions = ["Use", "Check", "Combine", "Equip"];
+          if (item.id === "umbrella") actions = ["Open", "Close", "Check", "Combine", "Equip"];
+          const action = actions[state.selectedActionIndex];
+          if (item.id === "umbrella") {
+            if (action === "Equip") {
+              const nextEquipped = !state.isUmbrellaEquipped;
+              setGameState((prev) => ({
+                ...prev,
+                isUmbrellaEquipped: nextEquipped,
+                inventoryMenuMode: "Selection"
+              }));
+              const msg = nextEquipped ? "Umbrella equipped for your poodle ride." : "Umbrella put away.";
+              speak2(msg);
+              announceToScreenReader(msg);
+            } else if (action === "Open" || action === "Close") {
+              if (!state.isUmbrellaEquipped) {
+                speak2("You must equip the umbrella first before you can open or close it.");
+              } else {
+                const nextOpen = action === "Open";
+                setGameState((prev) => ({
+                  ...prev,
+                  isUmbrellaOpen: nextOpen,
+                  inventoryMenuMode: "Selection"
+                }));
+                speak2(`Umbrella ${nextOpen ? "opened" : "closed"}.`);
+              }
+            } else {
+              speak2(`${action}ing ${item.name}`);
+              setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+            }
+          } else {
+            speak2(`${action}ing ${item.name}`);
+            setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+          }
+        }
+      }
+      return true;
+    }
+  }
+  if (e.code === "KeyF" && !isShift) {
+    if (state.isInventoryOpen) {
+      if (state.inventoryFocus === "Content") {
+        if (state.isWalletOpen) {
+          setGameState((prev) => ({ ...prev, isWalletOpen: false }));
+          speak2("Back to items list.");
+        } else if (state.inventoryMenuMode === "Action") {
+          setGameState((prev) => ({ ...prev, inventoryMenuMode: "Selection" }));
+          speak2("Back to item selection.");
+        } else if (state.inventoryTab === "Storybook") {
+          if (state.storybookMenuMode === "PageContent") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Pages" }));
+            speak2("Back to pages list.");
+          } else if (state.storybookMenuMode !== "Selection") {
+            setGameState((prev) => ({ ...prev, storybookMenuMode: "Selection" }));
+            speak2("Back to storybook menu.");
+          } else {
+            setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+            speak2("Back to tabs navigation.");
+          }
+        } else {
+          setGameState((prev) => ({ ...prev, inventoryFocus: "Tabs" }));
+          speak2("Back to tabs navigation.");
+        }
+      } else {
+        setGameState((prev) => ({ ...prev, isInventoryOpen: false }));
+        speak2("Inventory closed.");
+      }
+      return true;
+    }
+  }
+  if (e.code === "KeyQ" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    const wallDesc = getWallInteractionDescription(state);
+    speak2(wallDesc);
+    announceToScreenReader(wallDesc);
+    return true;
+  }
+  if ((e.code === "KeyE" || e.code === "Enter") && !isShift) {
+    if (state.isPaused) return true;
+    if (!state.isInventoryOpen) {
+      handleWorldInteraction(ctx);
+      return true;
+    }
+  }
+  if (e.code === "KeyM" && !isShift) {
+    const next = !state.isPoodleSelectionOpen;
+    setGameState((prev) => ({
+      ...prev,
+      isPoodleSelectionOpen: next,
+      selectedPoodleIndex: 0,
+      poodleMenuMode: "Selection",
+      selectedPoodleActionIndex: 0
+    }));
+    const msg = next ? "Poodle selection menu opened. Use arrow keys to pick a poodle." : "Poodle selection menu closed.";
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyV" && !isShift) {
+    const next = !state.isVisualDescriptionEnabled;
+    setGameState((prev) => ({ ...prev, isVisualDescriptionEnabled: next }));
+    speak2(next ? "Visual descriptions enabled." : "Visual descriptions disabled.");
+    return true;
+  }
+  return false;
+};
+const handleArdenDenisMovement = (ctx) => {
+  const { keysPressed, moveForward, moveReverse, rotate: rotate2, time: time2, lastRotateTime } = ctx;
+  const results = {};
+  const isUp = keysPressed.has("KeyW") || keysPressed.has("ArrowUp");
+  const isDown = keysPressed.has("KeyS") || keysPressed.has("ArrowDown");
+  const isLeft = keysPressed.has("KeyA") || keysPressed.has("ArrowLeft");
+  const isRight = keysPressed.has("KeyD") || keysPressed.has("ArrowRight");
+  if (isUp) {
+    moveForward();
+    results.lastMoveTime = time2;
+  } else if (isDown) {
+    moveReverse();
+    results.lastMoveTime = time2;
+  } else if (ctx.gameState.targetSpeed > 0) {
+    moveForward();
+    results.lastMoveTime = time2;
+  } else if (ctx.gameState.targetSpeed < 0) {
+    moveReverse();
+    results.lastMoveTime = time2;
+  }
+  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(ctx.gameState.area);
+  if (time2 - (ctx.lastRotateTime || 0) > 300) {
+    if (isLeft) {
+      if (isAdventurePathArea) {
+        ctx.announceToScreenReader("Turning is disabled on the Adventure Path.");
+      } else {
+        rotate2(-1);
+      }
+      results.lastRotateTime = time2;
+    }
+    if (isRight) {
+      if (isAdventurePathArea) {
+        ctx.announceToScreenReader("Turning is disabled on the Adventure Path.");
+      } else {
+        rotate2(1);
+      }
+      results.lastRotateTime = time2;
+    }
+  }
+  return results;
+};
+const handleStandardKeyDown = (e, ctx) => {
+  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, handlers } = ctx;
+  const isShift = e.shiftKey;
+  if (handleCommonInventoryKeys(e, ctx)) return true;
+  if (e.code === "KeyJ" && !isShift) {
+    const next = !state.isInventoryOpen;
+    setGameState((prev) => ({
+      ...prev,
+      isInventoryOpen: next,
+      inventoryTab: "Items",
+      inventoryMenuMode: "Selection",
+      selectedInventoryIndex: 0,
+      selectedStorybookItemIndex: 0,
+      isWalletOpen: false,
+      inventoryFocus: "Tabs"
+    }));
+    const msg = next ? "Inventory opened." : "Inventory closed.";
+    speak2(msg, "EN_US");
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (e.code === "KeyI" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    const wallDesc = getWallInteractionDescription(state);
+    speak2(wallDesc, "EN_US");
+    announceToScreenReader(wallDesc);
+    return true;
+  }
+  if ((e.code === "KeyE" || e.code === "Enter") && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    handleWorldInteraction(ctx);
+    return true;
+  }
+  return false;
+};
+const handleStandardMovement = (ctx) => {
+  const { gameState, keysPressed, moveForward, moveReverse, rotate: rotate2, time: time2, announceToScreenReader } = ctx;
+  const results = {};
+  const isUpArrow = keysPressed.has("ArrowUp");
+  const isDownArrow = keysPressed.has("ArrowDown");
+  const isLeftArrow = keysPressed.has("ArrowLeft");
+  const isRightArrow = keysPressed.has("ArrowRight");
+  const isAdventurePathArea = ["AdventurePath", "HedgePath", "RastafariCave", "Overpass", "Suburb", "OpenTrench", "Soca_Path"].includes(gameState.area);
+  if (isLeftArrow) {
+    if (isAdventurePathArea) {
+      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
+        announceToScreenReader("Turning is disabled on the Adventure Path.");
+        results.lastRotateTime = time2;
+      }
+    } else if (time2 - (ctx.lastRotateTime || 0) > 300) {
+      rotate2(-1);
+      results.lastRotateTime = time2;
+    }
+  } else if (isRightArrow) {
+    if (isAdventurePathArea) {
+      if (time2 - (ctx.lastRotateTime || 0) > 1e3) {
+        announceToScreenReader("Turning is disabled on the Adventure Path.");
+        results.lastRotateTime = time2;
+      }
+    } else if (time2 - (ctx.lastRotateTime || 0) > 300) {
+      rotate2(1);
+      results.lastRotateTime = time2;
+    }
+  }
+  if (isUpArrow || gameState.targetSpeed > 0) {
+    moveForward();
+    results.lastMoveTime = time2;
+  } else if (isDownArrow || gameState.targetSpeed < 0) {
+    moveReverse();
+    results.lastMoveTime = time2;
+  }
+  return results;
+};
+function getSystemStatusDescription(state) {
+  const hw = detectHardwareProfile();
+  const cpuUsage = Math.floor(Math.random() * 5) + 2;
+  const currentDims = AREA_DIMENSIONS[state.area] || { width: GRID_SIZE, height: GRID_SIZE };
+  const coordDesc = state.useCoordinates ? `Coordinates: ${Math.round(state.gridX)}, ${Math.round(state.gridY)}.` : "Coordinates are disabled.";
+  return `System status: Grid Size ${currentDims.width} by ${currentDims.height} feet. Level: ${state.level}. Area: ${state.area}. ${coordDesc} Pixel Ratio: ${state.pixelRatio}. Estimated CPU usage is ${cpuUsage} percent. Target performance is ${hw.targetFPS} frames per second. GPU acceleration is ${hw.useGPU ? "enabled" : "disabled"}. This software is officially Babylon-free, using vintage 3D craftsmanship for maximum efficiency.`;
+}
+const handleGlobalHotkeys = (e, ctx) => {
+  const { gameState: state, setGameState, audio: audio2, speak: speak2, announceToScreenReader, systems, handlers } = ctx;
+  const isShift = e.shiftKey;
+  const now2 = Date.now();
+  if (e.code === "Space" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    handlers == null ? void 0 : handlers.jump();
+    return true;
+  }
+  if (e.code === "KeyP" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    handlers == null ? void 0 : handlers.pet();
+    return true;
+  }
+  if (e.code === "KeyH" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    if (!state.isSpanked) {
+      speak2("The poodle nuzzles your hand. She loves you because you treat her with kindness and oppose Babylonian norms.");
+    } else {
+      speak2("The poodle seems distant.");
+    }
+    return true;
+  }
+  if (e.code === "KeyT" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    const nextMode = state.viewMode === "Rider" ? "POV" : "Rider";
+    setGameState((prev) => ({ ...prev, viewMode: nextMode }));
+    speak2(`View mode toggled to ${nextMode === "Rider" ? "Rider View" : "POV View"}`);
+    return true;
+  }
+  if (e.code === "KeyL" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    handlers == null ? void 0 : handlers.lean();
+    return true;
+  }
+  if (e.code === "KeyC" && !isShift) {
+    if (state.isInventoryOpen || state.isPaused) return true;
+    handlers == null ? void 0 : handlers.collar();
+    return true;
+  }
+  if (e.code === "KeyV" && !isShift) {
+    const next = !state.isVisualDescriptionEnabled;
+    setGameState((prev) => ({ ...prev, isVisualDescriptionEnabled: next }));
+    speak2(next ? "Visual descriptions enabled." : "Visual descriptions disabled.");
+    return true;
+  }
+  if (e.ctrlKey && e.shiftKey && e.code === "Digit4") {
+    const modes = ["FourDirection", "EightDirection", "Full360"];
+    const currentMode = state.arrowKeyTurningMode || "FourDirection";
+    const currentIndex = modes.indexOf(currentMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    const nextMode = modes[nextIndex];
+    let screenReaderMsg = "";
+    if (nextMode === "FourDirection") {
+      screenReaderMsg = "Four Direction Mode, your left and right arrow keys are set for turning to a compass direction. Down arrow always go reverse, and up arrow always go forward.";
+    } else if (nextMode === "EightDirection") {
+      screenReaderMsg = "Eight-Directional Mode, your left and right arrow keys turns to a compass direction with 8 directions, useful for going to places that are diagonal, or if you need to make an angled turn. Up always go forward, and down always go reverse.";
+    } else if (nextMode === "Full360") {
+      screenReaderMsg = "This is a three hundred sixty turning mode. Your arrow keys work like the left and right arrows on a conventional D-pad. Your up arrow key always go forward, and your down arrow key always go reverse. Use this function for traversing places that are curved, rounded, or any place that requires you to use an exact angle to go through doors, go along paths, or other transitions. Also used for diagonal jumping (if needed).";
+    }
+    setGameState((prev) => ({ ...prev, arrowKeyTurningMode: nextMode }));
+    speak2(screenReaderMsg);
+    announceToScreenReader(screenReaderMsg);
+    return true;
+  }
+  if (isShift && e.code === "Digit4" && !e.ctrlKey) {
+    const next = !state.showDiagnostics;
+    setGameState((prev) => ({ ...prev, showDiagnostics: next }));
+    const diagMsg = next ? "Diagnostic system enabled." : "Diagnostic system disabled.";
+    speak2(diagMsg);
+    announceToScreenReader(diagMsg);
+    return true;
+  }
+  if (isShift && e.code === "Digit1") {
+    const next = !state.notifications.bark;
+    setGameState((prev) => ({
+      ...prev,
+      notifications: { ...prev.notifications, bark: next }
+    }));
+    const msg = `Bark notifications ${next ? "enabled" : "disabled"}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (isShift && e.code === "Digit2") {
+    const next = !state.notifications.jump;
+    setGameState((prev) => ({
+      ...prev,
+      notifications: { ...prev.notifications, jump: next }
+    }));
+    const msg = `Jump notifications ${next ? "enabled" : "disabled"}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (isShift && e.code === "Digit3") {
+    const next = !state.notifications.jumpForward;
+    setGameState((prev) => ({
+      ...prev,
+      notifications: { ...prev.notifications, jumpForward: next }
+    }));
+    const msg = `Running jump notifications ${next ? "enabled" : "disabled"}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (!isShift && e.code === "Digit4" && !state.choices) {
+    const nextSystem = state.measurementSystem === "Imperial" ? "Metric" : "Imperial";
+    setGameState((prev) => ({ ...prev, measurementSystem: nextSystem }));
+    const msg = `Measurement system set to ${nextSystem}.`;
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (!isShift && e.code === "Digit3" && !state.choices) {
+    handlers == null ? void 0 : handlers.readHUD();
+    return true;
+  }
+  if (isShift && e.code === "Digit0") {
+    const next = !state.isCSTEnabled;
+    speak2(next ? "CST Clock Enabled (Chicago, IL)" : "CST Clock Disabled");
+    setGameState((prev) => ({ ...prev, isCSTEnabled: next }));
+    return true;
+  }
+  if (isShift && e.code === "Digit8") {
+    const next = !state.isPaused;
+    setGameState((prev) => ({ ...prev, isPaused: next }));
+    const msg = next ? "Game Paused." : "Game Resumed.";
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (isShift && e.code === "KeyZ") {
+    const lastZ = ctx.lastKeyTime.current["ShiftKeyZ"] || 0;
+    if (now2 - lastZ < 500) {
+      let nextInternal = state.isTTSEnabled;
+      let nextLocal = !!state.isLocalTTSEnabled;
+      let msg = "";
+      if (state.isTTSEnabled && !state.isLocalTTSEnabled) {
+        nextInternal = false;
+        nextLocal = true;
+        msg = "Local TTS Mode On";
+      } else if (!state.isTTSEnabled && state.isLocalTTSEnabled) {
+        nextInternal = false;
+        nextLocal = false;
+        msg = "TTS Engine off";
+      } else if (state.isTTSEnabled && state.isLocalTTSEnabled) {
+        nextInternal = false;
+        nextLocal = false;
+        msg = "TTS Engine off";
+      } else {
+        nextInternal = true;
+        nextLocal = false;
+        msg = "TTS Engine On";
+      }
+      setGameState((prev) => ({ ...prev, isTTSEnabled: nextInternal, isLocalTTSEnabled: nextLocal }));
+      speak2(msg, void 0, true);
+      announceToScreenReader(msg, true);
+      ctx.lastKeyTime.current["ShiftKeyZ"] = 0;
+      return true;
+    }
+    ctx.lastKeyTime.current["ShiftKeyZ"] = now2;
+    return true;
+  }
+  if (isShift && e.code === "KeyM") {
+    const msg = getSystemStatusDescription(state);
+    speak2(msg);
+    announceToScreenReader(msg);
+    return true;
+  }
+  if (state.choices && ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5"].includes(e.code)) {
+    const choiceIndex = parseInt(e.code.slice(-1)) - 1;
+    if (choiceIndex >= 0 && choiceIndex < state.choices.length) {
+      const choice = state.choices[choiceIndex];
+      speak2(`Choice ${choiceIndex + 1}: ${choice} selected.`);
+      return true;
+    }
+  }
+  return false;
+};
+function routeKeyboardEvent(e, state, setGameState, audio2, speak2, announceToScreenReader, gameStateRef, handlers, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, lastKeyTime) {
+  const ctx = {
+    gameState: state,
+    audio: audio2,
+    speak: speak2,
+    announceToScreenReader,
+    setGameState,
+    aTapCount,
+    aTapTimeout,
+    aShiftTapCount,
+    aShiftTapTimeout,
+    lastKeyTime,
+    systems: {},
+    handlers
+    // Added handlers here
+  };
+  if (handleGlobalHotkeys(e, ctx)) return true;
+  if (state.keyboardLayout === "Arden Denis") {
+    return handleArdenDenisKeyDown(e, ctx);
+  } else if (state.keyboardLayout === "Cedella") {
+    return handleCedellaKeyDown(e, ctx);
+  } else if (state.keyboardLayout === "Standard") {
+    return handleStandardKeyDown(e, ctx);
+  }
+  return false;
+}
 const LAYOUT_OPTIONS = [
   { id: "Cedella", name: "Cedella Profile", description: "Numeric keypad joystick with smooth rotation" },
   { id: "Standard", name: "Standard Profile", description: "Arrow keys or WASD with discrete turn snaps" },
@@ -68718,6 +67413,74 @@ function checkCourseTransition(state) {
   }
   return state;
 }
+function generateObstacles(area, length) {
+  const obstacles = [];
+  if (area === "HedgePath") {
+    const distances = [328, 656, 1312, 2624];
+    let currentDist = 500;
+    for (let i = 0; i < 22; i++) {
+      const step = distances[Math.floor(Math.random() * distances.length)];
+      currentDist += step;
+      if (currentDist < length) {
+        obstacles.push({
+          id: `bush-${i}`,
+          type: "Bush",
+          distance: currentDist,
+          isJumped: false
+        });
+      }
+    }
+  } else if (area === "RastafariCave") {
+    let currentDist = 800 * 3.28;
+    for (let i = 0; i < 10; i++) {
+      obstacles.push({
+        id: `rock-${i}`,
+        type: "Rock",
+        distance: currentDist,
+        isJumped: false
+      });
+      currentDist += (800 + Math.random() * 400) * 3.28;
+      if (currentDist >= length) break;
+    }
+  } else if (area === "Overpass") {
+    let currentDist = 1e3;
+    for (let i = 0; i < 5; i++) {
+      obstacles.push({
+        id: `wheat-${i}`,
+        type: "Wheat",
+        distance: currentDist,
+        isJumped: false
+      });
+      currentDist += 2e3 + Math.random() * 1e3;
+      if (currentDist >= length) break;
+    }
+  }
+  return obstacles;
+}
+function checkObstacleCollision(state, obstacles) {
+  const currentDist = state.gridY;
+  const range = 10;
+  for (const obstacle of obstacles) {
+    if (!obstacle.isJumped && Math.abs(currentDist - obstacle.distance) < range) {
+      if (state.isJumping) {
+        return { collision: false, obstacle };
+      } else {
+        return { collision: true, obstacle };
+      }
+    }
+  }
+  return { collision: false, obstacle: null };
+}
+function getObstacleBeepInterval(state, obstacles) {
+  const currentDist = state.gridY;
+  const nextObstacle = obstacles.find((o) => !o.isJumped && o.distance > currentDist);
+  if (!nextObstacle) return null;
+  const distToObstacle = nextObstacle.distance - currentDist;
+  if (distToObstacle < 100) return 100;
+  if (distToObstacle < 300) return 300;
+  if (distToObstacle < 600) return 600;
+  return null;
+}
 const KeyboardCommandsModal = ({ isOpen, onClose }) => {
   const commands = [
     { keys: ["↑"], action: "Move Forward" },
@@ -69754,6 +68517,44 @@ function getDynamicWelcomeMessage(characterName, ridingAnimal) {
   }
   return `Welcome to Poodle Ride Adventure! You are the ${characterName}, riding your partner ${ridingAnimal}. You are in a grand foyer with 45-foot ceilings and pink and white checked ceramic flooring. ${poodle_or_animal_with_long_description} Use the arrow keys to move. The 'UP' key goes forward, the 'Left' and 'Right' keys are used for turning left or right, and the 'Down' key is used to go reverse. Your space bar is used for jumping. Press 'S' to hear her elegant bark, 'H' to confirm your love, 'P' to pet her, 'L' to lean, and 'C' to grasp her collar.`;
 }
+function draw2DView(ctx, width, height, state) {
+  ctx.save();
+  ctx.fillStyle = "#1a1a1a";
+  ctx.fillRect(0, 0, width, height);
+  const currentDims = AREA_DIMENSIONS[state.area] || { width: 2e3, height: 2e3 };
+  const scaleX2 = width / currentDims.width;
+  const scaleY2 = height / currentDims.height;
+  ctx.strokeStyle = "#333";
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= currentDims.width; x += 200) {
+    ctx.beginPath();
+    ctx.moveTo(x * scaleX2, 0);
+    ctx.lineTo(x * scaleX2, height);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= currentDims.height; y += 200) {
+    ctx.beginPath();
+    ctx.moveTo(0, y * scaleY2);
+    ctx.lineTo(width, y * scaleY2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#ff69b4";
+  ctx.beginPath();
+  ctx.arc(state.gridX * scaleX2, state.gridY * scaleY2, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(state.gridX * scaleX2, state.gridY * scaleY2);
+  const dirX = state.direction === "East" ? 20 : state.direction === "West" ? -20 : 0;
+  const dirY = state.direction === "South" ? 20 : state.direction === "North" ? -20 : 0;
+  ctx.lineTo(state.gridX * scaleX2 + dirX, state.gridY * scaleY2 + dirY);
+  ctx.stroke();
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 12px sans-serif";
+  ctx.fillText(`2D MODE: ${state.area} (${Math.floor(state.gridX)}, ${Math.floor(state.gridY)})`, 20, 30);
+  ctx.restore();
+}
 function getChimesVolume(gameState) {
   const { area, gridX, gridY } = gameState;
   if (area === "MeditationHall" || area === "MeditationHallLibrary" || area.includes("MeditationHallLibrary")) {
@@ -69927,6 +68728,175 @@ function handleGoatSchedule(area, audio2, announce) {
     audio2.playGoatMunch();
   }
 }
+const _DOMEngineGeneral = class _DOMEngineGeneral {
+  /**
+   * Fast element lookup with caching and LRU bound eviction to prevent memory spikes.
+   */
+  static getElementFast(id2) {
+    if (this.elementCache.has(id2)) {
+      const cached = this.elementCache.get(id2);
+      if (document.body.contains(cached)) {
+        return cached;
+      }
+      this.elementCache.delete(id2);
+    }
+    const el = document.getElementById(id2);
+    if (el) {
+      if (this.elementCache.size >= this.maxCacheSize) {
+        const firstKey = this.elementCache.keys().next().value;
+        if (firstKey) this.elementCache.delete(firstKey);
+      }
+      this.elementCache.set(id2, el);
+    }
+    return el;
+  }
+  /**
+   * Clears all cached DOM elements and target memoizations
+   */
+  static clearCache() {
+    this.elementCache.clear();
+    this.interactiveTargetCache = /* @__PURE__ */ new WeakMap();
+  }
+  /**
+   * High-performance WeakMap-memoized check if an event target is interactive.
+   * Eliminates querySelector/closest CPU overhead on rapid keydown events.
+   */
+  static isMenuOrUIInteractive(target) {
+    if (!target || !(target instanceof HTMLElement)) return false;
+    if (this.interactiveTargetCache.has(target)) {
+      return this.interactiveTargetCache.get(target);
+    }
+    const result = this.computeIsInteractive(target);
+    this.interactiveTargetCache.set(target, result);
+    return result;
+  }
+  static computeIsInteractive(target) {
+    const interactiveTags = ["BUTTON", "INPUT", "SELECT", "TEXTAREA", "A"];
+    if (interactiveTags.includes(target.tagName)) return true;
+    if (target.isContentEditable) return true;
+    const role = target.getAttribute("role");
+    if (role === "button" || role === "menuitem" || role === "menu" || role === "menubar" || role === "option") {
+      return true;
+    }
+    if (target.closest('[role="menu"]') !== null || target.closest('[role="menubar"]') !== null || target.closest("#play-area-menu-bar") !== null || target.closest("#collapsed-menu-trigger") !== null || target.closest("#cozy-floating-menu-wrapper") !== null || target.closest("#comfortable-top-hud-bar") !== null) {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Schedules a DOM read task in the RAF pipeline to avoid forced sync reflow.
+   */
+  static scheduleRead(fn) {
+    this.readQueue.push(fn);
+    this.requestFrameFlush();
+  }
+  /**
+   * Schedules a DOM write task in the RAF pipeline to batch style/layout changes.
+   */
+  static scheduleWrite(fn) {
+    this.writeQueue.push(fn);
+    this.requestFrameFlush();
+  }
+  static requestFrameFlush() {
+    if (this.isRafScheduled) return;
+    this.isRafScheduled = true;
+    requestAnimationFrame(() => this.flushQueues());
+  }
+  static flushQueues() {
+    this.isRafScheduled = false;
+    const reads = this.readQueue;
+    this.readQueue = [];
+    for (let i = 0; i < reads.length; i++) {
+      try {
+        reads[i]();
+      } catch (err) {
+        console.error("DOMEngine read task error:", err);
+      }
+    }
+    const writes = this.writeQueue;
+    this.writeQueue = [];
+    for (let i = 0; i < writes.length; i++) {
+      try {
+        writes[i]();
+      } catch (err) {
+        console.error("DOMEngine write task error:", err);
+      }
+    }
+  }
+  /**
+   * Ensures aria-label is set on canvas element for accessibility without redundant DOM mutations.
+   */
+  static ensureCanvasAccessibility(canvasId = "game-canvas", label = "Poodle Ride Adventure Play Area") {
+    const canvas = this.getElementFast(canvasId);
+    if (!canvas) return;
+    if (canvas.getAttribute("aria-label") !== label) {
+      canvas.setAttribute("aria-label", label);
+    }
+    if (canvas.getAttribute("role") !== "application") {
+      canvas.setAttribute("role", "application");
+    }
+    if (canvas.tabIndex < 0) {
+      canvas.tabIndex = 0;
+    }
+  }
+};
+_DOMEngineGeneral.elementCache = /* @__PURE__ */ new Map();
+_DOMEngineGeneral.interactiveTargetCache = /* @__PURE__ */ new WeakMap();
+_DOMEngineGeneral.maxCacheSize = 256;
+_DOMEngineGeneral.readQueue = [];
+_DOMEngineGeneral.writeQueue = [];
+_DOMEngineGeneral.isRafScheduled = false;
+let DOMEngineGeneral = _DOMEngineGeneral;
+class GeneralDOM {
+  static getElement(id2) {
+    return DOMEngineGeneral.getElementFast(id2);
+  }
+  static addClass(id2, className) {
+    const el = this.getElement(id2);
+    if (el && !el.classList.contains(className)) {
+      el.classList.add(className);
+    }
+  }
+  static removeClass(id2, className) {
+    const el = this.getElement(id2);
+    if (el && el.classList.contains(className)) {
+      el.classList.remove(className);
+    }
+  }
+  /**
+   * Focuses an element by ID.
+   */
+  static focusElement(id2) {
+    const el = this.getElement(id2);
+    if (el && typeof el.focus === "function") {
+      el.focus();
+    }
+  }
+  /**
+   * Triggers focus mode for screen readers by focusing a container with role="application".
+   * [SCIENTIFIC FOCUS MANAGEMENT: ENSURES ACCESSIBILITY WITHOUT ARBITRARY ANNOUNCEMENTS]
+   */
+  static triggerFocusMode(id2) {
+    const el = this.getElement(id2);
+    if (el) {
+      if (el.getAttribute("role") !== "application") {
+        el.setAttribute("role", "application");
+      }
+      if (el.tabIndex < 0 && el.tabIndex !== -1) {
+        el.tabIndex = 0;
+      }
+      if (document.activeElement !== el) {
+        el.blur();
+        setTimeout(() => {
+          el.focus({ preventScroll: true });
+          if (document.activeElement !== el) {
+            el.focus({ preventScroll: true });
+          }
+        }, 10);
+      }
+    }
+  }
+}
 const MultipleChoiceOverlay = ({ choices, onSelect }) => {
   if (!choices) return null;
   const shouldShow = typeof window !== "undefined" && (window.matchMedia("(pointer: fine)").matches || window.matchMedia("(orientation: portrait)").matches);
@@ -69944,6 +68914,33 @@ const MultipleChoiceOverlay = ({ choices, onSelect }) => {
       index2
     )) })
   ] });
+};
+const handleMovementInput = (ctx, lastReactUpdateTime) => {
+  const { gameState, time: time2, keysPressed, moveForward, rotate: rotate2, announceToScreenReader } = ctx;
+  let finalResults = {};
+  if (gameState.keyboardLayout === "Cedella" && !gameState.isAutomated) {
+    const joystickResults = handleCedellaJoystick(ctx, lastReactUpdateTime);
+    finalResults = { ...finalResults, ...joystickResults };
+  }
+  let cooldown = MOVE_COOLDOWN;
+  if (gameState.targetSpeed > 0) {
+    cooldown = Math.max(50, MOVE_COOLDOWN - gameState.targetSpeed / 300 * 200);
+  } else if (gameState.targetSpeed < 0) {
+    cooldown = Math.min(500, MOVE_COOLDOWN + Math.abs(gameState.targetSpeed) / 150 * 250);
+  }
+  const canMove = !ctx.lastMoveTime || time2 - ctx.lastMoveTime > cooldown;
+  if (canMove && !gameState.isAutomated) {
+    let movementResults = {};
+    if (gameState.keyboardLayout === "Cedella") {
+      movementResults = handleCedellaMovement(ctx);
+    } else if (gameState.keyboardLayout === "Arden Denis") {
+      movementResults = handleArdenDenisMovement(ctx);
+    } else {
+      movementResults = handleStandardMovement(ctx);
+    }
+    finalResults = { ...finalResults, ...movementResults };
+  }
+  return finalResults;
 };
 const ScreenReader = ({ message }) => {
   const messageRef = reactExports.useRef(null);
@@ -70976,10 +69973,58 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
     });
   };
   const handleToyRideChoice = (ride) => {
-    executeToyRideChoice(ride, gameState, setGameState, audio, { speak: speak2 });
+    if (ride) {
+      if (gameState.statistics.obstaclesCleared < 7) {
+        speak2("You haven't completed enough courses yet. You need at least 7 to ride the interactive poodle rocker.", "EN_US");
+        setGameState((prev) => ({ ...prev, isToyReady: false, choices: null }));
+        return;
+      }
+      setGameState((prev) => ({
+        ...prev,
+        isRidingToy: true,
+        toyCurrentPage: 0,
+        isToyReady: false,
+        choices: null
+      }));
+      speak2("You hop onto the pink poodle rocker! You are now interacting with the Story Book! Press Arrow Right to start reading. Use up or down to rock.", "EN_US");
+      audio.playSqueak();
+    } else {
+      setGameState((prev) => ({ ...prev, isToyReady: false, choices: null }));
+      speak2("You decide not to interact for now.", "EN_US");
+    }
   };
-  reactExports.useCallback((key) => {
-    executeToyInput(key, gameStateRef.current, setGameState, audio, { speak: speak2 });
+  const handleToyInput = reactExports.useCallback((key) => {
+    if (!gameStateRef.current.isRidingToy) return;
+    if (key === "ArrowRight" || key === "d") {
+      const nextPage = gameStateRef.current.toyCurrentPage + 1;
+      if (nextPage < STORY_BOOK_PAGES.length) {
+        setGameState((prev) => ({ ...prev, toyCurrentPage: nextPage, isToyRocking: false }));
+        speak2(STORY_BOOK_PAGES[nextPage].text, "EN_US");
+        audio.playPageTurn();
+      } else {
+        setGameState((prev) => ({ ...prev, isRidingToy: false, isToyRocking: false }));
+        speak2("You've reached the end of the book. You hop off the rocker and return to your poodle.", "EN_US");
+        audio.playPointEarned();
+      }
+    } else if (key === "ArrowLeft" || key === "a") {
+      if (gameStateRef.current.toyCurrentPage > 0) {
+        const prevPage = gameStateRef.current.toyCurrentPage - 1;
+        setGameState((prev) => ({ ...prev, toyCurrentPage: prevPage, isToyRocking: false }));
+        speak2(STORY_BOOK_PAGES[prevPage].text, "EN_US");
+        audio.playPageTurn();
+      }
+    } else if (key === "ArrowUp" || key === "ArrowDown" || key === "w" || key === "s") {
+      setGameState((prev) => ({ ...prev, isToyRocking: true }));
+      speak2("Squeak! The toy rocks back and forth. This is fun!", "EN_US");
+      audio.playSqueak();
+      setTimeout(() => {
+        setGameState((prev) => ({ ...prev, isToyRocking: false }));
+      }, 500);
+    } else if (key === "x" || key === "f" || key === "Escape") {
+      setGameState((prev) => ({ ...prev, isRidingToy: false, isToyRocking: false }));
+      speak2("You stop the interaction and return to your poodle.", "EN_US");
+      audio.playPassSound();
+    }
   }, [speak2]);
   const handleSetSynth = (synth) => {
     setSelectedSynth(synth);
@@ -71173,29 +70218,136 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
     }));
   }, [announceToScreenReader, bark$1]);
   const jump = reactExports.useCallback(() => {
-    executePoodleJump({
-      gameStateRef,
-      keysPressed,
-      setGameState,
-      audio,
-      speak: speak2,
-      announceToScreenReader,
-      checkCollision,
-      bark: bark$1,
-      mt
-    });
-  }, [speak2, announceToScreenReader, checkCollision, bark$1, mt]);
+    if (gameStateRef.current.showDiagnostics) DiagnosticManager.logInteraction("Jump");
+    const state = gameStateRef.current;
+    if (!state.isJumping) {
+      const isRunning = keysPressed.current.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyW") || state.targetSpeed > 0;
+      const { area, level, direction, gridX, gridY, rotation } = state;
+      const isInsideElevator = (area === "LobbyStairwayAndRamps" || area === "SouthwestMezzanineStairwayAndRamps" || area === "RastaManor2ndFloor" || area === "Cellar") && gridX >= 980 && gridX <= 1e3 && gridY >= 980 && gridY <= 1e3;
+      if (isInsideElevator) {
+        audio.playElevatorButtonIntersection(gridX, gridY);
+        speak2("Elevator button clicked.", "EN_US");
+        setGameState((prev) => ({ ...prev, isJumping: true }));
+        setTimeout(() => {
+          setGameState((prev) => ({ ...prev, isJumping: false }));
+        }, 500);
+        return;
+      }
+      if (state.ridingAnimal === "Olga-Olivia" || state.ridingAnimal === "Chloe Joseph Gray-Michaels" || state.ridingAnimal === "Priscilla") {
+        speak2("Babylonian characters cannot use elegant jump maneuvers.", "EN_US");
+        audio.playNoInteractionSound();
+        return;
+      }
+      const jumpingStateProps = { isJumping: true, isRunningJump: isRunning };
+      if (isRunning) {
+        audio.playRunningJumpSound(area, 0, 0, 0, state.ridingAnimal);
+        const jumpDistance = 35;
+        let nextX = gridX;
+        let nextY = gridY;
+        const is3D = state.visualPrefs === "3D" || state.visualPrefs === "3DPlus" || state.visualPrefs === "Super3D";
+        if (is3D || state.keyboardLayout === "Arden Denis" || state.keyboardLayout === "Cedella") {
+          const moveAngle = rotation * Math.PI / 180;
+          nextX += jumpDistance * Math.sin(moveAngle);
+          nextY += jumpDistance * Math.cos(moveAngle);
+        } else {
+          switch (direction) {
+            case "North":
+              nextY += jumpDistance;
+              break;
+            case "South":
+              nextY -= jumpDistance;
+              break;
+            case "East":
+              nextX += jumpDistance;
+              break;
+            case "West":
+              nextX -= jumpDistance;
+              break;
+          }
+        }
+        const collision = checkCollision(gridX, gridY, nextX, nextY, level, area, direction, state.doorwayStep, state);
+        const jumpObstacleResult = checkObstacleCollision({ ...state, gridX: collision.nextX, gridY: collision.nextY, isJumping: true }, state.obstacles);
+        if (collision.shouldBark) {
+          bark$1(collision.barkMsg, true, collision.barkCount);
+        }
+        setGameState((prev) => {
+          let nextObstacles = prev.obstacles;
+          if (jumpObstacleResult.obstacle) {
+            audio.playPointEarned();
+            nextObstacles = prev.obstacles.map((o) => o.id === jumpObstacleResult.obstacle.id ? { ...o, isJumped: true } : o);
+            speak2(`You jumped over a ${jumpObstacleResult.obstacle.type}! +10 points.`, "EN_US");
+          }
+          return {
+            ...prev,
+            ...jumpingStateProps,
+            gridX: collision.nextX,
+            gridY: collision.nextY,
+            area: collision.nextArea,
+            level: collision.nextLevel,
+            doorwayStep: collision.nextDoorwayStep,
+            isLevelComplete: collision.isLevelComplete || false,
+            score: jumpObstacleResult.obstacle ? prev.score + 10 : prev.score,
+            obstaclesJumped: jumpObstacleResult.obstacle ? prev.obstaclesJumped + 1 : prev.obstaclesJumped,
+            obstacles: nextObstacles
+          };
+        });
+        if (collision.isBlocked && collision.wallDesc) {
+          speak2(mt(collision.wallDesc), "EN_US");
+          announceToScreenReader(mt(collision.wallDesc));
+          audio.playWallHit(area);
+        }
+      } else {
+        setGameState((prev) => ({ ...prev, ...jumpingStateProps }));
+        audio.playJumpSound(area, 0, 0, 0, state.ridingAnimal);
+        if (state.notifications.jump) {
+          announceToScreenReader("Jump Notification");
+        }
+      }
+      if (area === "Foyer") {
+        const ceilingMsg = level === "Sky" ? mt("You jump high into the 20-foot space above the walkway.") : mt("You jump high towards the 45-foot vaulted ceiling.");
+        announceToScreenReader(ceilingMsg);
+      }
+      const jumpDuration = isRunning ? 800 : 500;
+      setTimeout(() => {
+        audio.playPoodleThump(area);
+        setGameState((prev) => ({ ...prev, isJumping: false, isRunningJump: false }));
+      }, jumpDuration);
+    }
+  }, [speak2, announceToScreenReader, checkCollision, bark$1]);
   reactExports.useEffect(() => {
-    return attachGameKeyboardListeners({
-      gameStateRef,
-      setGameState,
-      keysPressed,
-      lastKeyTime,
-      barkIntervalRef,
-      audio,
-      speak: speak2,
-      announceToScreenReader,
-      actions: {
+    const handleKeyDown = (e) => {
+      const target = e.target;
+      if (DOMEngineGeneral.isMenuOrUIInteractive(target)) return;
+      const state = gameStateRef.current;
+      if (!state.isPlaying) return;
+      const now2 = Date.now();
+      const isShift = e.shiftKey;
+      keysPressed.current.add(e.code);
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
+        e.preventDefault();
+      }
+      const isOneShotKey = ["KeyH", "KeyA", "KeyD", "Digit0", "KeyE", "KeyZ", "KeyL", "KeyC", "KeyP", "KeyG", "KeyI", "KeyQ", "Digit3", "Digit4", "Digit5", "Digit6"].includes(e.code);
+      if (e.repeat && isOneShotKey) return;
+      if (!e.repeat) {
+        lastKeyTime.current[e.code] = now2;
+      }
+      if (state.isRidingToy) {
+        handleToyInput(e.code);
+        e.preventDefault();
+        return;
+      }
+      if (state.isToyReady && !state.isRidingToy) {
+        if (e.code === "KeyY" || e.code === "Enter") {
+          handleToyRideChoice(true);
+          e.preventDefault();
+          return;
+        } else if (e.code === "KeyN" || e.code === "Escape") {
+          handleToyRideChoice(false);
+          e.preventDefault();
+          return;
+        }
+      }
+      if (routeKeyboardEvent(e, state, setGameState, audio, speak2, announceToScreenReader, gameStateRef, {
         bark: bark$1,
         pet: pet$1,
         lean: lean$1,
@@ -71203,15 +70355,41 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
         jump,
         readHUD,
         setShowGrid,
-        handleSetSynth
-      },
-      aTapCount,
-      aTapTimeout,
-      aShiftTapCount,
-      aShiftTapTimeout,
-      isNearToy
-    });
-  }, [speak2, announceToScreenReader, jump, bark$1, pet$1, lean$1, collar$1, readHUD, handleSetSynth, isNearToy]);
+        setSynth: handleSetSynth
+      }, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, lastKeyTime)) {
+        e.preventDefault();
+        return;
+      }
+      const isBarkKey = e.code === "KeyS" && !isShift && state.keyboardLayout !== "Arden Denis" || e.code === "KeyO" && state.keyboardLayout === "Arden Denis" && !isNearToy;
+      if (isBarkKey) {
+        if (!barkIntervalRef.current) {
+          bark$1("The poodle barks elegantly.", true);
+          barkIntervalRef.current = setInterval(() => {
+            bark$1("The poodle barks elegantly.", true);
+          }, MOVE_COOLDOWN);
+        }
+      }
+    };
+    const handleKeyUp = (e) => {
+      const state = gameStateRef.current;
+      const now2 = Date.now();
+      now2 - (lastKeyTime.current[e.code] || 0);
+      const isBarkKeyRelease = e.code === "KeyS" && state.keyboardLayout !== "Arden Denis" || e.code === "KeyO" && state.keyboardLayout === "Arden Denis";
+      if (isBarkKeyRelease) {
+        if (barkIntervalRef.current) {
+          clearInterval(barkIntervalRef.current);
+          barkIntervalRef.current = null;
+        }
+      }
+      keysPressed.current.delete(e.code);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [speak2, announceToScreenReader, jump]);
   reactExports.useEffect(() => {
     const area = gameState.area;
     const areaMetrics = formulateAreaMetrics(area);
@@ -71228,13 +70406,73 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
     }
   }, [gameState.area]);
   reactExports.useEffect(() => {
-    evaluateOrientationAndStrafing({
-      gameState,
-      prevAreaRef,
-      setGameState,
-      speak: speak2,
-      announceToScreenReader
-    });
+    if (!gameState.isPlaying || !gameState.area) return;
+    const currentArea = gameState.area;
+    const prevArea = prevAreaRef.current;
+    const CONTINUOUS_TRACKS = [
+      "PoodleRideStoryBookInitialPath",
+      "PoodleRideStoryBookCourse1_Seg1",
+      "PoodleRideStoryBookCourse1_Seg2",
+      "PoodleRideStoryBookCourse1_Seg3",
+      "PoodleRideStoryBookCourse1_Seg4"
+    ];
+    const WIDE_AREAS = [
+      "PinkHouseFoyer",
+      "PoodleRideStoryBookCourse1_Break1",
+      "PoodleRideStoryBookCourse1_Break2",
+      "PoodleRideStoryBookCourse1_Break3",
+      "PoodleRideStoryBookGoalZone",
+      "PoodleRideStoryBookDecisionZone"
+    ];
+    const isTrack = CONTINUOUS_TRACKS.includes(currentArea);
+    const isWide = WIDE_AREAS.includes(currentArea);
+    let targetMode = gameState.arrowKeyTurningMode || "FourDirection";
+    if (currentArea === "WandasWarpHouse" || currentArea === "WandaPlatform") {
+      targetMode = "EightDirection";
+    } else if (currentArea.includes("StoryBookCourse") || currentArea.includes("StoryBookDecision") || currentArea.includes("StoryBookInitialPath") || currentArea === "TheGrandPlayground" || currentArea === "SimulatedGardenArea") {
+      if (!isTrack) {
+        targetMode = "Full360";
+      }
+    } else {
+      targetMode = "FourDirection";
+    }
+    let stateUpdates = {};
+    if (gameState.arrowKeyTurningMode !== targetMode) {
+      stateUpdates.arrowKeyTurningMode = targetMode;
+    }
+    if (isTrack && !gameState.isStrafingEnabled) {
+      stateUpdates.isStrafingEnabled = true;
+      const msg = "Continuous course track detected. Automated steering is active. Manual lane strafing is enabled. Use left and right arrow keys to glide between lanes.";
+      speak2(msg, "EN_US");
+      announceToScreenReader(msg);
+    } else if (isWide && gameState.isStrafingEnabled) {
+      stateUpdates.isStrafingEnabled = false;
+      const msg = "Wide zone reached. Auto-switching strafing off. Left and right arrow keys are restored for manual turning.";
+      speak2(msg, "EN_US");
+      announceToScreenReader(msg);
+    }
+    if (prevArea && prevArea !== currentArea) {
+      let autoHeading = null;
+      if (prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "WandasWarpHouse") {
+        autoHeading = { rotation: 180, direction: "South", msg: "Facing South entering Wandas Warp House." };
+      } else if (prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "PoodleRideStoryBookCourse1_Seg4") {
+        autoHeading = { rotation: 0, direction: "North", msg: "Facing North returning to course segment 4." };
+      } else if (prevArea === "PoodleRideStoryBookCourse1_Seg1" && currentArea === "PoodleRideStoryBookCourse1_Break1" || prevArea === "PoodleRideStoryBookCourse1_Seg2" && currentArea === "PoodleRideStoryBookCourse1_Break2" || prevArea === "PoodleRideStoryBookCourse1_Seg3" && currentArea === "PoodleRideStoryBookCourse1_Break3" || prevArea === "PoodleRideStoryBookCourse1_Seg4" && currentArea === "PoodleRideStoryBookGoalZone" || prevArea === "PoodleRideStoryBookInitialPath" && currentArea === "PinkHouseFoyer" || prevArea === "PoodleRideStoryBookDecisionZone" && currentArea === "PoodleRideStoryBookInitialPath") {
+        autoHeading = { rotation: 90, direction: "East", msg: "Automatically oriented East along the course path." };
+      } else if (prevArea === "PoodleRideStoryBookCourse1_Seg1" && currentArea === "PinkHouseFoyer" || prevArea === "PoodleRideStoryBookCourse1_Break1" && currentArea === "PoodleRideStoryBookCourse1_Seg1" || prevArea === "PoodleRideStoryBookCourse1_Seg2" && currentArea === "PoodleRideStoryBookCourse1_Break1" || prevArea === "PoodleRideStoryBookCourse1_Break2" && currentArea === "PoodleRideStoryBookCourse1_Seg2" || prevArea === "PoodleRideStoryBookCourse1_Seg3" && currentArea === "PoodleRideStoryBookCourse1_Break2" || prevArea === "PoodleRideStoryBookCourse1_Break3" && currentArea === "PoodleRideStoryBookCourse1_Seg3" || prevArea === "PoodleRideStoryBookCourse1_Seg4" && currentArea === "PoodleRideStoryBookCourse1_Break3" || prevArea === "PoodleRideStoryBookGoalZone" && currentArea === "PoodleRideStoryBookCourse1_Seg4" || prevArea === "PoodleRideStoryBookInitialPath" && currentArea === "PoodleRideStoryBookDecisionZone") {
+        autoHeading = { rotation: 270, direction: "West", msg: "Automatically oriented West along the course path." };
+      }
+      if (autoHeading) {
+        stateUpdates.rotation = autoHeading.rotation;
+        stateUpdates.direction = autoHeading.direction;
+        speak2(autoHeading.msg, "EN_US");
+        announceToScreenReader(autoHeading.msg);
+      }
+    }
+    if (Object.keys(stateUpdates).length > 0) {
+      setGameState((prev) => ({ ...prev, ...stateUpdates }));
+    }
+    prevAreaRef.current = currentArea;
   }, [gameState.area, gameState.isPlaying, speak2, announceToScreenReader]);
   reactExports.useEffect(() => {
     let interval;
@@ -71278,7 +70516,7 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
       if (state.isPositioningEnabled) {
         handlePreciseMovement(time2);
       } else {
-        handleStandardMovement2(time2);
+        handleStandardMovement2();
       }
       const finalState = gameStateRef.current;
       if (finalState.coins && finalState.coins.length > 0) {
@@ -71295,38 +70533,237 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
       }
       movementRequestRef.current = requestAnimationFrame(loop);
     };
-    const movementCtx2 = {
-      gameStateRef,
-      setGameState,
-      keysPressed,
-      lastFrameTime,
-      lastMoveTime,
-      lastRotateTime,
-      lastJoystickRotationTime,
-      lastAnnouncedJoystickAngle,
-      lastReactUpdateTime,
-      audio,
-      systems: {
-        screenReader: ScreenReader,
-        audio: AudioManager,
-        state: ActionDispatcher,
-        ai: GeminiService,
-        automation: AutomationManager,
-        diagnostics: DiagnosticManager
-      },
-      speak: speak2,
-      announceToScreenReader,
-      bark: bark$1,
-      moveForward,
-      moveReverse,
-      rotate: rotate2,
-      mt
-    };
     const handleStandardMovement2 = (time2) => {
-      handleStandardKinematics(time2, movementCtx2);
+      const state = gameStateRef.current;
+      const inputCtx = {
+        gameState: state,
+        keysPressed: keysPressed.current,
+        time: Date.now(),
+        lastMoveTime: lastMoveTime.current,
+        lastRotateTime: lastRotateTime.current,
+        lastJoystickRotationTime: lastJoystickRotationTime.current,
+        lastAnnouncedJoystickAngle: lastAnnouncedJoystickAngle.current || 0,
+        audio,
+        systems: {
+          screenReader: ScreenReader,
+          audio: AudioManager,
+          state: ActionDispatcher,
+          ai: GeminiService,
+          automation: AutomationManager,
+          diagnostics: DiagnosticManager
+        },
+        speak: speak2,
+        announceToScreenReader,
+        moveForward,
+        moveReverse,
+        rotate: rotate2,
+        setGameState
+      };
+      const results = handleMovementInput(inputCtx, lastReactUpdateTime.current);
+      const now2 = Date.now();
+      if (results.lastMoveTime === void 0 && state.speed !== 0 && now2 - lastMoveTime.current > MOVE_COOLDOWN + 50) {
+        setGameState((prev) => ({ ...prev, speed: 0 }));
+      }
+      if (results.lastMoveTime !== void 0) lastMoveTime.current = results.lastMoveTime;
+      if (results.lastRotateTime !== void 0) lastRotateTime.current = results.lastRotateTime;
+      if (results.lastJoystickRotationTime !== void 0) lastJoystickRotationTime.current = results.lastJoystickRotationTime;
+      if (results.lastAnnouncedJoystickAngle !== void 0) lastAnnouncedJoystickAngle.current = results.lastAnnouncedJoystickAngle;
+      if (results.lastReactUpdateTime !== void 0) lastReactUpdateTime.current = results.lastReactUpdateTime;
     };
     const handlePreciseMovement = (time2) => {
-      handlePreciseKinematics(time2, movementCtx2);
+      const state = gameStateRef.current;
+      const now2 = Date.now();
+      if (state.isAutomated) return;
+      if (!lastFrameTime.current) {
+        lastFrameTime.current = time2;
+        return;
+      }
+      let dt = (time2 - lastFrameTime.current) / 1e3;
+      if (dt > 0.1) dt = 0.1;
+      lastFrameTime.current = time2;
+      const update = calculateMovement(
+        state,
+        keysPressed.current,
+        dt,
+        now2,
+        lastRotateTime.current
+      );
+      const { gridX: nextX, gridY: nextY, speed: newSpeed, rotation: newRotation, direction: currentDir, announcement } = update;
+      if (announcement) {
+        speak2(announcement, "EN_US");
+        announceToScreenReader(announcement);
+        lastRotateTime.current = now2;
+      }
+      const isUp = keysPressed.current.has("ArrowUp") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyW");
+      const isDown = keysPressed.current.has("ArrowDown") || state.keyboardLayout === "Arden Denis" && keysPressed.current.has("KeyS");
+      if (isUp || isDown) {
+        if (now2 - lastMoveTime.current > 1e3) {
+          if (state.notifications.announceDirection) {
+            const msg = isUp ? "Moving forward." : "Backing up.";
+            announceToScreenReader(msg);
+          }
+          lastMoveTime.current = now2;
+        }
+      }
+      const collision = checkCollision(
+        state.gridX,
+        state.gridY,
+        nextX,
+        nextY,
+        state.level,
+        state.area,
+        currentDir,
+        state.doorwayStep,
+        state
+      );
+      let announcementUpdates = checkAnnouncementFlags(state, collision.nextArea, collision.nextX, collision.nextY);
+      let newState = { ...state, ...announcementUpdates };
+      if (collision.isBlocked) {
+        DiagnosticManager.logCollision(collision.nextX, collision.nextY, state.area, collision.wallDesc);
+        newState = {
+          ...newState,
+          gridX: collision.nextX,
+          gridY: collision.nextY,
+          speed: 0,
+          rotation: newRotation,
+          direction: currentDir,
+          doorwayStep: collision.nextDoorwayStep,
+          isRampStep: collision.isRampStep || false,
+          isDescending: collision.isDescending || false,
+          area: collision.nextArea,
+          level: collision.nextLevel,
+          isLevelComplete: collision.isLevelComplete || false
+        };
+        if (collision.wallDesc) {
+          const desc = mt(collision.wallDesc);
+          speak2(desc, "EN_US");
+          announceToScreenReader(desc);
+          audio.playWallHit(state.area);
+          setGameState((prev) => ({ ...prev, speed: 0 }));
+        }
+      } else {
+        if (Math.abs(newSpeed) > 1) {
+          DiagnosticManager.logMovement(collision.nextX, collision.nextY, state.area, newSpeed);
+        }
+        newState = {
+          ...newState,
+          gridX: collision.nextX,
+          gridY: collision.nextY,
+          speed: newSpeed,
+          rotation: newRotation,
+          direction: currentDir,
+          doorwayStep: collision.nextDoorwayStep,
+          isRampStep: collision.isRampStep || false,
+          isDescending: collision.isDescending || false,
+          area: collision.nextArea,
+          level: collision.nextLevel,
+          isLevelComplete: collision.isLevelComplete || false
+        };
+        if (collision.msg) {
+          speak2(mt(collision.msg), "EN_US");
+          announceToScreenReader(mt(collision.msg));
+        }
+      }
+      if (announcementUpdates.hasAnnouncedSouthwestRectangle) {
+        speak2(FOYER_DESCRIPTIONS.SOUTHWEST_RECTANGLE, "EN_US");
+      }
+      if (announcementUpdates.hasAnnouncedSkyRampAscent) {
+        speak2("You are starting your ascent up the Sky Ramp towards the Mezzanine.", "EN_US");
+      }
+      if (announcementUpdates.hasAnnouncedSkyRampDescent) {
+        speak2("You are starting your descent down the Sky Ramp towards the floor foyer.", "EN_US");
+      }
+      const isShift = keysPressed.current.has("ShiftLeft") || keysPressed.current.has("ShiftRight");
+      const getStepSize = (mode, shift) => {
+        let base = 4;
+        switch (mode) {
+          case "Very Slow Walk":
+            base = 1;
+            break;
+          case "Slow Walk":
+            base = 2;
+            break;
+          case "Walk":
+            base = 4;
+            break;
+          case "Trot":
+            base = 8;
+            break;
+          case "Canter":
+            base = 12;
+            break;
+          case "Gallop":
+            base = 16;
+            break;
+        }
+        return shift ? base * 1.5 : base;
+      };
+      const stepDist = getStepSize(state.movementMode, isShift);
+      const moveDist = Math.sqrt(Math.pow(collision.nextX - state.gridX, 2) + Math.pow(collision.nextY - state.gridY, 2));
+      let nextAccumulated = state.accumulatedDistance + moveDist;
+      let nextRampStepCount = state.rampStepCount;
+      if (nextAccumulated >= stepDist && !collision.isBlocked) {
+        const stepsToProcess = Math.floor(nextAccumulated / stepDist);
+        nextAccumulated %= stepDist;
+        for (let i = 0; i < stepsToProcess; i++) {
+          if (state.movementMode === "Walk") audio.playPoodleWalk(state.area, 0, 0, 0, state.ridingAnimal);
+          else if (state.movementMode === "Slow Walk") audio.playPoodleSlowWalk(state.area, 0, 0, 0, state.ridingAnimal);
+          else if (state.movementMode === "Very Slow Walk") audio.playPoodleVerySlowWalk(state.area, 0, 0, 0, state.ridingAnimal);
+          else audio.playPoodleGallop(state.area, 0, 0, 0, state.ridingAnimal);
+          if (collision.isRampStep) {
+            nextRampStepCount++;
+            const beepStep = nextRampStepCount % 5 || 5;
+            audio.playRampBeep(beepStep, collision.isDescending);
+            if (nextRampStepCount % 5 === 0) {
+              bark$1("The Poodle Barks Elegantly (5-beep indicator)");
+            }
+          }
+        }
+      }
+      if (collision.nextLevel !== state.level) {
+        nextRampStepCount = 0;
+      }
+      newState = {
+        ...newState,
+        accumulatedDistance: nextAccumulated,
+        rampStepCount: nextRampStepCount
+      };
+      const nextAreaMetrics = formulateAreaMetrics(collision.nextArea);
+      const nextDims = { width: nextAreaMetrics.width, height: nextAreaMetrics.height };
+      if (collision.nextArea === "Garden") {
+        if (currentDir === "North" && collision.nextY > Math.floor(nextDims.height * 0.8)) {
+          if (announcementUpdates.hasAnnouncedWindChimes) {
+            speak2("The wind chimes from the garden are hanging here, tinkling softly in the breeze.", "EN_US");
+          }
+        }
+      } else if (collision.nextArea === "Foyer") {
+        if (announcementUpdates.hasAnnouncedStreetSounds && currentDir === "North") speak2("The street sounds grow louder to the North.", "EN_US");
+      } else if (collision.nextArea === "MeditationHall") {
+        if (collision.nextY === Math.floor(nextDims.height * 0.2) && currentDir === "South") {
+          if (announcementUpdates.hasAnnouncedWindChimes) {
+            speak2("The wind chimes from the garden are clearer now.", "EN_US");
+          }
+        }
+      }
+      if (collision.nextArea === "ElevatedPath") {
+        const elevatedPathMetrics = formulateAreaMetrics("ElevatedPath");
+        const pathLength = elevatedPathMetrics.height;
+        const progress2 = collision.nextY / pathLength;
+        if (announcementUpdates.hasAnnouncedElevatedPathEntry) {
+          bark$1("The Poodle Barks Elegantly (Entry)", true, 3);
+        } else if (progress2 > 0.4 && progress2 < 0.5 && announcementUpdates.hasAnnouncedElevatedPathHalf1) {
+          bark$1("The Poodle Barks Elegantly (Halfway Approach)", true, 4);
+        } else if (progress2 > 0.5 && progress2 < 0.6 && announcementUpdates.hasAnnouncedElevatedPathHalf2) {
+          bark$1("The Poodle Barks Elegantly (Halfway Passed)", true, 4);
+        }
+      }
+      gameStateRef.current = newState;
+      if (time2 - lastReactUpdateTime.current > 33) {
+        if (newState.gridX !== state.gridX || newState.gridY !== state.gridY || newState.rotation !== state.rotation || newState.speed !== state.speed || newState.direction !== state.direction) {
+          setGameState(newState);
+        }
+        lastReactUpdateTime.current = time2;
+      }
     };
     movementRequestRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(movementRequestRef.current);
@@ -71389,19 +70826,179 @@ function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const render = (time2) => {
-      renderCanvasFrame(
-        {
-          canvas,
-          ctx,
-          time: time2,
-          hardwareProfile,
-          gameStateRef,
-          lastRenderTime
-        },
-        (nextTime) => {
-          renderRequestRef.current = requestAnimationFrame(render);
+      const hw = hardwareProfile.current;
+      const state = gameStateRef.current;
+      const fpsLimit = hw.targetFPS;
+      const interval = 1e3 / fpsLimit;
+      if (time2 - lastRenderTime.current < interval) {
+        renderRequestRef.current = requestAnimationFrame(render);
+        return;
+      }
+      lastRenderTime.current = time2;
+      const cstDate = getCSTTime();
+      const currentHour = cstDate.getHours();
+      const lighting = getLightingMode(currentHour);
+      const isNight = lighting === "Night";
+      applyLegacyConstraints(ctx);
+      const nowSeconds = Date.now() / 1e3;
+      const dpr = Math.min(hw.maxDPR, window.devicePixelRatio || 1);
+      if (state.visualPrefs === "2D") {
+        const physicalWidth2 = Math.round(GAME_WIDTH * dpr);
+        const physicalHeight2 = Math.round(GAME_HEIGHT * dpr);
+        if (canvas.width !== physicalWidth2 || canvas.height !== physicalHeight2) {
+          canvas.width = physicalWidth2;
+          canvas.height = physicalHeight2;
         }
-      );
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        draw2DView(ctx, GAME_WIDTH, GAME_HEIGHT, state);
+        ctx.restore();
+        renderRequestRef.current = requestAnimationFrame(render);
+        return;
+      }
+      let pixelRatio = state.visualPrefs === "Auto" ? state.pixelRatio : state.visualPrefs === "Simulated3D" ? 0.5 : state.visualPrefs === "Super3D" ? 1.5 : state.visualPrefs === "3DPlus" ? 1.2 : 1;
+      if (state.visualPrefs === "Auto" && hw.isLegacy) {
+        pixelRatio = 0.75;
+      }
+      const physicalScale = dpr * pixelRatio;
+      const physicalWidth = Math.round(GAME_WIDTH * physicalScale);
+      const physicalHeight = Math.round(GAME_HEIGHT * physicalScale);
+      if (canvas.width !== physicalWidth || canvas.height !== physicalHeight) {
+        canvas.width = physicalWidth;
+        canvas.height = physicalHeight;
+      }
+      ctx.save();
+      if (pixelRatio < 1) {
+        const renderScale = dpr * pixelRatio * pixelRatio;
+        ctx.scale(renderScale, renderScale);
+        const sw = GAME_WIDTH / pixelRatio;
+        const sh = GAME_HEIGHT / pixelRatio;
+        ctx.fillStyle = isNight ? "#000000" : "#050505";
+        ctx.fillRect(0, 0, sw, sh);
+        const { area, isLeaning, isGraspingCollar } = state;
+        drawEnvironment(ctx, sw, sh, state, nowSeconds);
+        drawWorldObjects(ctx, sw, sh, state, nowSeconds);
+        drawWindowViews(ctx, sw, sh, state, nowSeconds, cstDate);
+        if (state.viewMode === "Rider") {
+          if (state.visualPrefs === "Active3D") {
+            drawPoodle3D(ctx, sw, sh, nowSeconds, 0);
+          } else {
+            if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
+              drawPriscillaRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
+            } else if (state.ridingAnimal === "Anninne-Amelia Rose Julisus") {
+              drawAnninneAmeliaRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
+            } else if (state.ridingAnimal === "Abigail Marigold Kenyatta") {
+              drawAbigailRiderView(ctx, sw, sh, isLeaning, nowSeconds, state.isPetting, state.lastPetTime);
+            } else if (state.isRidingToy) {
+              drawToyInterface(ctx, sw, sh, state);
+            } else if (state.ridingAnimal === "Dymond Daisy Qin-Reynolds") {
+              drawDymondRiderView(ctx, sw, sh, state, nowSeconds);
+            } else {
+              drawPoodleRiderView(ctx, sw, sh, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
+            }
+          }
+        } else {
+          if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
+            drawPriscillaPOV(ctx, sw, sh, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
+          } else {
+            drawPoodlePOV(ctx, sw, sh, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.ridingAnimal, state.isPetting, state.lastPetTime);
+          }
+        }
+      } else {
+        ctx.scale(physicalScale, physicalScale);
+        ctx.fillStyle = isNight ? "#000000" : "#050505";
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        const { area, isLeaning, isGraspingCollar } = state;
+        drawEnvironment(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
+        drawWorldObjects(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
+        drawWindowViews(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds, cstDate);
+        if (state.viewMode === "Rider") {
+          if (state.visualPrefs === "Active3D") {
+            drawPoodle3D(ctx, GAME_WIDTH, GAME_HEIGHT, nowSeconds, 0);
+          } else {
+            if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
+              drawPriscillaRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
+            } else if (state.ridingAnimal === "Anninne-Amelia Rose Julisus") {
+              drawAnninneAmeliaRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
+            } else if (state.ridingAnimal === "Abigail Marigold Kenyatta") {
+              drawAbigailRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, nowSeconds, state.isPetting, state.lastPetTime);
+            } else if (state.isRidingToy) {
+              drawToyInterface(ctx, GAME_WIDTH, GAME_HEIGHT, state);
+            } else if (state.ridingAnimal === "Dymond Daisy Qin-Reynolds") {
+              drawDymondRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, state, nowSeconds);
+            } else {
+              drawPoodleRiderView(ctx, GAME_WIDTH, GAME_HEIGHT, isLeaning, isGraspingCollar, nowSeconds, state.isUmbrellaEquipped, state.isUmbrellaOpen, state.isPetting, state.lastPetTime);
+            }
+          }
+        } else {
+          if (state.characterName === "Priscilla" || state.ridingAnimal === "Olga-Olivia") {
+            drawPriscillaPOV(ctx, GAME_WIDTH, GAME_HEIGHT, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.isPetting, state.lastPetTime);
+          } else {
+            drawPoodlePOV(ctx, GAME_WIDTH, GAME_HEIGHT, state.isJumping, isLeaning, isGraspingCollar, nowSeconds, state.ridingAnimal, state.isPetting, state.lastPetTime);
+          }
+        }
+        if (state.visualPrefs === "Hybrid") {
+          ctx.save();
+          ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+          for (let i = 0; i < GAME_HEIGHT; i += 4) {
+            ctx.fillRect(0, i, GAME_WIDTH, 2);
+          }
+          ctx.restore();
+        }
+        if (state.visualPrefs === "3DPlus") {
+          ctx.save();
+          const bloomGrad = ctx.createRadialGradient(GAME_WIDTH / 2, GAME_HEIGHT / 2, 50, GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH);
+          bloomGrad.addColorStop(0, "rgba(255, 192, 203, 0.05)");
+          bloomGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = bloomGrad;
+          ctx.globalCompositeOperation = "lighter";
+          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+          ctx.restore();
+        }
+        if (state.visualPrefs === "Super3D") {
+          ctx.save();
+          ctx.globalAlpha = 0.05;
+          ctx.fillStyle = "#ffffff";
+          for (let i = 0; i < 50; i++) {
+            ctx.fillRect(Math.random() * GAME_WIDTH, Math.random() * GAME_HEIGHT, 1, 1);
+          }
+          ctx.restore();
+        }
+      }
+      if (state.isCSTEnabled) {
+        ctx.save();
+        const timeStr = cstDate.toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        ctx.fillStyle = "#00ff00";
+        ctx.font = "bold 14px monospace";
+        ctx.fillText(`CST: ${timeStr} (Chicago)`, 20, 30);
+        ctx.restore();
+      }
+      if (state.isPaused || !state.isStarted || state.isPositioningEnabled) {
+        ctx.save();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.font = "10px monospace";
+        ctx.textAlign = "right";
+        ctx.fillText("BABYLON-FREE CRAFTSMANSHIP", GAME_WIDTH - 10, 20);
+        ctx.restore();
+      }
+      if (state.isPositioningEnabled) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(10, 10, 250, 60);
+        ctx.fillStyle = "#00ff00";
+        ctx.font = "10px monospace";
+        ctx.textAlign = "left";
+        const currentAreaMetrics = formulateAreaMetrics(state.area);
+        const currentDims = { width: currentAreaMetrics.width, height: currentAreaMetrics.height };
+        ctx.fillText(`POSITIONING ACTIVE`, 20, 25);
+        if (state.useCoordinates) {
+          ctx.fillText(`POS: ${getRelativePositionDescription(state.gridX, state.gridY, currentDims.width / 2, currentDims.height)}`, 20, 40);
+        }
+        if (state.showMeasurements) {
+          ctx.fillText(`FEET: ${getFootage(state.gridX)}x${getFootage(state.gridY)}`, 20, 55);
+        }
+      }
+      ctx.restore();
+      renderRequestRef.current = requestAnimationFrame(render);
     };
     renderRequestRef.current = requestAnimationFrame(render);
     return () => cancelAnimationFrame(renderRequestRef.current);
