@@ -27,7 +27,15 @@ export * from './2048K';
 export * from './4096K';
 export * from './8192K';
 
+export * from '../../AI/In-Game/Category/Visuals/Resolution';
+
 export const ResolutionSystem = {
   name: "Resolution",
   description: "Global resolution management and scaling logic.",
+  getProfile: (tierKey: string) => RESOLUTION_MATRIX[tierKey] || RESOLUTION_MATRIX['HD'],
+  matrix: RESOLUTION_MATRIX,
+  calculateBackingStore: calculateBackingStoreDimensions,
+  estimateVRAM: calculateVRAMEstimateMB,
+  solveAspectCorrection: calculateAspectCorrectionMatrix,
+  classifyViewport: classifyViewportResolution
 };
