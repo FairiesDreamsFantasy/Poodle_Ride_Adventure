@@ -12,7 +12,14 @@ import {
   getWallDescription, isOutdoorArea,
   Direction, GAME_WIDTH, GAME_HEIGHT, TRUE_BLACK, SynthMode
 } from '../../AI/In-Game/Logic/GameLogic';
-import { evaluatePlayAreaActivity } from '../../AI/In-Game/Category/UI/Play_Area';
+import {
+  evaluatePlayAreaActivity,
+  executeToyRideChoice,
+  executeToyInput,
+  executePoodleJump,
+  attachGameKeyboardListeners,
+  evaluateOrientationAndStrafing
+} from '../../AI/In-Game/Category/UI/Play_Area';
 import { formulateAreaMetrics as formulateArenaMetrics } from '../../AI/In-Game/Category/Arena';
 import { getRelativePositionDescription, getAreaPerimeterDescription } from '../../Engine/Scientific_Imports/P/Positions';
 import { drawPoodleRiderView, drawPoodle3D } from '../../../Characters/Poodles/Abigay_Rose_Kone';
@@ -265,60 +272,11 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
   };
 
   const handleToyRideChoice = (ride: boolean) => {
-    if (ride) {
-      if (gameState.statistics.obstaclesCleared < 7) {
-        speak("You haven't completed enough courses yet. You need at least 7 to ride the interactive poodle rocker.", 'EN_US');
-        setGameState(prev => ({ ...prev, isToyReady: false, choices: null }));
-        return;
-      }
-      setGameState(prev => ({
-        ...prev,
-        isRidingToy: true,
-        toyCurrentPage: 0,
-        isToyReady: false,
-        choices: null
-      }));
-      speak("You hop onto the pink poodle rocker! You are now interacting with the Story Book! Press Arrow Right to start reading. Use up or down to rock.", 'EN_US');
-      audio.playSqueak();
-    } else {
-      setGameState(prev => ({ ...prev, isToyReady: false, choices: null }));
-      speak("You decide not to interact for now.", 'EN_US');
-    }
+    executeToyRideChoice(ride, gameState, setGameState, audio, { speak });
   };
 
   const handleToyInput = useCallback((key: string) => {
-    if (!gameStateRef.current.isRidingToy) return;
-    
-    if (key === 'ArrowRight' || key === 'd') {
-      const nextPage = gameStateRef.current.toyCurrentPage + 1;
-      if (nextPage < STORY_BOOK_PAGES.length) {
-        setGameState(prev => ({ ...prev, toyCurrentPage: nextPage, isToyRocking: false }));
-        speak(STORY_BOOK_PAGES[nextPage].text, 'EN_US');
-        audio.playPageTurn();
-      } else {
-        setGameState(prev => ({ ...prev, isRidingToy: false, isToyRocking: false }));
-        speak("You've reached the end of the book. You hop off the rocker and return to your poodle.", 'EN_US');
-        audio.playPointEarned();
-      }
-    } else if (key === 'ArrowLeft' || key === 'a') {
-      if (gameStateRef.current.toyCurrentPage > 0) {
-        const prevPage = gameStateRef.current.toyCurrentPage - 1;
-        setGameState(prev => ({ ...prev, toyCurrentPage: prevPage, isToyRocking: false }));
-        speak(STORY_BOOK_PAGES[prevPage].text, 'EN_US');
-        audio.playPageTurn();
-      }
-    } else if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'w' || key === 's') {
-      setGameState(prev => ({ ...prev, isToyRocking: true }));
-      speak("Squeak! The toy rocks back and forth. This is fun!", 'EN_US');
-      audio.playSqueak();
-      setTimeout(() => {
-        setGameState(prev => ({ ...prev, isToyRocking: false }));
-      }, 500);
-    } else if (key === 'x' || key === 'f' || key === 'Escape') {
-      setGameState(prev => ({ ...prev, isRidingToy: false, isToyRocking: false }));
-      speak("You stop the interaction and return to your poodle.", 'EN_US');
-      audio.playPassSound();
-    }
+    executeToyInput(key, gameStateRef.current, setGameState, audio, { speak });
   }, [speak]);
 
 
@@ -540,168 +498,30 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
   }, [announceToScreenReader, bark]);
 
   const jump = useCallback(() => {
-    if (gameStateRef.current.showDiagnostics) DiagnosticManager.logInteraction('Jump');
-    const state = gameStateRef.current;
-    if (!state.isJumping) {
-      const isRunning = keysPressed.current.has('ArrowUp') || 
-                        (state.keyboardLayout === 'Arden Denis' && keysPressed.current.has('KeyW')) ||
-                        state.targetSpeed > 0;
-      const { area, level, direction, gridX, gridY, rotation } = state;
-      
-      // Elevator Logic: Jump to move elevator
-      const isInsideElevator = (area === 'LobbyStairwayAndRamps' || area === 'SouthwestMezzanineStairwayAndRamps' || area === 'RastaManor2ndFloor' || area === 'Cellar') &&
-                               gridX >= 980 && gridX <= 1000 && gridY >= 980 && gridY <= 1000;
-      
-      if (isInsideElevator) {
-        audio.playElevatorButtonIntersection(gridX, gridY);
-        speak("Elevator button clicked.", 'EN_US');
-        setGameState(prev => ({ ...prev, isJumping: true }));
-        setTimeout(() => {
-          setGameState(prev => ({ ...prev, isJumping: false }));
-        }, 500);
-        return;
-      }
-
-      // SCIENTIFIC MANDATE: Olga-Olivia and other Babylonian characters MUST NOT use the crafted jump system.
-      if (state.ridingAnimal === 'Olga-Olivia' || state.ridingAnimal === 'Chloe Joseph Gray-Michaels' || state.ridingAnimal === 'Priscilla') {
-        speak("Babylonian characters cannot use elegant jump maneuvers.", 'EN_US');
-        audio.playNoInteractionSound();
-        return;
-      }
-
-      const jumpingStateProps = { isJumping: true, isRunningJump: isRunning };
-      
-      if (isRunning) {
-        audio.playRunningJumpSound(area, 0, 0, 0, state.ridingAnimal);
-        
-        // Move forward during jump using rotation for non-grid movement
-        const jumpDistance = 35; // Increased to ensure 10ft range obstacles are fully cleared
-        let nextX = gridX;
-        let nextY = gridY;
-        
-        const is3D = state.visualPrefs === '3D' || state.visualPrefs === '3DPlus' || state.visualPrefs === 'Super3D';
-        
-        if (is3D || state.keyboardLayout === 'Arden Denis' || state.keyboardLayout === 'Cedella') {
-          const moveAngle = rotation * Math.PI / 180;
-          nextX += jumpDistance * Math.sin(moveAngle);
-          nextY += jumpDistance * Math.cos(moveAngle);
-        } else {
-          switch(direction) {
-            case 'North': nextY += jumpDistance; break;
-            case 'South': nextY -= jumpDistance; break;
-            case 'East': nextX += jumpDistance; break;
-            case 'West': nextX -= jumpDistance; break;
-          }
-        }
-        
-        const collision = checkCollision(gridX, gridY, nextX, nextY, level, area, direction, state.doorwayStep, state);
-        
-        // Check for obstacle collision during the jump to mark it as jumped
-        const jumpObstacleResult = checkObstacleCollision({ ...state, gridX: collision.nextX, gridY: collision.nextY, isJumping: true }, state.obstacles);
-
-        if (collision.shouldBark) {
-          bark(collision.barkMsg, true, collision.barkCount);
-        }
-
-        setGameState(prev => {
-          let nextObstacles = prev.obstacles;
-          if (jumpObstacleResult.obstacle) {
-            audio.playPointEarned();
-            nextObstacles = prev.obstacles.map(o => o.id === jumpObstacleResult.obstacle!.id ? { ...o, isJumped: true } : o);
-            speak(`You jumped over a ${jumpObstacleResult.obstacle.type}! +10 points.`, 'EN_US');
-          }
-
-          return {
-            ...prev,
-            ...jumpingStateProps,
-            gridX: collision.nextX,
-            gridY: collision.nextY,
-            area: collision.nextArea as any,
-            level: collision.nextLevel as any,
-            doorwayStep: collision.nextDoorwayStep,
-            isLevelComplete: collision.isLevelComplete || false,
-            score: jumpObstacleResult.obstacle ? prev.score + 10 : prev.score,
-            obstaclesJumped: jumpObstacleResult.obstacle ? prev.obstaclesJumped + 1 : prev.obstaclesJumped,
-            obstacles: nextObstacles
-          };
-        });
-        
-        if (collision.isBlocked && collision.wallDesc) {
-          speak(mt(collision.wallDesc), 'EN_US');
-          announceToScreenReader(mt(collision.wallDesc));
-          audio.playWallHit(area);
-        }
-      } else {
-        setGameState(prev => ({ ...prev, ...jumpingStateProps }));
-        audio.playJumpSound(area, 0, 0, 0, state.ridingAnimal);
-        if (state.notifications.jump) {
-          announceToScreenReader("Jump Notification");
-        }
-      }
-
-      if (area === 'Foyer') {
-        const ceilingMsg = level === 'Sky' ? mt("You jump high into the 20-foot space above the walkway.") : mt("You jump high towards the 45-foot vaulted ceiling.");
-        announceToScreenReader(ceilingMsg);
-      }
-
-      const jumpDuration = isRunning ? 800 : 500;
-      
-      setTimeout(() => {
-        audio.playPoodleThump(area); // Land thump
-        setGameState(prev => ({ ...prev, isJumping: false, isRunningJump: false }));
-      }, jumpDuration);
-    }
-  }, [speak, announceToScreenReader, checkCollision, bark]);
+    executePoodleJump({
+      gameStateRef,
+      keysPressed,
+      setGameState,
+      audio,
+      speak,
+      announceToScreenReader,
+      checkCollision,
+      bark,
+      mt
+    });
+  }, [speak, announceToScreenReader, checkCollision, bark, mt]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Input isolation: prevent game actions if focus is on an interactive UI element or navigating menu
-      const target = e.target as HTMLElement;
-      if (DOMEngine.isMenuOrUIInteractive(target)) return;
-
-      const state = gameStateRef.current;
-      if (!state.isPlaying) return;
-      
-      const now = Date.now();
-      const isShift = e.shiftKey;
-
-      // Register key press immediately for the movement loop
-      keysPressed.current.add(e.code);
-      
-      // Prevent scrolling for arrow keys and space
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        e.preventDefault();
-      }
-
-      // Prevent repeat for toggle and one-shot actions
-      const isOneShotKey = ['KeyH', 'KeyA', 'KeyD', 'Digit0', 'KeyE', 'KeyZ', 'KeyL', 'KeyC', 'KeyP', 'KeyG', 'KeyI', 'KeyQ', 'Digit3', 'Digit4', 'Digit5', 'Digit6'].includes(e.code);
-      if (e.repeat && isOneShotKey) return;
-      
-      if (!e.repeat) {
-        lastKeyTime.current[e.code] = now;
-      }
-
-      // STORY BOOK TOY INTERCEPTS
-      if (state.isRidingToy) {
-        handleToyInput(e.code);
-        e.preventDefault();
-        return;
-      }
-
-      if (state.isToyReady && !state.isRidingToy) {
-        if (e.code === 'KeyY' || e.code === 'Enter') {
-          handleToyRideChoice(true);
-          e.preventDefault();
-          return;
-        } else if (e.code === 'KeyN' || e.code === 'Escape') {
-          handleToyRideChoice(false);
-          e.preventDefault();
-          return;
-        }
-      }
-
-      // Delegate to chosen Keyboard Layout via Library
-      if (routeKeyboardEvent(e, state, setGameState, audio, speak, announceToScreenReader, gameStateRef, {
+    return attachGameKeyboardListeners({
+      gameStateRef,
+      setGameState,
+      keysPressed,
+      lastKeyTime,
+      barkIntervalRef,
+      audio,
+      speak,
+      announceToScreenReader,
+      actions: {
         bark,
         pet,
         lean,
@@ -709,51 +529,15 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
         jump,
         readHUD,
         setShowGrid,
-        setSynth: handleSetSynth
-      }, aTapCount, aTapTimeout, aShiftTapCount, aShiftTapTimeout, lastKeyTime)) {
-        e.preventDefault();
-        return;
-      }
-      
-      // Barking Interval Trigger (If layout didn't swallow it)
-      const isBarkKey = (e.code === 'KeyS' && !isShift && state.keyboardLayout !== 'Arden Denis') ||
-                        (e.code === 'KeyO' && state.keyboardLayout === 'Arden Denis' && !isNearToy);
-
-      if (isBarkKey) {
-        if (!barkIntervalRef.current) {
-          bark("The poodle barks elegantly.", true);
-          barkIntervalRef.current = setInterval(() => {
-            bark("The poodle barks elegantly.", true);
-          }, MOVE_COOLDOWN);
-        }
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const state = gameStateRef.current;
-      const now = Date.now();
-      const pressDuration = now - (lastKeyTime.current[e.code] || 0);
-
-      const isBarkKeyRelease = (e.code === 'KeyS' && state.keyboardLayout !== 'Arden Denis') ||
-                               (e.code === 'KeyO' && state.keyboardLayout === 'Arden Denis');
-
-      if (isBarkKeyRelease) {
-        if (barkIntervalRef.current) {
-          clearInterval(barkIntervalRef.current);
-          barkIntervalRef.current = null;
-        }
-      }
-
-      keysPressed.current.delete(e.code);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [speak, announceToScreenReader, jump]);
+        handleSetSynth
+      },
+      aTapCount,
+      aTapTimeout,
+      aShiftTapCount,
+      aShiftTapTimeout,
+      isNearToy
+    });
+  }, [speak, announceToScreenReader, jump, bark, pet, lean, collar, readHUD, handleSetSynth, isNearToy]);
 
   // Generate coins for the current area if they don't exist
   useEffect(() => {
@@ -776,125 +560,13 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
 
   // Lightweight Local Machine Learning for automatic arrow key turning prediction, strafing, and compass orientation
   useEffect(() => {
-    if (!gameState.isPlaying || !gameState.area) return;
-    
-    const currentArea = gameState.area;
-    const prevArea = prevAreaRef.current;
-    
-    const CONTINUOUS_TRACKS = [
-      'PoodleRideStoryBookInitialPath',
-      'PoodleRideStoryBookCourse1_Seg1',
-      'PoodleRideStoryBookCourse1_Seg2',
-      'PoodleRideStoryBookCourse1_Seg3',
-      'PoodleRideStoryBookCourse1_Seg4'
-    ];
-    
-    const WIDE_AREAS = [
-      'PinkHouseFoyer',
-      'PoodleRideStoryBookCourse1_Break1',
-      'PoodleRideStoryBookCourse1_Break2',
-      'PoodleRideStoryBookCourse1_Break3',
-      'PoodleRideStoryBookGoalZone',
-      'PoodleRideStoryBookDecisionZone'
-    ];
-    
-    const isTrack = CONTINUOUS_TRACKS.includes(currentArea);
-    const isWide = WIDE_AREAS.includes(currentArea);
-    
-    // 1. Detect environment-based turning mode
-    let targetMode = gameState.arrowKeyTurningMode || 'FourDirection';
-    
-    if (currentArea === 'WandasWarpHouse' || currentArea === 'WandaPlatform') {
-      targetMode = 'EightDirection';
-    } else if (
-      currentArea.includes('StoryBookCourse') || 
-      currentArea.includes('StoryBookDecision') || 
-      currentArea.includes('StoryBookInitialPath') ||
-      currentArea === 'TheGrandPlayground' || 
-      currentArea === 'SimulatedGardenArea'
-    ) {
-      // "This course with series of turns via any compass direction always have automated steering, 
-      // so the algorithm of switching to a full 360 rotation logic, or 8-directional turn system won't be activated."
-      if (!isTrack) {
-        targetMode = 'Full360';
-      }
-    } else {
-      targetMode = 'FourDirection';
-    }
-    
-    // 2. State update batching for performance & simplicity
-    let stateUpdates: Partial<GameState> = {};
-    
-    if (gameState.arrowKeyTurningMode !== targetMode) {
-      stateUpdates.arrowKeyTurningMode = targetMode;
-    }
-    
-    // 3. Automated Strafing activation/deactivation rules
-    if (isTrack && !gameState.isStrafingEnabled) {
-      stateUpdates.isStrafingEnabled = true;
-      const msg = "Continuous course track detected. Automated steering is active. Manual lane strafing is enabled. Use left and right arrow keys to glide between lanes.";
-      speak(msg, 'EN_US');
-      announceToScreenReader(msg);
-    } else if (isWide && gameState.isStrafingEnabled) {
-      stateUpdates.isStrafingEnabled = false;
-      const msg = "Wide zone reached. Auto-switching strafing off. Left and right arrow keys are restored for manual turning.";
-      speak(msg, 'EN_US');
-      announceToScreenReader(msg);
-    }
-    
-    // 4. Machine learning expert model for automated compass direction orientation
-    if (prevArea && prevArea !== currentArea) {
-      let autoHeading: { rotation: number, direction: Direction, msg: string } | null = null;
-      
-      // Case 1: South-bound transition
-      if (prevArea === 'PoodleRideStoryBookGoalZone' && currentArea === 'WandasWarpHouse') {
-        autoHeading = { rotation: 180, direction: 'South', msg: "Facing South entering Wandas Warp House." };
-      }
-      // Case 2: North-bound transition
-      else if (prevArea === 'PoodleRideStoryBookGoalZone' && currentArea === 'PoodleRideStoryBookCourse1_Seg4') {
-        autoHeading = { rotation: 0, direction: 'North', msg: "Facing North returning to course segment 4." };
-      }
-      // Case 3: East-bound transitions
-      else if (
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg1' && currentArea === 'PoodleRideStoryBookCourse1_Break1') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg2' && currentArea === 'PoodleRideStoryBookCourse1_Break2') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg3' && currentArea === 'PoodleRideStoryBookCourse1_Break3') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg4' && currentArea === 'PoodleRideStoryBookGoalZone') ||
-        (prevArea === 'PoodleRideStoryBookInitialPath' && currentArea === 'PinkHouseFoyer') ||
-        (prevArea === 'PoodleRideStoryBookDecisionZone' && currentArea === 'PoodleRideStoryBookInitialPath')
-      ) {
-        autoHeading = { rotation: 90, direction: 'East', msg: "Automatically oriented East along the course path." };
-      }
-      // Case 4: West-bound transitions
-      else if (
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg1' && currentArea === 'PinkHouseFoyer') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Break1' && currentArea === 'PoodleRideStoryBookCourse1_Seg1') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg2' && currentArea === 'PoodleRideStoryBookCourse1_Break1') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Break2' && currentArea === 'PoodleRideStoryBookCourse1_Seg2') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg3' && currentArea === 'PoodleRideStoryBookCourse1_Break2') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Break3' && currentArea === 'PoodleRideStoryBookCourse1_Seg3') ||
-        (prevArea === 'PoodleRideStoryBookCourse1_Seg4' && currentArea === 'PoodleRideStoryBookCourse1_Break3') ||
-        (prevArea === 'PoodleRideStoryBookGoalZone' && currentArea === 'PoodleRideStoryBookCourse1_Seg4') ||
-        (prevArea === 'PoodleRideStoryBookInitialPath' && currentArea === 'PoodleRideStoryBookDecisionZone')
-      ) {
-        autoHeading = { rotation: 270, direction: 'West', msg: "Automatically oriented West along the course path." };
-      }
-      
-      if (autoHeading) {
-        stateUpdates.rotation = autoHeading.rotation;
-        stateUpdates.direction = autoHeading.direction;
-        speak(autoHeading.msg, 'EN_US');
-        announceToScreenReader(autoHeading.msg);
-      }
-    }
-    
-    // Apply updates if any exist
-    if (Object.keys(stateUpdates).length > 0) {
-      setGameState(prev => ({ ...prev, ...stateUpdates }));
-    }
-    
-    // Update reference of previous area for the next change
-    prevAreaRef.current = currentArea;
+    evaluateOrientationAndStrafing({
+      gameState,
+      prevAreaRef,
+      setGameState,
+      speak,
+      announceToScreenReader
+    });
   }, [gameState.area, gameState.isPlaying, speak, announceToScreenReader]);
 
   // Time tracking for Adventure Path
