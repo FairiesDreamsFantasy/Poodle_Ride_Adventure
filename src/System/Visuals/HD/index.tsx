@@ -4,6 +4,8 @@
  */
 
 export * from './UHD';
+export * from './Assembly';
+export * from './Python';
 
 export const HD_CONFIG = {
   name: "High Definition",

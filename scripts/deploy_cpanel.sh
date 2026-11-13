@@ -5,9 +5,7 @@
 set -e
 
 # 1. Define Deployment Path
-if [ -z "$DEPLOYPATH" ]; then
-    DEPLOYPATH="/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure"
-fi
+DEPLOYPATH="${DEPLOYPATH:-/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure}"
 
 echo "[INFO] Starting deployment to $DEPLOYPATH"
 
@@ -15,14 +13,30 @@ echo "[INFO] Starting deployment to $DEPLOYPATH"
 mkdir -p "$DEPLOYPATH"
 
 # 3. Identify Source and Deploy
-if [ -d "Poodle_Ride_Adventure_Build" ]; then
+if [ -d "Poodle_Ride_Adventure_Build" ] && [ -f "Poodle_Ride_Adventure_Build/index.html" ]; then
     echo "[INFO] Detected build directory. Deploying from build..."
     cp -rf Poodle_Ride_Adventure_Build/. "$DEPLOYPATH/"
+    if [ ! -f "$DEPLOYPATH/.htaccess" ] && [ -f public/.htaccess ]; then
+        cp -f public/.htaccess "$DEPLOYPATH/"
+    fi
+    if [ ! -f "$DEPLOYPATH/sw.js" ] && [ -f public/sw.js ]; then
+        cp -f public/sw.js "$DEPLOYPATH/"
+    fi
 else
     echo "[INFO] Deploying from production branch root..."
-    [ -f index.html ] && cp -f index.html "$DEPLOYPATH/"
-    [ -f sw.js ] && cp -f sw.js "$DEPLOYPATH/"
-    [ -f .htaccess ] && cp -f .htaccess "$DEPLOYPATH/"
+    if [ -f index.html ]; then
+        cp -f index.html "$DEPLOYPATH/"
+    fi
+    if [ -f sw.js ]; then
+        cp -f sw.js "$DEPLOYPATH/"
+    elif [ -f public/sw.js ]; then
+        cp -f public/sw.js "$DEPLOYPATH/"
+    fi
+    if [ -f .htaccess ]; then
+        cp -f .htaccess "$DEPLOYPATH/"
+    elif [ -f public/.htaccess ]; then
+        cp -f public/.htaccess "$DEPLOYPATH/"
+    fi
     if [ -d Assets ]; then
         cp -rf Assets "$DEPLOYPATH/"
     fi

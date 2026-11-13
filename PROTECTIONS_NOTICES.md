@@ -337,3 +337,29 @@
 - **Shadow File & Folder Cleanup**: Removed legacy pre-refactoring nested shadow directory `src/World/` (199 directories, 216 shadow/stub files), stale `scripts/__pycache__/` (including its remaining lowercase `agents.md` and `.pyc` cache), leftover `scripts/legacy_patches/` (13 `.cjs` patch scripts), and all lowercase `agents.md` collisions; restored 1,031 empty `AGENTS.md` files across the 3,692 canonical directories (`missing=0`, `zero_byte=0`, `lowercase=0`).
 - **Protected_Play_Area Restoration (`977c4a2`)**: Restored all missing `src/System/`, `src/Characters/`, `src/tts/`, `src/Index/`, `src/Courses/`, `src/Main_Game/`, `src/Warp_Houses/`, `src/Roads_and_Tunnels/`, `vite.config.ts`, `tsconfig.json`, and `scripts/` modules from the `Protected_Play_Area` backup branch directly into the flattened layout, with all 3,692 directories verified with uppercase `AGENTS.md`.
 - **Integrity Shield Synchronization**: `src/System/Integrity/active_integrity_shield.sh` is synchronized to scan and restore uppercase `AGENTS.md` across all protected subsystems including the restructured root directories.
+
+## 34. Multi-Domain Assembly & Python Scientific Stabilization (`main` Workspace Sync)
+- **Expanded `Assembly/{C, CPP, CSharp, Web_Assembly}` & `Python/{Num-Py, Sci-Py}` Subsystems**:
+  - **`src/System/Sound/Engine/Assembly/`**: Upgraded with IEEE-754 16/24-bit PCM buffer codecs, DMA ring pointers, zero-crossing alignment, RAII PolyBLEP/ADSR voice synthesis, multi-bus dB/constant-power/ducking events, and Butterworth IIR biquad + WebAssembly MVP gain bytecode generation.
+  - **`src/System/Visuals/Engine/Assembly/`**: Upgraded with 32-bit Porter-Duff RGBA compositing, Rec. 709 luma, bilinear scanline interpolation, frustum AABB culling, Z-material draw batching, v0.9.9.7 HUD-above-canvas layout solver, and 2D/3D affine matrix inversion + perspective projection.
+  - **`src/System/Theme/Engine/`**: Established full `Assembly` and `Python` modules for WCAG 2.1 luminance & binary-search contrast optimization, Golden Ratio harmonic typography tokens, IEC 61966-2-1 sRGB linearization, Night Mode (16:00–03:00) blue-light curves, CIE XYZ / L* color space tensors, and WebAssembly contrast kernels.
+  - **`src/System/Visuals/{Animations, HD, Index, Resolution, SD}/`**: Established domain-specific `Assembly` and `Python` pipelines covering Catmull-Rom/Hermite splines, Bayer 4x4 dithering, Savitzky-Golay smoothing, 10-bit RGB10A2/ACES Filmic/SMPTE ST 2084 PQ EOTF/BT.2020/Lanczos HDR math, FNV-1a pipeline checksums/EMA frame pacing, mipmap VRAM/Mitchell-Netravali DPI scaling, and RGB565/BT.601 YCbCr/SD scanline anti-flicker filters.
+  - **`src/System/Building_Blocks/`**: Established `Assembly` and `Python` architectural geometry and acoustics modules (Q16.16 AABB doorway bitmasks, 2D ray-wall segment intersections, surface friction/absorption tables, shoelace polygon areas, Sabine RT60 reverberation time, and WebAssembly perimeter kernels).
+- **TypeScript Stability Fixes**:
+  - `src/System/AI/In-Game/Category/UI/Play_Area/Toys/ToyManager.ts`: Fixed `GameLogic` import path (`@/src/System/AI/In-Game/Logic/GameLogic`).
+  - `src/System/AI/In-Game/Drift_Guard/Kinematics/MovementDispatcher.ts`: Aligned `moveForward` signature with `InputContext`.
+  - `src/System/Visuals/Resolution/index.tsx`: Imported `RESOLUTION_MATRIX` and resolution helpers into local module scope for `ResolutionSystem`.
+- **Total Verified Protected Directories**: All **3,804 / 3,804** directories across `src/`, `public/`, `scripts/`, `Architecture_Listing/`, and `P00DLE_RIDE_ADVENTURE/` are verified with non-empty uppercase `AGENTS.md` files (`missing=0`, `zero_byte=0`, `lowercase=0`).
+
+## 35. cPanel & GitHub Actions Deployment Pipeline Hardening
+- **`.cpanel.yml` Streamlined Delegation**:
+  - Removed redundant pre-script `cp -rf Poodle_Ride_Adventure_Build/*` and `.htaccess` copies that failed whenever `Poodle_Ride_Adventure_Build/` was absent, delegating cleanly to `/bin/bash scripts/deploy_cpanel.sh`.
+- **`scripts/deploy_cpanel.sh` Resilient Asset & Permission Deployment**:
+  - Standardized `DEPLOYPATH` fallback (`${DEPLOYPATH:-/home/fairiesd/public_html/Arcade/Poodle_Ride_Adventure}`), verified `Poodle_Ride_Adventure_Build/index.html` presence before build-dir copy, added `public/.htaccess` and `public/sw.js` fallbacks in both build-dir and root-deploy branches, enforced `755`/`644` permissions, and marked executable (`100755`).
+- **`.github/workflows/deploy.yml` Branch-Safe CI/CD Publishing**:
+  - Added per-branch `concurrency` serialization (`deploy-${{ github.ref }}`, `cancel-in-progress: false`) to prevent parallel push races.
+  - Added explicit `npm run lint` (`tsc --noEmit`) gate before `npm run build`.
+  - Staged `.htaccess`, `sw.js`, `.cpanel.yml`, `scripts/`, and `Poodle_Ride_Adventure_Build` with `git add -A -f` so deleted/renamed build files are tracked cleanly, skipping empty commits via `git diff --cached --quiet`.
+  - Replaced hardcoded `git push origin HEAD:main` with dynamic `git push origin "HEAD:${TARGET_BRANCH}"` and a stale-HEAD safety check so `StableFallback` and `main` never cross-push or overwrite newer commits.
+- **Workflow Directory Protection**: Added uppercase `AGENTS.md` files to `.github/` and `.github/workflows/` under **20000% Ultra-Broad Protections**.
+
