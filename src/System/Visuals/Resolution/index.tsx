@@ -27,6 +27,14 @@ export * from '@/src/System/Visuals/Resolution/2048K';
 export * from '@/src/System/Visuals/Resolution/4096K';
 export * from '@/src/System/Visuals/Resolution/8192K';
 
+import {
+  RESOLUTION_MATRIX,
+  calculateBackingStoreDimensions,
+  calculateVRAMEstimateMB,
+  calculateAspectCorrectionMatrix,
+  classifyViewportResolution,
+} from '@/src/System/AI/In-Game/Category/Visuals/Resolution';
+
 export * from '@/src/System/AI/In-Game/Category/Visuals/Resolution';
 
 export const ResolutionSystem = {
@@ -39,3 +47,6 @@ export const ResolutionSystem = {
   solveAspectCorrection: calculateAspectCorrectionMatrix,
   classifyViewport: classifyViewportResolution
 };
+
+export * from './Assembly';
+export * from './Python';

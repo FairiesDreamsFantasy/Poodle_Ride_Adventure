@@ -1,0 +1,24 @@
+/**
+ * System/Visuals/Index/Assembly/Web_Assembly/General/index.tsx
+ * Monotonic frame index counter and valid WebAssembly index-stride verifier binary.
+ */
+
+export class VisualsIndexAssemblyWasmIndex {
+  public computeRingSlot(frameCounter: number, ringCapacity: number): number {
+    const cap = Math.max(1, Math.floor(ringCapacity));
+    return ((Math.floor(frameCounter) % cap) + cap) % cap;
+  }
+
+  /** Valid Wasm 1.0 MVP binary exporting next_frame_id(i32) -> i32 */
+  public emitFrameIndexWasm(): Uint8Array {
+    return new Uint8Array([
+      0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+      0x01, 0x06, 0x01, 0x60, 0x01, 0x7f, 0x01, 0x7f,
+      0x03, 0x02, 0x01, 0x00,
+      0x07, 0x11, 0x01, 0x0d, 0x6e, 0x65, 0x78, 0x74, 0x5f, 0x66, 0x72, 0x61, 0x6d, 0x65, 0x5f, 0x69, 0x64, 0x00, 0x00,
+      0x0a, 0x08, 0x01, 0x06, 0x00, 0x20, 0x00, 0x41, 0x01, 0x6a, 0x0b,
+    ]);
+  }
+}
+
+export const VisualsIndexAssemblyWasmInstance = new VisualsIndexAssemblyWasmIndex();

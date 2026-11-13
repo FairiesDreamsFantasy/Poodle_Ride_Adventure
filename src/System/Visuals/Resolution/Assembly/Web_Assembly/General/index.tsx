@@ -1,0 +1,23 @@
+/**
+ * System/Visuals/Resolution/Assembly/Web_Assembly/General/index.tsx
+ * Aspect ratio normalization and valid WebAssembly pixel-area multiplication binary.
+ */
+
+export class VisualsResolutionAssemblyWasmScaler {
+  public computeNormalizedAspectRatio(width: number, height: number): number {
+    return height > 0 ? width / height : 1.0;
+  }
+
+  /** Valid Wasm 1.0 MVP binary exporting pixel_area(i32 width, i32 height) -> i32 */
+  public emitPixelAreaWasm(): Uint8Array {
+    return new Uint8Array([
+      0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+      0x01, 0x07, 0x01, 0x60, 0x02, 0x7f, 0x7f, 0x01, 0x7f,
+      0x03, 0x02, 0x01, 0x00,
+      0x07, 0x0e, 0x01, 0x0a, 0x70, 0x69, 0x78, 0x65, 0x6c, 0x5f, 0x61, 0x72, 0x65, 0x61, 0x00, 0x00,
+      0x0a, 0x09, 0x01, 0x07, 0x00, 0x20, 0x00, 0x20, 0x01, 0x6c, 0x0b,
+    ]);
+  }
+}
+
+export const VisualsResolutionAssemblyWasmInstance = new VisualsResolutionAssemblyWasmScaler();

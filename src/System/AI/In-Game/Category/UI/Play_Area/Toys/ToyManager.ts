@@ -7,7 +7,7 @@
  */
 
 import { Dispatch, SetStateAction } from 'react';
-import { GameState } from '@/src/System/AI/In-Game/Category/Logic/GameLogic';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
 import { STORY_BOOK_PAGES } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
 
 export interface ToyManagerAudioContext {

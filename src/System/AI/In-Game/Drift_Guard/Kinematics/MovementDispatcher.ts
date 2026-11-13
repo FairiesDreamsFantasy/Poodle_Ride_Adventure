@@ -39,7 +39,7 @@ export interface MovementDispatcherContext {
   speak: (text: string, locale?: string) => void;
   announceToScreenReader: (msg: string) => void;
   bark: (msg?: string, isCore?: boolean, count?: number, area?: string) => void;
-  moveForward: (steps?: number) => void;
+  moveForward: (isTappedOverride?: boolean, strafeDir?: 'Left' | 'Right', moveAngleOverride?: number, isReverseMode?: boolean) => void;
   moveReverse: (steps?: number) => void;
   rotate: (degrees: number) => void;
   mt: (text: string) => string;
