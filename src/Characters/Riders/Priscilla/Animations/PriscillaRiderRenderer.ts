@@ -1,4 +1,4 @@
-import { GameState } from '../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 /**
  * PRISCILLA RIDER RENDERER: DISTINCT POV & RIDER VISUALS

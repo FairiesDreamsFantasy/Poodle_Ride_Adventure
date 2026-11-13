@@ -3,8 +3,8 @@
  * Core component for Dymond Daisy Qin-Reynolds.
  */
 import React from 'react';
-import { drawDymondRiderView } from './Animations/2-D';
-import { DYMOND_DESCRIPTION } from './General';
+import { drawDymondRiderView } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds/Animations/2-D';
+import { DYMOND_DESCRIPTION } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds/General';
 
 export { drawDymondRiderView };
 

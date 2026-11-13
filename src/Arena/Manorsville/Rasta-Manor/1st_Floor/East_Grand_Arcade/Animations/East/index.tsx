@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 /**
  * East Grand Arcade East Rendering

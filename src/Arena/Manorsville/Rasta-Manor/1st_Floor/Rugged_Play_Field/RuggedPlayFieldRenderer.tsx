@@ -1,10 +1,10 @@
-import { GameState, AREA_DIMENSIONS, GRID_SIZE } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { TILES } from '../../../../../System/Building_Blocks/BlocksConstants';
-import { drawFloorTiling } from '../../../../../System/Engine/Science/Graphical_Renderer/General';
-import { drawRuggedPlayFieldNorth } from './Animations/North';
-import { drawRuggedPlayFieldSouth } from './Animations/South';
-import { drawRuggedPlayFieldEast } from './Animations/East';
-import { drawRuggedPlayFieldWest } from './Animations/West';
+import { GameState, AREA_DIMENSIONS, GRID_SIZE } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TILES } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawFloorTiling } from '@/src/System/Engine/Science/Graphical_Renderer/General';
+import { drawRuggedPlayFieldNorth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field/Animations/North';
+import { drawRuggedPlayFieldSouth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field/Animations/South';
+import { drawRuggedPlayFieldEast } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field/Animations/East';
+import { drawRuggedPlayFieldWest } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field/Animations/West';
 
 export function drawRuggedPlayField(ctx: CanvasRenderingContext2D, width: number, height: number, horizon: number, state: GameState) {
   const currentDims = AREA_DIMENSIONS[state.area] || { width: GRID_SIZE, height: GRID_SIZE };

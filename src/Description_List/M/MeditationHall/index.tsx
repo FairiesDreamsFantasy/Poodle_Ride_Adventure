@@ -1,1 +1,1 @@
-export * from './General';
+export * from '@/src/Description_List/M/MeditationHall/General';

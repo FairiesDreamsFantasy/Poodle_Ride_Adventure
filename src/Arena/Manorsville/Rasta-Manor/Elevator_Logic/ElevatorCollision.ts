@@ -1,4 +1,4 @@
-import { SHAFT_MIN_X, SHAFT_MAX_X, SHAFT_MIN_Y, SHAFT_MAX_Y } from './ElevatorConstants';
+import { SHAFT_MIN_X, SHAFT_MAX_X, SHAFT_MIN_Y, SHAFT_MAX_Y } from '@/src/Arena/Manorsville/Rasta-Manor/Elevator_Logic/ElevatorConstants';
 
 export function handleElevatorCollision(
   nextX: number,

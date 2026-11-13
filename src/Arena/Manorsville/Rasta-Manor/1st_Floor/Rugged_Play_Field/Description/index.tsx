@@ -1,7 +1,7 @@
 /**
  * Rugged Play Field Description
  */
-export * from './Dimensions';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field/Description/Dimensions';
 
 export const RUGGED_PLAY_FIELD_DESCRIPTION = {
   name: "Rugged Play Field",

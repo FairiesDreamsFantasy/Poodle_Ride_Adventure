@@ -1,5 +1,5 @@
-import { SKY_FOYER_COLORS } from '../Color_Palette';
-import { SKY_FOYER_DIMENSIONS } from '../../Description/Dimensions';
+import { SKY_FOYER_COLORS } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Sky_Foyer/Animations/Color_Palette';
+import { SKY_FOYER_DIMENSIONS } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Sky_Foyer/Description/Dimensions';
 
 /**
  * Sky Foyer 2-D Rendering Logic (Standardized Mezzanine)

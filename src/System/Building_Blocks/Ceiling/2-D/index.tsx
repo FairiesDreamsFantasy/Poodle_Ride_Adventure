@@ -1,5 +1,5 @@
-import { CeilingGeometryConfig, generateCofferedPanels } from '../Geometry';
-import { CeilingPattern } from '../Color_Palette/Pattern_Palette';
+import { CeilingGeometryConfig, generateCofferedPanels } from '@/src/System/Building_Blocks/Ceiling/Geometry';
+import { CeilingPattern } from '@/src/System/Building_Blocks/Ceiling/Color_Palette/Pattern_Palette';
 
 export interface Ceiling2DProps {
   ctx: CanvasRenderingContext2D;

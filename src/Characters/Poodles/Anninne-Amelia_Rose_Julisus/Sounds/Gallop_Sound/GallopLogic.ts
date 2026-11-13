@@ -4,7 +4,7 @@
  * [PRESERVED ARTISTIC CRAFT: DO NOT ALTER WITHOUT PERMISSION]
  */
 
-import { ANNINNE_AMELIA_GALLOP } from '../../Movements/MovementPowerhouse';
+import { ANNINNE_AMELIA_GALLOP } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Movements/MovementPowerhouse';
 
 export function playGallop(
   ctx: AudioContext,

@@ -3,7 +3,7 @@ import {
   Camera3DRegistryConfig, 
   SphericalCoordinate, 
   DEFAULT_CAMERA_3D 
-} from '../../../../../../../Registry/AI/Visuals/Animations/3-D/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/3-D/General/index.tsx';
 
 export interface ProjectedPoint2D {
   screenX: number;

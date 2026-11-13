@@ -1,2 +1,2 @@
-export * from './DSP';
-export * from './General';
+export * from '@/src/System/AI/In-Game/Category/Sound/BGM/DSP';
+export * from '@/src/System/AI/In-Game/Category/Sound/BGM/General';

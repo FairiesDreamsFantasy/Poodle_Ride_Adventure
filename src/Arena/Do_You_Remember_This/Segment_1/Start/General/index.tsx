@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../System/Engine/Core/Types';
-import { playSlidingDoor } from '../../../../../System/Sound/SFX/Alphabetical/D/Door';
+import { GameState } from '@/src/System/Engine/Core/Types';
+import { playSlidingDoor } from '@/src/System/Sound/SFX/Alphabetical/D/Door';
 
 export interface ArenaStartProps {
   ctx: CanvasRenderingContext2D;

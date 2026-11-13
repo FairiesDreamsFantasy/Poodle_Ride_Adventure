@@ -1,12 +1,12 @@
-import { Direction, GameState } from '../../../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 import {
   CELLAR_FLOOR_WARP_Y_MIN,
   CELLAR_FLOOR_WARP_Y_MAX,
   CELLAR_B1_WARP_Y_MIN,
   CELLAR_B1_WARP_Y_MAX,
   CELLAR_TARCIST_WIDTH as TARCIST_WIDTH
-} from '../../../../1st_Floor/Foyer/FoyerConstants';
+} from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer/FoyerConstants';
 
 export const handleCellarRampTransitions = (
   direction: Direction,

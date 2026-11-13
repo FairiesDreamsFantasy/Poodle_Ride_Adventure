@@ -1,7 +1,7 @@
-import { Direction } from '../../../../../../../types';
-import { GameState } from '../../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
-import { RUGGED_PLAY_FIELD_DESCRIPTIONS } from '../../../../../../../Description_List/R/RuggedPlayField';
+import { Direction } from '@/src/types';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { RUGGED_PLAY_FIELD_DESCRIPTIONS } from '@/src/Description_List/R/RuggedPlayField';
 
 export function handleRuggedPlayFieldCollision(
   gridX: number,

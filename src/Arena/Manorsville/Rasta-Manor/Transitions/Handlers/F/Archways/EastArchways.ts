@@ -1,6 +1,6 @@
-import { Direction } from '../../../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
-import { isEastward } from '../../../../../../../System/Engine/Core/Utils/Direction';
+import { Direction } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { isEastward } from '@/src/System/Engine/Core/Utils/Direction';
 
 export const handleEastArchwayTransitions = (
   direction: Direction,

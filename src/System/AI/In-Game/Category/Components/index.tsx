@@ -2,7 +2,7 @@
  * System/AI/In-Game/Category/Components/index.tsx
  */
 
-export * from './General';
-export * from './HUD';
-export * from './Menu_Bars';
-export * from './Animal_Selection';
+export * from '@/src/System/AI/In-Game/Category/Components/General';
+export * from '@/src/System/AI/In-Game/Category/Components/HUD';
+export * from '@/src/System/AI/In-Game/Category/Components/Menu_Bars';
+export * from '@/src/System/AI/In-Game/Category/Components/Animal_Selection';

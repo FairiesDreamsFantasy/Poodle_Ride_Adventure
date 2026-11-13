@@ -3,6 +3,6 @@
  * Main index for all Generic/NPC Poodles.
  */
 
-export * from './General';
-export * as Small from './Small';
-export * as YellowPoodle from './Yellow_Poodle';
+export * from '@/src/Characters/Poodles/Generic/General';
+export * as Small from '@/src/Characters/Poodles/Generic/Small';
+export * as YellowPoodle from '@/src/Characters/Poodles/Generic/Yellow_Poodle';

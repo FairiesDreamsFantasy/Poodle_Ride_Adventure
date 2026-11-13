@@ -1,8 +1,8 @@
-import { CEILING_PATTERNS } from './Pattern_Palette';
-import { CEILING_TEXTURES } from './Texture_Palette';
+import { CEILING_PATTERNS } from '@/src/System/Building_Blocks/Ceiling/Color_Palette/Pattern_Palette';
+import { CEILING_TEXTURES } from '@/src/System/Building_Blocks/Ceiling/Color_Palette/Texture_Palette';
 
-export * from './Pattern_Palette';
-export * from './Texture_Palette';
+export * from '@/src/System/Building_Blocks/Ceiling/Color_Palette/Pattern_Palette';
+export * from '@/src/System/Building_Blocks/Ceiling/Color_Palette/Texture_Palette';
 
 export interface CeilingColor {
   id: string;

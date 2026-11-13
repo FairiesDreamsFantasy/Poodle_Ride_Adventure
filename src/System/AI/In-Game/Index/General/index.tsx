@@ -1,11 +1,11 @@
-export * from '../../Engine/index.tsx';
-export * from '../../Drift_Guard/index.tsx';
-export * from '../../Reverb_Control/index.tsx';
-export { checkInternalReverbStatus, getDynamicEchoToggle, getPoodleEchoDelays } from '../../Reverb_Control/index.tsx';
-export * from '../../Category/index.tsx';
-export * from '../../Algorithms/index.tsx';
-export * from '../../Puzzle_Recognition/index.tsx';
-export * from '../../Logic/GameLogic.ts';
+export * from '@/src/System/AI/In-Game/Engine/index.tsx';
+export * from '@/src/System/AI/In-Game/Drift_Guard/index.tsx';
+export * from '@/src/System/AI/In-Game/Reverb_Control/index.tsx';
+export { checkInternalReverbStatus, getDynamicEchoToggle, getPoodleEchoDelays } from '@/src/System/AI/In-Game/Reverb_Control/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/index.tsx';
+export * from '@/src/System/AI/In-Game/Algorithms/index.tsx';
+export * from '@/src/System/AI/In-Game/Puzzle_Recognition/index.tsx';
+export * from '@/src/System/AI/In-Game/Logic/GameLogic.ts';
 
 export const InGameMasterIndexGeneral = {
   version: '1.0.0',

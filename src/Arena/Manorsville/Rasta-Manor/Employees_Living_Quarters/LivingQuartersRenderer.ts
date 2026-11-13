@@ -1,5 +1,5 @@
-import { GameState } from '../../../../System/AI/In-Game/Logic/GameLogic';
-import { drawArcadeStaff } from '../../../../Characters/Arcade_Staff/ArcadeStaff';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawArcadeStaff } from '@/src/Characters/Arcade_Staff/ArcadeStaff';
 
 export function drawLivingQuarters(
   ctx: CanvasRenderingContext2D,

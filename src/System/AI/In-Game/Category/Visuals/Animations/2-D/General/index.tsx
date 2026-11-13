@@ -1,4 +1,4 @@
-import { AffineMatrix2D, IDENTITY_AFFINE_2D, OscillationKernel2D } from '../../../../../../../Registry/AI/Visuals/Animations/2-D/General/index.tsx';
+import { AffineMatrix2D, IDENTITY_AFFINE_2D, OscillationKernel2D } from '@/src/System/Registry/AI/Visuals/Animations/2-D/General/index.tsx';
 
 /**
  * Multiplies two 2D Affine Transformation Matrices: M = A x B

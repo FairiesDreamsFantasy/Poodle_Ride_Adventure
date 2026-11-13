@@ -1,1 +1,1 @@
-export * from './General/index.tsx';
+export * from '@/src/System/AI/In-Game/Index/General/index.tsx';

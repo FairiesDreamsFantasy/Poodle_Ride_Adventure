@@ -3,7 +3,7 @@ import {
   STANDARD_DOT_MATRIX_SPEC, 
   BAYER_MATRIX_4X4, 
   BAYER_MATRIX_8X8 
-} from '../../../../../../../../Registry/AI/Visuals/Animations/Pixelations/Dot_Matrix/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Pixelations/Dot_Matrix/General/index.tsx';
 
 /**
  * Evaluates whether a pixel at (x, y) with normalized intensity [0, 1] passes 4x4 Bayer threshold

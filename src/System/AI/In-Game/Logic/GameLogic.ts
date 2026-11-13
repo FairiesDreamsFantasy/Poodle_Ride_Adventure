@@ -1,4 +1,4 @@
-import { ArenaRegistryConfig, formulateAreaMetrics } from '../Category/Arena';
+import { ArenaRegistryConfig, formulateAreaMetrics } from '@/src/System/AI/In-Game/Category/Arena';
 
 export { 
   GRID_SIZE, 
@@ -13,15 +13,15 @@ export {
   GAME_WIDTH,
   GAME_HEIGHT,
   TRUE_BLACK
-} from '../../../Engine/Core/Constants';
+} from '@/src/System/Engine/Core/Constants';
 
-export { getCSTTime, getLightingMode, isOutdoorArea } from '../../../Engine/Core/Utils';
-export type { GameState } from '../../../Engine/Core/Types';
-export type { Direction, SynthMode, BitMode } from '../../../../types';
+export { getCSTTime, getLightingMode, isOutdoorArea } from '@/src/System/Engine/Core/Utils';
+export type { GameState } from '@/src/System/Engine/Core/Types';
+export type { Direction, SynthMode, BitMode } from '@/src/types';
 
-export * from '../../../../Description_List';
+export * from '@/src/Description_List';
 
-import { getWallDescription as getWallDesc } from '../../../Engine/Core/Utils';
+import { getWallDescription as getWallDesc } from '@/src/System/Engine/Core/Utils';
 
 // Proxied exports for compatibility during refactor
 export const AREA_DIMENSIONS: Record<string, { width: number; height: number }> = 

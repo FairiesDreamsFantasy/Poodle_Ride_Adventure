@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { MEZZANINE_WIDTH, MEZZANINE_HEIGHT, ELEVATOR_X_MIN, ELEVATOR_Y_MIN } from './MezzanineConstants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { MEZZANINE_WIDTH, MEZZANINE_HEIGHT, ELEVATOR_X_MIN, ELEVATOR_Y_MIN } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Southwest_Stairway_And_Ramps_Mezzanine/MezzanineConstants';
 
 export function drawMezzanineStairwayAndRamps(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

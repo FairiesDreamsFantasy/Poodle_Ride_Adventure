@@ -3,4 +3,4 @@
  * Entry index for Small Standard Poodles.
  */
 
-export * from './General';
+export * from '@/src/Characters/Poodles/Generic/Small/Standard/General';

@@ -1,1 +1,1 @@
-export * from './MasterDSPEngine';
+export * from '@/src/System/AI/In-Game/Category/Sound/DSP/General/MasterDSPEngine';

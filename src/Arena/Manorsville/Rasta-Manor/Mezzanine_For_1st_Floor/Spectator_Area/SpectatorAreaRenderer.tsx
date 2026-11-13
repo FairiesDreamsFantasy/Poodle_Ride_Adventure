@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { SPECTATOR_WIDTH, SPECTATOR_HEIGHT, WALKWAY_WIDTH, BENCH_WIDTH } from './SpectatorAreaConstants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { SPECTATOR_WIDTH, SPECTATOR_HEIGHT, WALKWAY_WIDTH, BENCH_WIDTH } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Spectator_Area/SpectatorAreaConstants';
 
 export function drawSpectatorArea(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const viewScale = Math.min(width / SPECTATOR_WIDTH, height / SPECTATOR_HEIGHT) * 0.95;

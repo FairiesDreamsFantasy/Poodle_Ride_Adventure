@@ -2,9 +2,9 @@
  * Abigail Marigold Kenyatta: Movement Synthesizer
  */
 
-export * from './Gallop';
-export * from './Canter';
-export * from './Trot';
-export * from './Walk';
-export * from './Acceleration';
-export * from './Deceleration';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Gallop';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Canter';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Trot';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Walk';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Acceleration';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Movement/Deceleration';

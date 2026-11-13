@@ -1,1 +1,1 @@
-export * from '../Poodles/Abigail_Marigold_Kenyatta';
+export * from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta';

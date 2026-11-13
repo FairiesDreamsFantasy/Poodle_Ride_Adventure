@@ -3,8 +3,8 @@
  * Entry point for Level 0: The beginning of the Poodle Ride Adventure.
  */
 
-export * from './Animations';
-export * from './Dimensions';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Animations';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Dimensions';
 
 export const RASTA_MANOR_CONFIG = {
   id: 'rasta-manor',

@@ -1,5 +1,5 @@
-export * from '../Dot_Matrix/index.tsx';
-import { PixelBlockConfig, DEFAULT_PIXEL_BLOCK } from '../../../../../../../Registry/AI/Visuals/Animations/Pixelations/General/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/Visuals/Animations/Pixelations/Dot_Matrix/index.tsx';
+import { PixelBlockConfig, DEFAULT_PIXEL_BLOCK } from '@/src/System/Registry/AI/Visuals/Animations/Pixelations/General/index.tsx';
 
 /**
  * Quantizes continuous coordinate (x, y) into a discrete pixelation block coordinate

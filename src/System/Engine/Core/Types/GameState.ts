@@ -1,11 +1,11 @@
-import type { Direction, SynthMode } from '../../../../types';
-import { Opponent } from '../O/Opponents';
-import { GameStatistics } from '../../../AI/In-Game/Logic/Statistics/StatisticsLogic';
-import { Inventory } from '../../../AI/In-Game/Logic/Inventory/InventoryLogic';
-import { WeatherState } from '../../../AI/In-Game/Logic/World/Weather/WeatherLogic';
-import { Area } from './Areas';
-import { MovementMode } from './Movement';
-import { Coin } from '../Managers/CoinManager';
+import type { Direction, SynthMode } from '@/src/types';
+import { Opponent } from '@/src/System/Engine/Core/O/Opponents';
+import { GameStatistics } from '@/src/System/AI/In-Game/Logic/Statistics/StatisticsLogic';
+import { Inventory } from '@/src/System/AI/In-Game/Logic/Inventory/InventoryLogic';
+import { WeatherState } from '@/src/System/AI/In-Game/Logic/World/Weather/WeatherLogic';
+import { Area } from '@/src/System/Engine/Core/Types/Areas';
+import { MovementMode } from '@/src/System/Engine/Core/Types/Movement';
+import { Coin } from '@/src/System/Engine/Core/Managers/CoinManager';
 
 export interface GameState {
   isPlaying: boolean;

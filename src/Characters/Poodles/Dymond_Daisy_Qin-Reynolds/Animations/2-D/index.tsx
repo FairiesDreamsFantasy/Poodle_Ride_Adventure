@@ -3,7 +3,7 @@
  * Centralized canvas rendering logic for Dymond Daisy Qin-Reynolds.
  */
 
-import { GameState } from '../../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export function drawDymondRiderView(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const scale = Math.min(width, height) / 100;

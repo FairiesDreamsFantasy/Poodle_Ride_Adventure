@@ -1,8 +1,8 @@
-import { GameState, GRID_SIZE } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { renderRainbowSlidingDoors } from '../../../../../System/Building_Blocks/Doors/Crafted/Rainbow_Sliding_Doors';
-import { TILES } from '../../../../../System/Building_Blocks/BlocksConstants';
-import { drawSkyFoyerMezzanine } from '../../Mezzanine_For_1st_Floor/Sky_Foyer/SkyFoyerRenderer';
-import { drawTarcistRamp } from '../../../../../System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
+import { GameState, GRID_SIZE } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { renderRainbowSlidingDoors } from '@/src/System/Building_Blocks/Doors/Crafted/Rainbow_Sliding_Doors';
+import { TILES } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawSkyFoyerMezzanine } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Sky_Foyer/SkyFoyerRenderer';
+import { drawTarcistRamp } from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
 
 const RAINBOW_COLORS = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
 

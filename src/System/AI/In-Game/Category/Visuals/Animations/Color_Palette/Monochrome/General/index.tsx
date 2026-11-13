@@ -1,11 +1,11 @@
-export * from '../Grayscale/index.tsx';
-import { calculateLuminance } from '../Grayscale/General/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/Visuals/Animations/Color_Palette/Monochrome/Grayscale/index.tsx';
+import { calculateLuminance } from '@/src/System/AI/In-Game/Category/Visuals/Animations/Color_Palette/Monochrome/Grayscale/General/index.tsx';
 import { 
   MonochromeThresholdConfig, 
   CLASSIC_1BIT_MONOCHROME, 
   AMBER_MONOCHROME, 
   GREEN_PHOSPHOR_MONOCHROME 
-} from '../../../../../../../../Registry/AI/Visuals/Animations/Color_Palette/Monochrome/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Color_Palette/Monochrome/General/index.tsx';
 
 export interface BinarizedPixelResult {
   isForeground: boolean;

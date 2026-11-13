@@ -1,13 +1,13 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { handleFrontDoorTransition } from './Archways/FrontDoor';
-import { handleSouthDoorTransition } from './Archways/SouthDoor';
-import { handleWestArchwayTransitions } from './Archways/WestArchways';
-import { handleEastArchwayTransitions } from './Archways/EastArchways';
-import { handleCellarDoorTransition } from './Archways/CellarDoor';
-import { handleSkyRampTransitions } from './Ramps/SkyRamp';
-import { handleCellarRampTransitions } from './Ramps/CellarRamp';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { handleFrontDoorTransition } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Archways/FrontDoor';
+import { handleSouthDoorTransition } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Archways/SouthDoor';
+import { handleWestArchwayTransitions } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Archways/WestArchways';
+import { handleEastArchwayTransitions } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Archways/EastArchways';
+import { handleCellarDoorTransition } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Archways/CellarDoor';
+import { handleSkyRampTransitions } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Ramps/SkyRamp';
+import { handleCellarRampTransitions } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/F/Ramps/CellarRamp';
 
 export const handleFoyerTransitions = (
   area: string,

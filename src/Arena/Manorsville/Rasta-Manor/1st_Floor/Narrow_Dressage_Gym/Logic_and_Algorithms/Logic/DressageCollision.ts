@@ -1,4 +1,4 @@
-import { DRESSAGE_WIDTH, DRESSAGE_HEIGHT, TO_GYM_X, TO_GYM_Y_MIN, TO_GYM_Y_MAX, TO_WEST_X, TO_WEST_Y_MIN, TO_WEST_Y_MAX, DRESSAGE_DESCRIPTIONS } from '../../DressageConstants';
+import { DRESSAGE_WIDTH, DRESSAGE_HEIGHT, TO_GYM_X, TO_GYM_Y_MIN, TO_GYM_Y_MAX, TO_WEST_X, TO_WEST_Y_MIN, TO_WEST_Y_MAX, DRESSAGE_DESCRIPTIONS } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Narrow_Dressage_Gym/DressageConstants';
 
 export function handleDressageCollision(
   gridX: number,

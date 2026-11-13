@@ -3,4 +3,4 @@
  * Entry index for Generic Bulldogs.
  */
 
-export * from './General';
+export * from '@/src/Characters/Bulldogs/Generic/General';

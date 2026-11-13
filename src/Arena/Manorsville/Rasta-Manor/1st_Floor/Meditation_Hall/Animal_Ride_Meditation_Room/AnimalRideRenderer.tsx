@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export function drawAnimalRideMeditationRoom(ctx: CanvasRenderingContext2D, width: number, height: number, horizon: number, state: GameState) {
   // Floor

@@ -1,1 +1,1 @@
-export * from '../StreetRenderer';
+export * from '@/src/Arena/Manorsville/Streets/StreetRenderer';

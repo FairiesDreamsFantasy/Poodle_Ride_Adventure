@@ -1,4 +1,4 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 function drawTarcistPlaygroundRamp(ctx: CanvasRenderingContext2D, width: number, height: number, horizon: number, state: GameState, time: number) {
   const isWarpZone = state.gridX >= 1900;

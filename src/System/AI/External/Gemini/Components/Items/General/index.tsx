@@ -1,5 +1,5 @@
 import React from 'react';
-import { GeminiItemObjects } from '../Objects';
+import { GeminiItemObjects } from '@/src/System/AI/External/Gemini/Components/Items/Objects';
 
 /**
  * System/AI/External/Gemini/Components/Items/General/index.tsx

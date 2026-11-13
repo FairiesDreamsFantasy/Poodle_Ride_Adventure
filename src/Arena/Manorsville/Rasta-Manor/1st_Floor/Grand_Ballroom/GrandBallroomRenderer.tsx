@@ -1,4 +1,4 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 /**
  * GRAND BALLROOM RENDERER

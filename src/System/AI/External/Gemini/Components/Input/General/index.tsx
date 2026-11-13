@@ -1,5 +1,5 @@
 import React from 'react';
-import { WildcardInput } from '../_Wildcard_';
+import { WildcardInput } from '@/src/System/AI/External/Gemini/Components/Input/_Wildcard_';
 
 /**
  * System/AI/External/Gemini/Components/Input/General/index.tsx

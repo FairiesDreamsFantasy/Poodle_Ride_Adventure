@@ -1,5 +1,5 @@
-import { ELEGANT_BARK_TEMPLATES } from '../../../Registry/Poodles/Templates/Elegant_Bark';
-import { getEffectiveEchoState, isInternalReverbEnabled, isMeditationArea } from '../../../Sound/Reverberation_Effects_List/Algorithms/EchoLogic';
+import { ELEGANT_BARK_TEMPLATES } from '@/src/System/Registry/Poodles/Templates/Elegant_Bark';
+import { getEffectiveEchoState, isInternalReverbEnabled, isMeditationArea } from '@/src/System/Sound/Reverberation_Effects_List/Algorithms/EchoLogic';
 
 /**
  * System/AI/In-Game/Reverb_Control/index.tsx

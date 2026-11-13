@@ -1,4 +1,4 @@
-import { GameState } from '../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export function drawOlgaOlivia(ctx: CanvasRenderingContext2D, x: number, y: number, state: GameState, isBarking: boolean) {
   // Olga-Olivia: Priscilla's poodle partner.

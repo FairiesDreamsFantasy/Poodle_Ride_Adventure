@@ -11,9 +11,6 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
     ],
     base: './',
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     build: {
       outDir: 'Poodle_Ride_Adventure_Build',
       chunkSizeWarningLimit: 1500,

@@ -1,1 +1,1 @@
-export * from './Garden/index';
+export * from '@/src/Description_List/G/Garden/index';

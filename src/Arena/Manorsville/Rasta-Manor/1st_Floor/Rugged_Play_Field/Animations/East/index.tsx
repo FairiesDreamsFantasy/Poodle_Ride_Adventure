@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { RED_EMERALD_DOOR_METRICS } from '../../../../../../../System/Building_Blocks/Doors/Sliding_Doors/Crafted/Red_Emerald-and-Gold_Decorated_Sliding_Door/General';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { RED_EMERALD_DOOR_METRICS } from '@/src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Red_Emerald-and-Gold_Decorated_Sliding_Door/General';
 
 /**
  * Rugged Play Field East Rendering

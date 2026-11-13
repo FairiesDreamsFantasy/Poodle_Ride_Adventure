@@ -1,6 +1,6 @@
 import React from 'react';
-import { WildcardArena } from '../_Wildcard_';
-import { GeminiWorld } from '../World';
+import { WildcardArena } from '@/src/System/AI/External/Gemini/Arena/_Wildcard_';
+import { GeminiWorld } from '@/src/System/AI/External/Gemini/Arena/World';
 
 /**
  * System/AI/External/Gemini/Arena/General/index.tsx

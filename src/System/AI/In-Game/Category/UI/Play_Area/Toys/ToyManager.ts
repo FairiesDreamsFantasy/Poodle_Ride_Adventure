@@ -7,8 +7,8 @@
  */
 
 import { Dispatch, SetStateAction } from 'react';
-import { GameState } from '../../../Logic/GameLogic';
-import { STORY_BOOK_PAGES } from '../../../../../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
+import { GameState } from '@/src/System/AI/In-Game/Category/Logic/GameLogic';
+import { STORY_BOOK_PAGES } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
 
 export interface ToyManagerAudioContext {
   playSqueak: () => void;

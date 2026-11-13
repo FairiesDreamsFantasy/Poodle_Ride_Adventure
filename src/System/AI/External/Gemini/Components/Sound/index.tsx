@@ -1,4 +1,4 @@
-import { GeminiSoundGeneral } from './General';
+import { GeminiSoundGeneral } from '@/src/System/AI/External/Gemini/Components/Sound/General';
 
 export { GeminiSoundGeneral as GeminiSound };
-export * from './General';
+export * from '@/src/System/AI/External/Gemini/Components/Sound/General';

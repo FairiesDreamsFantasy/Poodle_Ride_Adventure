@@ -1,4 +1,4 @@
-import { Direction } from '../../../../../../../types';
+import { Direction } from '@/src/types';
 import { 
   RAMP_X_MAX, RAMP_Y_MAX, RAMP_Y_MIN, 
   CELLAR_RAMP_X_MIN, CELLAR_RAMP_X_MAX, CELLAR_RAMP_Y_MIN, CELLAR_RAMP_Y_MAX, 
@@ -10,9 +10,9 @@ import {
   FOYER_FLOOR_WARP_Y_MIN, FOYER_FLOOR_WARP_Y_MAX,
   CELLAR_FLOOR_WARP_Y_MIN, CELLAR_FLOOR_WARP_Y_MAX,
   CELLAR_B1_WARP_Y_MIN, CELLAR_B1_WARP_Y_MAX
-} from '../../FoyerConstants';
-import { FOYER_DESCRIPTIONS } from '../../../../../../../Description_List/F/Foyer';
-import { FOYER_OBSTACLES } from '../../../../../../../System/Engine/Core/O/Obstacles';
+} from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer/FoyerConstants';
+import { FOYER_DESCRIPTIONS } from '@/src/Description_List/F/Foyer';
+import { FOYER_OBSTACLES } from '@/src/System/Engine/Core/O/Obstacles';
 
 export const handleFoyerCollision = (
   gridX: number,

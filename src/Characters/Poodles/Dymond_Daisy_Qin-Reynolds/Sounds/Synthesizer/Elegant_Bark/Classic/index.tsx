@@ -2,7 +2,7 @@
  * Dymond Daisy Qin-Reynolds: Classic Elegant Bark Synthesizer
  */
 
-import { playDymondBow } from '../Bow';
+import { playDymondBow } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds/Sounds/Synthesizer/Elegant_Bark/Bow';
 
 export function playElegantBark(
   ctx: AudioContext, 

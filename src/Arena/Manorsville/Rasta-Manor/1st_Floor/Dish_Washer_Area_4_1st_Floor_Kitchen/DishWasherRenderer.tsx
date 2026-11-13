@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 export function drawDishWasher(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

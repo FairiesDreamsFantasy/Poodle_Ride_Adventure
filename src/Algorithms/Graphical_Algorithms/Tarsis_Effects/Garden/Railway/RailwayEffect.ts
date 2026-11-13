@@ -1,4 +1,4 @@
-import { GameState } from "../../../../../System/AI/In-Game/Logic/GameLogic";
+import { GameState } from "@/src/System/AI/In-Game/Logic/GameLogic";
 
 /**
  * Draws the Tarsis Effect: Railway tracks and subway system below the garden south barrier.

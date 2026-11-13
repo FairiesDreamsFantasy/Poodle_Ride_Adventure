@@ -1,6 +1,6 @@
-import { GeminiCharactersGeneral } from './General';
+import { GeminiCharactersGeneral } from '@/src/System/AI/External/Gemini/Components/Characters/General';
 
 export { GeminiCharactersGeneral as GeminiCharacters };
-export * from './General';
-export * from './Data';
-export * from './_Wildcard_';
+export * from '@/src/System/AI/External/Gemini/Components/Characters/General';
+export * from '@/src/System/AI/External/Gemini/Components/Characters/Data';
+export * from '@/src/System/AI/External/Gemini/Components/Characters/_Wildcard_';

@@ -4,9 +4,9 @@
  * [PRESERVED ARTISTIC CRAFT: DO NOT ALTER WITHOUT PERMISSION]
  */
 import React from 'react';
-import { drawPoodleRiderView } from './Animations/2-D';
-import { drawPoodlePOV } from '../../Riders/Fairy-Rider/POV';
-import { ABIGAY_DESCRIPTION } from './General';
+import { drawPoodleRiderView } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Animations/2-D';
+import { drawPoodlePOV } from '@/src/Characters/Riders/Fairy-Rider/POV';
+import { ABIGAY_DESCRIPTION } from '@/src/Characters/Poodles/Abigay_Rose_Kone/General';
 
 export { drawPoodleRiderView, drawPoodlePOV };
 

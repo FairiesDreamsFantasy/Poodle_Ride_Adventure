@@ -1,4 +1,4 @@
-import { GeminiBuildingBlocksGeneral } from './General';
+import { GeminiBuildingBlocksGeneral } from '@/src/System/AI/External/Gemini/Components/Building_Blocks/General';
 
 export { GeminiBuildingBlocksGeneral as GeminiBuildingBlocks };
-export * from './General';
+export * from '@/src/System/AI/External/Gemini/Components/Building_Blocks/General';

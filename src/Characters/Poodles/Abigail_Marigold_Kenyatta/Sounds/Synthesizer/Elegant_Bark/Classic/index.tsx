@@ -2,7 +2,7 @@
  * Abigail Marigold Kenyatta: Classic Elegant Bark Synthesizer
  */
 
-import { playAbigailBow } from '../Bow';
+import { playAbigailBow } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Synthesizer/Elegant_Bark/Bow';
 
 export const ABIGAIL_BARK_MSG = "Abigail Marigold Kenyatta Barks Elegantly";
 

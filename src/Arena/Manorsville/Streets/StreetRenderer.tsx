@@ -1,5 +1,5 @@
-import { GameState } from '../../../System/AI/In-Game/Logic/GameLogic';
-import { drawMiniManor, drawEastHouse, drawWestHouse } from '../Rasta-Manor/Exterior/MiniManorRenderer';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawMiniManor, drawEastHouse, drawWestHouse } from '@/src/Arena/Manorsville/Rasta-Manor/Exterior/MiniManorRenderer';
 
 /**
  * STREET RENDERER

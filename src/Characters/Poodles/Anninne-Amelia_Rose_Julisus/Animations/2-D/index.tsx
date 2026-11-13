@@ -3,8 +3,8 @@
  * Centralized canvas rendering logic for Anninne-Amelia Rose Julisus.
  */
 
-import { drawRiderLegs, drawRiderHands } from '../../../../Riders/Fairy-Rider/Animations/2-D';
-import { DiagnosticManager } from '../../../../../System/Diagnostics/DiagnosticManager';
+import { drawRiderLegs, drawRiderHands } from '@/src/Characters/Riders/Fairy-Rider/Animations/2-D';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 // Fur texture random values
 export const FUR_RANDOM_VALUES_AA = Array.from({ length: 150 }, () => ({

@@ -1,5 +1,5 @@
 /**
- * System/AI/In-Game/Category/World/Levels/index.tsx
+ * System/AI/In-Game/Category/Levels/index.tsx
  */
 
-export * from './General';
+export * from '@/src/System/AI/In-Game/Category/World/Levels/General';

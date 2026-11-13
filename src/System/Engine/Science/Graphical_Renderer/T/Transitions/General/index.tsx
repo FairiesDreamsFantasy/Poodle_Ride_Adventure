@@ -1,14 +1,14 @@
-import { Direction } from '../../../../../../../types';
-import { GameState } from '../../../../../Core/Types';
-import { AREA_DIMENSIONS, SW_RECT_Y_MAX, CELLAR_LANDING_X_MIN, CELLAR_LANDING_X_MAX, CELLAR_LANDING_Y_MIN, CELLAR_LANDING_Y_MAX } from '../../../../../Core/Constants';
-import { formulateAreaMetrics } from '../../../../../../AI/In-Game/Category/Arena';
-import { handleRastaManorTransitions } from '../../../../../../../Arena/Manorsville/Rasta-Manor/Transitions/RastaManorTransitions';
-import { handleWandaTransitions } from '../../../../../../../World/Main_Game/World/1/Levels/Level_1/Wandas_Warp_House/WandaTransitions';
-import { handleMariaTransitions } from '../../../../../../../World/Main_Game/World/1/Levels/Level_7/Marias_Warp_Castle/MariaTransitions';
-import { handleStoryBookCourseTransitions } from '../../../../../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookTransitions';
-import { handlePinkHouseTransitions } from '../../../../../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/Pink_House/PinkHouseTransitions';
-import { isNorthward, isSouthward, isEastward, isWestward } from '../../../../../Core/Utils/Direction';
-import { MANORSVILLE_STREET_DESCRIPTION } from '../../../../../../../Arena/Manorsville/Description';
+import { Direction } from '@/src/types';
+import { GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS, SW_RECT_Y_MAX, CELLAR_LANDING_X_MIN, CELLAR_LANDING_X_MAX, CELLAR_LANDING_Y_MIN, CELLAR_LANDING_Y_MAX } from '@/src/System/Engine/Core/Constants';
+import { formulateAreaMetrics } from '@/src/System/AI/In-Game/Category/Arena';
+import { handleRastaManorTransitions } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/RastaManorTransitions';
+import { handleWandaTransitions } from '@/src/Warp_Houses/Wandas_Warp_House/WandaTransitions';
+import { handleMariaTransitions } from '@/src/Warp_Houses/Marias_Warp_Castle/MariaTransitions';
+import { handleStoryBookCourseTransitions } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookTransitions';
+import { handlePinkHouseTransitions } from '@/src/Courses/Poodle_Ride_Story_Book/Pink_House/PinkHouseTransitions';
+import { isNorthward, isSouthward, isEastward, isWestward } from '@/src/System/Engine/Core/Utils/Direction';
+import { MANORSVILLE_STREET_DESCRIPTION } from '@/src/Arena/Manorsville/Description';
 
 export interface TransitionResult {
   nextArea: string;

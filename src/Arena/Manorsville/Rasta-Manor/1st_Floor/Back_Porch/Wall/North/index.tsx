@@ -1,6 +1,6 @@
-import { NorthWallGeneral } from './General';
-import { NorthWallDescription } from './Description';
-import { NorthWallAnimations } from './Animations';
+import { NorthWallGeneral } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/North/General';
+import { NorthWallDescription } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/North/Description';
+import { NorthWallAnimations } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/North/Animations';
 
 export const NorthWall = {
   id: 'Back_Porch_North_Wall',

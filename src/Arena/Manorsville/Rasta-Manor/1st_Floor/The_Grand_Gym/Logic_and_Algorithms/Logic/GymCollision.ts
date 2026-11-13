@@ -1,4 +1,4 @@
-import { GYM_WIDTH, GYM_HEIGHT, TO_ARCADE_X_MIN, TO_ARCADE_X_MAX, TO_ARCADE_Y, TO_DRESSAGE_X, TO_DRESSAGE_Y_MIN, TO_DRESSAGE_Y_MAX, GYM_DESCRIPTIONS } from '../../GymConstants';
+import { GYM_WIDTH, GYM_HEIGHT, TO_ARCADE_X_MIN, TO_ARCADE_X_MAX, TO_ARCADE_Y, TO_DRESSAGE_X, TO_DRESSAGE_Y_MIN, TO_DRESSAGE_Y_MAX, GYM_DESCRIPTIONS } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/The_Grand_Gym/GymConstants';
 
 export function handleGymCollision(
   gridX: number,

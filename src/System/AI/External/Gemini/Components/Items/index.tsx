@@ -1,5 +1,5 @@
-import { GeminiItemsGeneral } from './General';
+import { GeminiItemsGeneral } from '@/src/System/AI/External/Gemini/Components/Items/General';
 
 export { GeminiItemsGeneral as GeminiItems };
-export * from './General';
-export * from './Objects';
+export * from '@/src/System/AI/External/Gemini/Components/Items/General';
+export * from '@/src/System/AI/External/Gemini/Components/Items/Objects';

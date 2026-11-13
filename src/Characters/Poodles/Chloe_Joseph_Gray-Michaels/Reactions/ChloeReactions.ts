@@ -3,7 +3,7 @@
  * Response behaviors, barks, and interactions for Chloe.
  * She has specialized reactions such as barking aggressively at Abigail and trying to chew tires or knock over streetcars.
  */
-import { GameState } from '../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export function getChloeReactionText(state: GameState, targetName: string): string {
   if (targetName === 'Abigail Marigold Kenyatta') {

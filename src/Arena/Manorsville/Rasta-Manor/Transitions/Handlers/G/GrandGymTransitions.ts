@@ -1,7 +1,7 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { TO_ARCADE_X_MIN, TO_ARCADE_X_MAX, TO_DRESSAGE_Y_MIN, TO_DRESSAGE_Y_MAX } from '../../../1st_Floor/The_Grand_Gym/GymConstants';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { TO_ARCADE_X_MIN, TO_ARCADE_X_MAX, TO_DRESSAGE_Y_MIN, TO_DRESSAGE_Y_MAX } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/The_Grand_Gym/GymConstants';
 
 export const handleGymTransitions = (
   gridX: number,

@@ -4,9 +4,9 @@
  * [PRESERVED ARTISTIC CRAFT: DO NOT ALTER WITHOUT PERMISSION]
  */
 import React from 'react';
-import { drawAnninneAmeliaRiderView } from './Animations/2-D';
-import { drawPoodlePOV } from '../../Riders/Fairy-Rider/POV';
-import { ANNINNE_AMELIA_DESCRIPTION } from './General';
+import { drawAnninneAmeliaRiderView } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Animations/2-D';
+import { drawPoodlePOV } from '@/src/Characters/Riders/Fairy-Rider/POV';
+import { ANNINNE_AMELIA_DESCRIPTION } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/General';
 
 export { drawAnninneAmeliaRiderView, drawPoodlePOV };
 

@@ -1,5 +1,5 @@
-import { Direction } from '../../../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
+import { Direction } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 
 export const handleCellarDoorTransition = (
   direction: Direction,

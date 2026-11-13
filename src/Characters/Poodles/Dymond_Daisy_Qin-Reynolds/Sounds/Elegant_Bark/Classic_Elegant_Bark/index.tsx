@@ -3,7 +3,7 @@
  * Logic for Dymond's elegant bark.
  */
 
-import { playDymondBow } from '../Elegant_BOW';
+import { playDymondBow } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds/Sounds/Elegant_Bark/Elegant_BOW';
 
 export function playElegantBark(
   ctx: AudioContext, 

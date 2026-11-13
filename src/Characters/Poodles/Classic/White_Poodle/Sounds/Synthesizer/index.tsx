@@ -1,3 +1,3 @@
-export * from './General';
-export * from './Elegant_Bark';
-export * from './Gallop';
+export * from '@/src/Characters/Poodles/Classic/White_Poodle/Sounds/Synthesizer/General';
+export * from '@/src/Characters/Poodles/Classic/White_Poodle/Sounds/Synthesizer/Elegant_Bark';
+export * from '@/src/Characters/Poodles/Classic/White_Poodle/Sounds/Synthesizer/Gallop';

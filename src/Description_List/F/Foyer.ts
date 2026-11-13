@@ -1,1 +1,1 @@
-export * from './Foyer/index';
+export * from '@/src/Description_List/F/Foyer/index';

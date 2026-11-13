@@ -3,8 +3,8 @@
  * Core component for Abigail Marigold Kenyatta.
  */
 import React from 'react';
-import { drawAbigailRiderView } from './Animations/2-D';
-import { ABIGAIL_DESCRIPTION } from './General';
+import { drawAbigailRiderView } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Animations/2-D';
+import { ABIGAIL_DESCRIPTION } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/General';
 
 export { drawAbigailRiderView };
 

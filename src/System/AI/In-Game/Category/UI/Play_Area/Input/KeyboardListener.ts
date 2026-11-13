@@ -13,10 +13,10 @@
  */
 
 import { Dispatch, SetStateAction, MutableRefObject } from 'react';
-import { GameState, MOVE_COOLDOWN } from '../../../../Logic/GameLogic';
-import { DOMEngine } from '../../../../../../DOM';
-import { routeKeyboardEvent } from '../../../../../../Engine/Scientific_Imports/K/Keyboard';
-import { executeToyInput, executeToyRideChoice } from '../Toys/ToyManager';
+import { GameState, MOVE_COOLDOWN } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { DOMEngine } from '@/src/System/DOM';
+import { routeKeyboardEvent } from '@/src/System/Engine/Scientific_Imports/K/Keyboard';
+import { executeToyInput, executeToyRideChoice } from '@/src/System/AI/In-Game/Category/UI/Play_Area/Toys/ToyManager';
 
 export interface KeyboardListenerActions {
   bark: (msg?: string, isCore?: boolean, count?: number, area?: string) => void;

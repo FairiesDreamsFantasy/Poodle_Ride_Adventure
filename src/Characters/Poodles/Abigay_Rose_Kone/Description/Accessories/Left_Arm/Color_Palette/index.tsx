@@ -1,6 +1,6 @@
 /** Color Palette with Patterns and Textures */
-export * from './Pattern_Palette';
-export * from './Texture_Palette';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Accessories/Left_Arm/Color_Palette/Pattern_Palette';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Accessories/Left_Arm/Color_Palette/Texture_Palette';
 
 export const ColorPalette = {
   primary: "#FFFFFF",

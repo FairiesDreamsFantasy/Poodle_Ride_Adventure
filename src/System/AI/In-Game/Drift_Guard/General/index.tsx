@@ -10,7 +10,7 @@
  * - Poodle Head Stability Invariant Enforcement (d(headPosition)/d(riderLean) = 0)
  */
 
-import { DRIFT_GUARD_CONSTANTS, DriftGuardConfig, DEFAULT_DRIFT_GUARD_CONFIG } from '../../../../Registry/AI/In-Game/Drift_Guard';
+import { DRIFT_GUARD_CONSTANTS, DriftGuardConfig, DEFAULT_DRIFT_GUARD_CONFIG } from '@/src/System/Registry/AI/In-Game/Drift_Guard';
 
 export interface Vector2D {
   x: number;

@@ -3,7 +3,7 @@
  * Ally character rendering logic.
  */
 
-import { DiagnosticManager } from '../../../../System/Diagnostics/DiagnosticManager';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 let lastLogTime = 0;
 const LOG_INTERVAL = 5000;

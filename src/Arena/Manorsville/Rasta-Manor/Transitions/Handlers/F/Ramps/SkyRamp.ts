@@ -1,13 +1,13 @@
-import { Direction, GameState } from '../../../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
-import { DiagnosticManager } from '../../../../../../../System/Diagnostics/DiagnosticManager';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 import {
   FOYER_FLOOR_WARP_Y_MIN,
   FOYER_FLOOR_WARP_Y_MAX,
   FOYER_SKY_WARP_Y_MIN,
   FOYER_SKY_WARP_Y_MAX,
   SKY_TARCIST_WIDTH as TARCIST_WIDTH
-} from '../../../../1st_Floor/Foyer/FoyerConstants';
+} from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer/FoyerConstants';
 
 export const handleSkyRampTransitions = (
   direction: Direction,

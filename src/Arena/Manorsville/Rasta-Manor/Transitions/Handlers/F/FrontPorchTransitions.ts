@@ -1,6 +1,6 @@
-import { Direction } from '../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
+import { Direction } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 
 export const handleFrontPorchTransitions = (
   gridX: number,

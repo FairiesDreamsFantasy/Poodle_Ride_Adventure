@@ -1,5 +1,5 @@
 
-import { ALVITA_CONSTANTS as C } from './AlvitaConstants';
+import { ALVITA_CONSTANTS as C } from '@/src/Characters/Alvita/AlvitaConstants';
 
 export function drawAlvita(
   ctx: CanvasRenderingContext2D,

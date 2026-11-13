@@ -1,5 +1,5 @@
-import { AREA_DIMENSIONS } from "../../../../../../../System/Engine/Core/Constants";
-import { DISHWASHER_DESCRIPTIONS } from "../../../../../../../Description_List/D/DishWasher";
+import { AREA_DIMENSIONS } from "@/src/System/Engine/Core/Constants";
+import { DISHWASHER_DESCRIPTIONS } from "@/src/Description_List/D/DishWasher";
 
 export function handleDishWasherCollision(nextX: number, nextY: number) {
   let isBlocked = false;

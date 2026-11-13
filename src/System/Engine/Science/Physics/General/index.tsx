@@ -1,7 +1,7 @@
-import { handleWesternWarpRoomCollision } from '../../../../../World/Main_Game/World/1/Levels/Level_7/Courses/Allisons_Manor/Manor/1st_Floor/Western_Specific_Warp_Station/WesternWarpRoomCollision';
-import { handleGardenWarpRoomCollision } from '../../../../../World/Main_Game/World/1/Levels/Level_7/Courses/Allisons_Manor/Manor/1st_Floor/Garden_Specific_Warp_Room/GardenWarpRoomCollision';
-import { handleSoutheastCoastWarpRoomCollision } from '../../../../../World/Main_Game/World/1/Levels/Level_7/Courses/Allisons_Manor/Manor/1st_Floor/Southeast_Coast_Warp_Room/SoutheastCoastWarpRoomCollision';
-import { handleGardenCollision } from '../../../../AI/In-Game/Logic/Garden/GardenCollision';
+import { handleWesternWarpRoomCollision } from '@/src/Warp_Houses/Allisons_Manor/Manor/1st_Floor/Western_Specific_Warp_Station/WesternWarpRoomCollision';
+import { handleGardenWarpRoomCollision } from '@/src/Warp_Houses/Allisons_Manor/Manor/1st_Floor/Garden_Specific_Warp_Room/GardenWarpRoomCollision';
+import { handleSoutheastCoastWarpRoomCollision } from '@/src/Warp_Houses/Allisons_Manor/Manor/1st_Floor/Southeast_Coast_Warp_Room/SoutheastCoastWarpRoomCollision';
+import { handleGardenCollision } from '@/src/System/AI/In-Game/Logic/Garden/GardenCollision';
 
 export { handleGardenCollision };
 

@@ -1,4 +1,4 @@
-import { GeminiVisualsGeneral } from './General';
+import { GeminiVisualsGeneral } from '@/src/System/AI/External/Gemini/Components/Visuals/General';
 
 export { GeminiVisualsGeneral as GeminiVisuals };
-export * from './General';
+export * from '@/src/System/AI/External/Gemini/Components/Visuals/General';

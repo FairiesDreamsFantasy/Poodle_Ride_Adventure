@@ -1,4 +1,4 @@
-import { GARDEN_OBSTACLES } from '../../../../Engine/Core/O/Obstacles';
+import { GARDEN_OBSTACLES } from '@/src/System/Engine/Core/O/Obstacles';
 
 export const handleGardenCollision = (
   nextX: number,

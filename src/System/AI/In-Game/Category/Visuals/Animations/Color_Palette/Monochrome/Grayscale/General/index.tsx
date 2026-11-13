@@ -4,7 +4,7 @@ import {
   REC601_LUMINANCE,
   GRAYSCALE_STEPS_4_BIT,
   GRAYSCALE_STEPS_2_BIT 
-} from '../../../../../../../../../Registry/AI/Visuals/Animations/Color_Palette/Monochrome/Grayscale/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Color_Palette/Monochrome/Grayscale/General/index.tsx';
 
 /**
  * Calculates Photometric Luminance (Y) from RGB components [0, 255]

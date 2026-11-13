@@ -1,8 +1,8 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { drawEastGrandArcadeNorth } from './Animations/North';
-import { drawEastGrandArcadeSouth } from './Animations/South';
-import { drawEastGrandArcadeEast } from './Animations/East';
-import { drawEastGrandArcadeWest } from './Animations/West';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawEastGrandArcadeNorth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/East_Grand_Arcade/Animations/North';
+import { drawEastGrandArcadeSouth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/East_Grand_Arcade/Animations/South';
+import { drawEastGrandArcadeEast } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/East_Grand_Arcade/Animations/East';
+import { drawEastGrandArcadeWest } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/East_Grand_Arcade/Animations/West';
 
 /**
  * Renders the East Grand Arcade.

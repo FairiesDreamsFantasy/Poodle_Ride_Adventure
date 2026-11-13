@@ -1,6 +1,6 @@
-import { Direction, GameState } from '../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../System/Engine/Transitions';
-import { SPECTATOR_WIDTH, SPECTATOR_HEIGHT, WALKWAY_WIDTH, BENCH_WIDTH, TO_MEZZANINE_X_MIN, TO_MEZZANINE_X_MAX, TO_MEZZANINE_Y, TO_WEST_COMMUNAL_X_MIN, TO_WEST_COMMUNAL_X_MAX, TO_WEST_COMMUNAL_Y } from './SpectatorAreaConstants';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { SPECTATOR_WIDTH, SPECTATOR_HEIGHT, WALKWAY_WIDTH, BENCH_WIDTH, TO_MEZZANINE_X_MIN, TO_MEZZANINE_X_MAX, TO_MEZZANINE_Y, TO_WEST_COMMUNAL_X_MIN, TO_WEST_COMMUNAL_X_MAX, TO_WEST_COMMUNAL_Y } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Spectator_Area/SpectatorAreaConstants';
 
 export const handleSpectatorAreaTransitions = (
   gridX: number,

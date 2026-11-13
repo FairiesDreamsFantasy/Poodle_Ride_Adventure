@@ -3,9 +3,9 @@
  * Centralized sound synthesis for Abigay.
  */
 
-export * from './Elegant_Bark';
-export * from './Movement';
-export * from './Jump';
-export * from './Collar_Grasp';
-export * from './Lean';
-export * from './Pet_Sound';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Elegant_Bark';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Movement';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Jump';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Collar_Grasp';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Lean';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Pet_Sound';

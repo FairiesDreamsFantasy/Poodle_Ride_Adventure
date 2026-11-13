@@ -1,7 +1,7 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { TO_GYM_X, TO_GYM_Y_MIN, TO_GYM_Y_MAX, TO_WEST_X, TO_WEST_Y_MIN, TO_WEST_Y_MAX } from '../../../1st_Floor/Narrow_Dressage_Gym/DressageConstants';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { TO_GYM_X, TO_GYM_Y_MIN, TO_GYM_Y_MAX, TO_WEST_X, TO_WEST_Y_MIN, TO_WEST_Y_MAX } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Narrow_Dressage_Gym/DressageConstants';
 
 export const handleDressageTransitions = (
   gridX: number,

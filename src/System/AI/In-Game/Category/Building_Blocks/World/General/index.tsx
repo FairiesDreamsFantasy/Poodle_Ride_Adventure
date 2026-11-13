@@ -1,4 +1,4 @@
-import { AREA_DIMENSIONS, isOutdoorArea } from '../../../../Logic/GameLogic';
+import { AREA_DIMENSIONS, isOutdoorArea } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 export interface WorldBounds {
   width: number;

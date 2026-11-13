@@ -2,7 +2,7 @@
  * Fairy-Rider Point of View (POV)
  * Logic for first-person and rider-centric perspectives.
  */
-import { ABIGAY_FUR_RANDOM as FUR_RANDOM_VALUES } from '../../../Poodles/Abigay_Rose_Kone/Animations/2-D';
+import { ABIGAY_FUR_RANDOM as FUR_RANDOM_VALUES } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Animations/2-D';
 
 /**
  * Draws the rider's hands and arms from the POV perspective

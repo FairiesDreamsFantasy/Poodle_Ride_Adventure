@@ -1,7 +1,7 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../System/AI/In-Game/Logic/GameLogic';
-import { TILES } from '../../../../System/Building_Blocks/BlocksConstants';
-import { drawFloorTiling } from '../../../../System/Engine/Science/Graphical_Renderer/General';
-import { drawEastHouse, drawWestHouse } from '../Exterior/MiniManorRenderer';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TILES } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawFloorTiling } from '@/src/System/Engine/Science/Graphical_Renderer/General';
+import { drawEastHouse, drawWestHouse } from '@/src/Arena/Manorsville/Rasta-Manor/Exterior/MiniManorRenderer';
 
 /**
  * FRONT PORCH RENDERER

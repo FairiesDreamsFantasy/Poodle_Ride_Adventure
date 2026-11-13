@@ -4,7 +4,7 @@
  * [PRESERVED ARTISTIC CRAFT: DO NOT ALTER WITHOUT PERMISSION]
  */
 
-import { ANNINNE_AMELIA_NYHABINGHI_WALK } from '../../Movements/MovementPowerhouse';
+import { ANNINNE_AMELIA_NYHABINGHI_WALK } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Movements/MovementPowerhouse';
 
 export function playWalk(
   ctx: AudioContext,

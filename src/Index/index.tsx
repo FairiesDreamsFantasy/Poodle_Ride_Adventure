@@ -1,1 +1,1 @@
-export * from './General';
+export * from '@/src/Index/General';

@@ -1,5 +1,5 @@
-import { GameState } from "../../../../Engine/Core/Types";
-import { AREA_DIMENSIONS, GRID_SIZE } from "../../../../Engine/Core/Constants";
+import { GameState } from "@/src/System/Engine/Core/Types";
+import { AREA_DIMENSIONS, GRID_SIZE } from "@/src/System/Engine/Core/Constants";
 
 export function drawPorch(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

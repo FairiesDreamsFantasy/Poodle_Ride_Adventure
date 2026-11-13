@@ -1,7 +1,7 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { WEST_ARCH_Y_MIN, WEST_ARCH_Y_MAX, EAST_ARCH_Y_MIN, EAST_ARCH_Y_MAX } from '../../../1st_Floor/Meditation_Halls_Library/LibraryConstants';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { WEST_ARCH_Y_MIN, WEST_ARCH_Y_MAX, EAST_ARCH_Y_MIN, EAST_ARCH_Y_MAX } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Meditation_Halls_Library/LibraryConstants';
 
 export const handleMeditationHallLibraryTransitions = (
   gridX: number,

@@ -1,12 +1,12 @@
 import React from 'react';
-import { GeneralBricks } from './General';
-import { BricksAnimations } from './Animations';
-import { Bricks2D } from './2-D';
-import { Bricks3D } from './3-D';
-import { BricksPolygons } from './Polygons';
-import { BricksPixelations } from './Pixelations';
-import { BricksGeometry } from './Geometry';
-import { BricksColorPalette } from './Color_Palette';
+import { GeneralBricks } from '@/src/System/Building_Blocks/Bricks/General';
+import { BricksAnimations } from '@/src/System/Building_Blocks/Bricks/Animations';
+import { Bricks2D } from '@/src/System/Building_Blocks/Bricks/2-D';
+import { Bricks3D } from '@/src/System/Building_Blocks/Bricks/3-D';
+import { BricksPolygons } from '@/src/System/Building_Blocks/Bricks/Polygons';
+import { BricksPixelations } from '@/src/System/Building_Blocks/Bricks/Pixelations';
+import { BricksGeometry } from '@/src/System/Building_Blocks/Bricks/Geometry';
+import { BricksColorPalette } from '@/src/System/Building_Blocks/Bricks/Color_Palette';
 
 export const Bricks: React.FC<any> = (props) => {
   return (

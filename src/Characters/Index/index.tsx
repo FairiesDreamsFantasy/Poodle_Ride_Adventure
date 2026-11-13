@@ -1,1 +1,1 @@
-export * from './General';
+export * from '@/src/Characters/Index/General';

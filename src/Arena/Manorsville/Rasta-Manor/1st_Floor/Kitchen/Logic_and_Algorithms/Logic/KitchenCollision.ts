@@ -1,5 +1,5 @@
-import { AREA_DIMENSIONS } from "../../../../../../../System/Engine/Core/Constants";
-import { KITCHEN_DESCRIPTIONS } from "../../../../../../../Description_List/K/Kitchen";
+import { AREA_DIMENSIONS } from "@/src/System/Engine/Core/Constants";
+import { KITCHEN_DESCRIPTIONS } from "@/src/Description_List/K/Kitchen";
 
 export function handleKitchenCollision(nextX: number, nextY: number) {
   let isBlocked = false;

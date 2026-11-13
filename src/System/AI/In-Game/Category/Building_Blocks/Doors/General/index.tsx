@@ -1,1 +1,1 @@
-export * from '../Crafted/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/Building_Blocks/Doors/Crafted/index.tsx';

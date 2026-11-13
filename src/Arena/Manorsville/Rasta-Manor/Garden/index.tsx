@@ -3,8 +3,8 @@
  * Entry point for the simulated garden area.
  */
 
-export * from './Animations';
-export * from './Dimensions';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Garden/Animations';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Garden/Dimensions';
 
 export const GARDEN_CONFIG = {
   name: 'Simulated Garden',

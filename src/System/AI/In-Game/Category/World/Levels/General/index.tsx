@@ -1,5 +1,5 @@
 /**
- * System/AI/In-Game/Category/World/Levels/General/index.tsx
+ * System/AI/In-Game/Category/Levels/General/index.tsx
  * 
  * Master Level Intelligence & Formulation Engine.
  * Formulates level metrics, descriptions, and enforces level structural invariants

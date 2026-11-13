@@ -1,4 +1,4 @@
-import { DiagnosticManager } from '../../../../../System/Diagnostics/DiagnosticManager';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 /**
  * POODLE 3-D RENDERER

@@ -1,4 +1,4 @@
-import { CeilingPoint } from '../Geometry';
+import { CeilingPoint } from '@/src/System/Building_Blocks/Ceiling/Geometry';
 
 export interface Camera3D {
   x: number;

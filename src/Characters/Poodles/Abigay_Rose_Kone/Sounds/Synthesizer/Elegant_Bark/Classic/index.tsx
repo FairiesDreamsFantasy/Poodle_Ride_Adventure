@@ -2,7 +2,7 @@
  * Abigay Rose Kone: Classic Elegant Bark Synthesizer
  */
 
-import { playAbigayBow } from '../Bow';
+import { playAbigayBow } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Elegant_Bark/Bow';
 
 export const POODLE_BARK_MSG = "A Poodle Barks Elegantly";
 

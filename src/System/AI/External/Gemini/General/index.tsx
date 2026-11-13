@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { AISafetyFilter } from "../Safety";
+import { AISafetyFilter } from "@/src/System/AI/External/Gemini/Safety";
 
 const apiKey = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : undefined;
 

@@ -1,4 +1,4 @@
-# Local Directory Protection Notice
+# Local Directory Protection Notice: src/System/AI/In-Game/Engine/CSharp/General
 
 ## 20000% Ultra-Broad Craftsmanship & Invariant Protections
 - This directory and all enclosed modules are protected under **20000% Ultra-Broad Protections**.

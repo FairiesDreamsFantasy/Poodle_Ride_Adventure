@@ -1,8 +1,8 @@
-import { Direction } from '../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { handlePlaygroundEastArchways } from './Archways/EastArchways';
-import { handlePlaygroundRamps } from './Ramps/PlaygroundRamps';
+import { Direction } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { handlePlaygroundEastArchways } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/G/Archways/EastArchways';
+import { handlePlaygroundRamps } from '@/src/Arena/Manorsville/Rasta-Manor/Transitions/Handlers/G/Ramps/PlaygroundRamps';
 
 export const handleGrandPlaygroundTransitions = (
   area: string,

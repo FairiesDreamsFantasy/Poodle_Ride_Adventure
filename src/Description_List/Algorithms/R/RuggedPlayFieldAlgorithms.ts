@@ -1,5 +1,5 @@
 
-import { FOYER_DESCRIPTIONS, RUGGED_PLAY_FIELD_DESCRIPTIONS } from '../../../System/AI/In-Game/Logic/GameLogic';
+import { FOYER_DESCRIPTIONS, RUGGED_PLAY_FIELD_DESCRIPTIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 export const getRuggedPlayFieldDescription = (x: number, y: number, direction: string): string => {
   if (x <= 10) return "You are at the West wall of the Rugged Play Field.";

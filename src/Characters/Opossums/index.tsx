@@ -1,1 +1,1 @@
-/** Opossums Entry */ export * from './Animations';
+/** Opossums Entry */ export * from '@/src/Characters/Opossums/Animations';

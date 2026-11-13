@@ -3,31 +3,31 @@
  * Logic for managing visual resolution scaling across all precision levels.
  */
 
-export * from './SD';
-export * from './HD';
-export * from './High';
-export * from './Low';
-export * from './Very_High';
-export * from './Ultra-High';
-export * from './Ultra-Low';
-export * from './Medium-High';
-export * from './Medium-Low';
-export * from './Medium';
-export * from './2K';
-export * from './4K';
-export * from './8K';
-export * from './16K';
-export * from './32K';
-export * from './64K';
-export * from './128K';
-export * from './256K';
-export * from './512K';
-export * from './1024K';
-export * from './2048K';
-export * from './4096K';
-export * from './8192K';
+export * from '@/src/System/Visuals/Resolution/SD';
+export * from '@/src/System/Visuals/Resolution/HD';
+export * from '@/src/System/Visuals/Resolution/High';
+export * from '@/src/System/Visuals/Resolution/Low';
+export * from '@/src/System/Visuals/Resolution/Very_High';
+export * from '@/src/System/Visuals/Resolution/Ultra-High';
+export * from '@/src/System/Visuals/Resolution/Ultra-Low';
+export * from '@/src/System/Visuals/Resolution/Medium-High';
+export * from '@/src/System/Visuals/Resolution/Medium-Low';
+export * from '@/src/System/Visuals/Resolution/Medium';
+export * from '@/src/System/Visuals/Resolution/2K';
+export * from '@/src/System/Visuals/Resolution/4K';
+export * from '@/src/System/Visuals/Resolution/8K';
+export * from '@/src/System/Visuals/Resolution/16K';
+export * from '@/src/System/Visuals/Resolution/32K';
+export * from '@/src/System/Visuals/Resolution/64K';
+export * from '@/src/System/Visuals/Resolution/128K';
+export * from '@/src/System/Visuals/Resolution/256K';
+export * from '@/src/System/Visuals/Resolution/512K';
+export * from '@/src/System/Visuals/Resolution/1024K';
+export * from '@/src/System/Visuals/Resolution/2048K';
+export * from '@/src/System/Visuals/Resolution/4096K';
+export * from '@/src/System/Visuals/Resolution/8192K';
 
-export * from '../../AI/In-Game/Category/Visuals/Resolution';
+export * from '@/src/System/AI/In-Game/Category/Visuals/Resolution';
 
 export const ResolutionSystem = {
   name: "Resolution",

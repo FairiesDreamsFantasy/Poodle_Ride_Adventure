@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Clock } from 'lucide-react';
-import { speak } from '../../../../../../Sound/ttsService';
-import { InterstitialAdThemeDecoration } from '../../../../../../Theme/Interstitial_Ad_Specific';
-import { AdBlockerDetected } from './Ad_Blocker_Detected';
+import { speak } from '@/src/System/Sound/ttsService';
+import { InterstitialAdThemeDecoration } from '@/src/System/Theme/Interstitial_Ad_Specific';
+import { AdBlockerDetected } from '@/src/System/AI/In-Game/Category/UI/Ads/Interstitial/Ad_Blocker_Detected';
 
 /**
  * System/AI/In-Game/Category/UI/Ads/Interstitial/index.tsx

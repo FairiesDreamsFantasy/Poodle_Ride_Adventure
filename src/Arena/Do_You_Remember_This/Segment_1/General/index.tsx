@@ -1,7 +1,7 @@
-import { GameState } from '../../../../System/Engine/Core/Types';
-import { drawArenaStart } from '../Start';
-import { drawArenaPath } from '../Path';
-import { drawArenaGoal } from '../Goal';
+import { GameState } from '@/src/System/Engine/Core/Types';
+import { drawArenaStart } from '@/src/Arena/Do_You_Remember_This/Segment_1/Start';
+import { drawArenaPath } from '@/src/Arena/Do_You_Remember_This/Segment_1/Path';
+import { drawArenaGoal } from '@/src/Arena/Do_You_Remember_This/Segment_1/Goal';
 
 export interface Segment1Props {
   ctx: CanvasRenderingContext2D;

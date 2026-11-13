@@ -6,8 +6,8 @@ export const ColorPalette = {};
 export const Geometry = {};
 
 
-export * as Neck from './Neck';
-export * as Fur from './Fur';
-export * as Legs from './Legs';
-export * as Tail from './Tail';
-export * as Skin from './Skin';
+export * as Neck from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Description/Body/Neck';
+export * as Fur from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Description/Body/Fur';
+export * as Legs from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Description/Body/Legs';
+export * as Tail from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Description/Body/Tail';
+export * as Skin from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Description/Body/Skin';

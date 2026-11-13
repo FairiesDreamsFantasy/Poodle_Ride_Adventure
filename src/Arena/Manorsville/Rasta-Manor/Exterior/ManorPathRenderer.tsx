@@ -1,5 +1,5 @@
-import { GameState } from '../../../../System/AI/In-Game/Logic/GameLogic';
-import { AREA_DIMENSIONS } from '../../../../System/Engine/Core/Constants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
 
 export function drawManorPath(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number, side: 'East' | 'West') {
   const horizon = height / 2;

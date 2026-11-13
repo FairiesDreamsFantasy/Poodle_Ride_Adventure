@@ -10,7 +10,7 @@
  * 3. Span-based memory slicing for high-speed AI data processing.
  */
 
-import { EngineAssemblyCSharpManagerInstance } from '../../../../../Engine/Assembly/CSharp';
+import { EngineAssemblyCSharpManagerInstance } from '@/src/System/Engine/Assembly/CSharp';
 
 export const queryAIEntitiesCSharp = (entities: any[], type: string) => {
   return EngineAssemblyCSharpManagerInstance.query(entities)

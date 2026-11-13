@@ -1,7 +1,7 @@
-import { NorthWall } from './North';
-import { SouthWall } from './South';
-import { EastWall } from './East';
-import { WestWall } from './West';
+import { NorthWall } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/North';
+import { SouthWall } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/South';
+import { EastWall } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/East';
+import { WestWall } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall/West';
 
 export const BackPorchWallRegistry = {
   North: NorthWall,

@@ -2,12 +2,12 @@
  * Dining Room Mezzanine Animations
  */
 
-export * from './2-D';
-export * from './3-D';
-export * from './Polygons';
-export * from './Pixelations';
-export * from './Geometry';
-export * from './Color_Palette';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/2-D';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/3-D';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/Polygons';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/Pixelations';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/Geometry';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Dining_Room_Mezzanine/Animations/Color_Palette';
 
 export const DiningRoomMezzanineAnimations = {
   name: 'Dining Room Mezzanine Animations',

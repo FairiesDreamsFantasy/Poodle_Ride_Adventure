@@ -3,7 +3,7 @@
  * Logic for Abigay's elegant bark.
  */
 
-import { playAbigayBow } from '../Elegant_BOW';
+import { playAbigayBow } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Elegant_Bark/Elegant_BOW';
 
 export const POODLE_BARK_MSG = "A Poodle Barks Elegantly";
 

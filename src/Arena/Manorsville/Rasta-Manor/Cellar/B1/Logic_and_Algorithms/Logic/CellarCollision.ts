@@ -1,4 +1,4 @@
-import { CELLAR_DESCRIPTIONS } from '../../../../../../../Description_List/C/Cellar';
+import { CELLAR_DESCRIPTIONS } from '@/src/Description_List/C/Cellar';
 
 export const handleCellarCollision = (
   gridX: number,

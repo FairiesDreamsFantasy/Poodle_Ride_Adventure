@@ -1,5 +1,5 @@
 import React from 'react';
-import { BRICKS } from '../../BlocksConstants';
+import { BRICKS } from '@/src/System/Building_Blocks/BlocksConstants';
 
 export const GeneralBricks: React.FC<any> = (props) => {
   return (

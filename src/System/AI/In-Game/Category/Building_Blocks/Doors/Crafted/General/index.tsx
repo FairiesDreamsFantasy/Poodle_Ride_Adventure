@@ -1,8 +1,8 @@
-import { GameState } from '../../../../../Logic/GameLogic';
-import { SoundManager } from '../../../../../../../Sound/SoundManager';
-import { calculateDoorSpatialPan } from './SpatialPan';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { SoundManager } from '@/src/System/Sound/SoundManager';
+import { calculateDoorSpatialPan } from '@/src/System/AI/In-Game/Category/Building_Blocks/Doors/Crafted/General/SpatialPan';
 
-export { calculateDoorSpatialPan } from './SpatialPan';
+export { calculateDoorSpatialPan } from '@/src/System/AI/In-Game/Category/Building_Blocks/Doors/Crafted/General/SpatialPan';
 
 /**
  * DoorManager AI: Handles proximity detection and scientific state updates for doors.

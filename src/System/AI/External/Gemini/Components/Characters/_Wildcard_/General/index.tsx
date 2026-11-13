@@ -1,5 +1,5 @@
 import React from 'react';
-import { DEFAULT_WILDCARD_CHAR_DATA } from '../Data';
+import { DEFAULT_WILDCARD_CHAR_DATA } from '@/src/System/AI/External/Gemini/Components/Characters/_Wildcard_/Data';
 
 /**
  * System/AI/External/Gemini/Components/Characters/_Wildcard_/General/index.tsx

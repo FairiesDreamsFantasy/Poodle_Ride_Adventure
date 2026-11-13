@@ -13,7 +13,7 @@
  *    (e.g., Dymond Daisy Qin-Reynolds in Storybook Course), and restores prior companion state.
  */
 
-import { handlePoodleAboutAI } from '../../../Animal/Poodle/General';
+import { handlePoodleAboutAI } from '@/src/System/AI/In-Game/Category/Animal/Poodle/General';
 
 export interface AnimalSelectionTransitionOptions {
   targetPoodleName: string;

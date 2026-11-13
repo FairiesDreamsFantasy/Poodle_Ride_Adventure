@@ -1,7 +1,7 @@
-import { Direction } from '../../../../../../../types';
-import { GameState } from '../../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
-import { MEDITATION_HALL_DESCRIPTIONS } from '../../../../../../../Description_List/M/MeditationHall';
+import { Direction } from '@/src/types';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { MEDITATION_HALL_DESCRIPTIONS } from '@/src/Description_List/M/MeditationHall';
 
 export function handleMeditationHallCollision(
   nextX: number,

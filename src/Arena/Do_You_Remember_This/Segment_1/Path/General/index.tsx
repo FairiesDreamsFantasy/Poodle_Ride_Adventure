@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export interface ArenaPathProps {
   ctx: CanvasRenderingContext2D;

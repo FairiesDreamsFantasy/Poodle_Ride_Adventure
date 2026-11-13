@@ -1,5 +1,5 @@
-export * from './Pattern_Palette';
-export * from './Texture_Palette';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Communal_Spaces/East/Animations/Color_Palette/Pattern_Palette';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Communal_Spaces/East/Animations/Color_Palette/Texture_Palette';
 
 
 /**

@@ -1,6 +1,6 @@
-import { GameState, AREA_DIMENSIONS, GRID_SIZE } from "../../../../System/AI/In-Game/Logic/GameLogic";
-import { drawTable, drawBench, drawFence, drawDoors } from '../../../../System/AI/In-Game/Logic/Garden/GardenObjects';
-import { drawRailwayEffect } from '../../../../System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
+import { GameState, AREA_DIMENSIONS, GRID_SIZE } from "@/src/System/AI/In-Game/Logic/GameLogic";
+import { drawTable, drawBench, drawFence, drawDoors } from '@/src/System/AI/In-Game/Logic/Garden/GardenObjects';
+import { drawRailwayEffect } from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
 
 export function drawGarden(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

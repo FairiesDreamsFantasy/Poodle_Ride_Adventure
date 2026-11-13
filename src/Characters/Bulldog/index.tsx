@@ -3,4 +3,4 @@
  * Main index for Bulldog.
  */
 
-export * as Generic from './Generic';
+export * as Generic from '@/src/Characters/Bulldog/Generic';

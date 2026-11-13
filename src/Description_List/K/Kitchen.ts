@@ -1,1 +1,1 @@
-export * from './Kitchen/index';
+export * from '@/src/Description_List/K/Kitchen/index';

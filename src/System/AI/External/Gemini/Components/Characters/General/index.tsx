@@ -1,5 +1,5 @@
 import React from 'react';
-import { SAMPLE_GEMINI_CHARACTER_DATA } from '../Data';
+import { SAMPLE_GEMINI_CHARACTER_DATA } from '@/src/System/AI/External/Gemini/Components/Characters/Data';
 
 /**
  * System/AI/External/Gemini/Components/Characters/General/index.tsx

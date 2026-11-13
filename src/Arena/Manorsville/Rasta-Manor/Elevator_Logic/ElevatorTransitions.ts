@@ -1,6 +1,6 @@
-import { Direction, GameState } from '../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../System/Engine/Transitions';
-import { ELEVATOR_TRANSITION_GALLOPS } from './ElevatorConstants';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { ELEVATOR_TRANSITION_GALLOPS } from '@/src/Arena/Manorsville/Rasta-Manor/Elevator_Logic/ElevatorConstants';
 
 export const handleElevatorTransitions = (
   gridX: number,

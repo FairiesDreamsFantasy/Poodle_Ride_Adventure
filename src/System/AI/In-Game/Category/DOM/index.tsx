@@ -2,4 +2,4 @@
  * System/AI/In-Game/Category/DOM/index.tsx
  */
 
-export * from './General';
+export * from '@/src/System/AI/In-Game/Category/DOM/General';

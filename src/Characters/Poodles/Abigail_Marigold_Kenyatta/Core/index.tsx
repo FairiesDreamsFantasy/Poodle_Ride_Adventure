@@ -1,4 +1,4 @@
-import { POODLE_CORE, ABIGAIL_DESCRIPTION } from '../General';
+import { POODLE_CORE, ABIGAIL_DESCRIPTION } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/General';
 
 export const AbigailCore = {
   POODLE_CORE,

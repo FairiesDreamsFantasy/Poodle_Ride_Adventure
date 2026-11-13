@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { BOILER_WIDTH, BOILER_HEIGHT, ELECTRIC_BOILER_X, ELECTRIC_BOILER_Y, BOILER_WALL_THICKNESS } from './BoilerRoomConstants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { BOILER_WIDTH, BOILER_HEIGHT, ELECTRIC_BOILER_X, ELECTRIC_BOILER_Y, BOILER_WALL_THICKNESS } from '@/src/Arena/Manorsville/Rasta-Manor/Cellar/B2/Boiler_Room/BoilerRoomConstants';
 
 /**
  * BOILER ROOM RENDERER

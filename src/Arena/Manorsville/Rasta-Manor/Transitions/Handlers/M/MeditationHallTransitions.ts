@@ -1,6 +1,6 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 
 export const handleMeditationHallTransitions = (
   gridX: number,

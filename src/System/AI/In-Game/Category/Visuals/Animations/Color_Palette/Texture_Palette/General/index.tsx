@@ -3,7 +3,7 @@ import {
   POODLE_FLEECE_TEXTURE_SPEC, 
   POLISHED_WOOD_TEXTURE_SPEC, 
   BRICK_STONE_TEXTURE_SPEC 
-} from '../../../../../../../../Registry/AI/Visuals/Animations/Color_Palette/Texture_Palette/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Color_Palette/Texture_Palette/General/index.tsx';
 
 /**
  * Deterministic pseudo-random hash generator for 2D spatial coordinate seeds

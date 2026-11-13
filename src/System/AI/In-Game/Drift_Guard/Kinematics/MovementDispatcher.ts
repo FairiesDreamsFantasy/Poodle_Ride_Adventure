@@ -14,15 +14,15 @@
  */
 
 import { Dispatch, SetStateAction, MutableRefObject } from 'react';
-import { GameState, MOVE_COOLDOWN, FOYER_DESCRIPTIONS } from '../../Logic/GameLogic';
-import { calculateMovement } from '../../../../Engine/Movement/M/Movement';
-import { checkCollision } from '../../../../Engine/Core/C/Collision';
-import { checkAnnouncementFlags } from '../../../../Engine/Core/Announcement';
-import { checkCoinCollection } from '../../../../Items/Coins';
-import { DiagnosticManager } from '../../../../Diagnostics/DiagnosticManager';
-import { InputContext } from '../../../../InputTypes';
-import { handleMovementInput } from '../../../../InputHandler';
-import { formulateAreaMetrics as formulateArenaMetrics } from '../../Category/Arena';
+import { GameState, MOVE_COOLDOWN, FOYER_DESCRIPTIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { calculateMovement } from '@/src/System/Engine/Movement/M/Movement';
+import { checkCollision } from '@/src/System/Engine/Core/C/Collision';
+import { checkAnnouncementFlags } from '@/src/System/Engine/Core/Announcement';
+import { checkCoinCollection } from '@/src/System/Items/Coins';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
+import { InputContext } from '@/src/System/InputTypes';
+import { handleMovementInput } from '@/src/System/InputHandler';
+import { formulateAreaMetrics as formulateArenaMetrics } from '@/src/System/AI/In-Game/Category/Arena';
 
 export interface MovementDispatcherContext {
   gameStateRef: MutableRefObject<GameState>;

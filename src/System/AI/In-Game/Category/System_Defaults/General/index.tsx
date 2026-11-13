@@ -1,4 +1,4 @@
-import { MasterSystemDefaults, SystemDefaultsRegistry } from '../../../../../Registry/AI/In-Game/Category/System_Defaults';
+import { MasterSystemDefaults, SystemDefaultsRegistry } from '@/src/System/Registry/AI/In-Game/Category/System_Defaults';
 
 /**
  * Formulates state packages and validates default invariants at runtime.

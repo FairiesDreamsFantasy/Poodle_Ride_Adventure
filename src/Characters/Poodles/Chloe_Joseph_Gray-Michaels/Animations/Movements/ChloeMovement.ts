@@ -2,7 +2,7 @@
  * ChloeMovement.ts
  * Jerky, non-elegant Babylonian movement logic for Chloe Joseph Gray-Michaels.
  */
-import { GameState } from '../../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export interface ChloeLocation {
   x: number;

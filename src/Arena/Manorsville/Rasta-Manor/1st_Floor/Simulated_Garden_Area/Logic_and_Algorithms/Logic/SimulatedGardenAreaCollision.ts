@@ -1,4 +1,4 @@
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
 
 export function handleSimulatedGardenAreaCollision(
   nextX: number,

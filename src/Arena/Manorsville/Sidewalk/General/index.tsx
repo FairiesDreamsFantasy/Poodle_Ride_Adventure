@@ -1,1 +1,1 @@
-export * from '../SidewalkRenderer';
+export * from '@/src/Arena/Manorsville/Sidewalk/SidewalkRenderer';

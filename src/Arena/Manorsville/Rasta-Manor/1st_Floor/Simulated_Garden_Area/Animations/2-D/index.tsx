@@ -1,5 +1,5 @@
-import { SIMULATED_GARDEN_AREA_COLORS } from '../Color_Palette';
-import { SIMULATED_GARDEN_AREA_DIMENSIONS } from '../../Description/Dimensions';
+import { SIMULATED_GARDEN_AREA_COLORS } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Simulated_Garden_Area/Animations/Color_Palette';
+import { SIMULATED_GARDEN_AREA_DIMENSIONS } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Simulated_Garden_Area/Description/Dimensions';
 
 /**
  * Simulated Garden Area 2-D Rendering Logic (Masterpiece Preservation)

@@ -1,1 +1,1 @@
-/** Fairy Rider Entry */ export * from './Animations'; export * from './Description'; export * from './POV';
+/** Fairy Rider Entry */ export * from '@/src/Characters/Riders/Fairy-Rider/Animations'; export * from '@/src/Characters/Riders/Fairy-Rider/Description'; export * from '@/src/Characters/Riders/Fairy-Rider/POV';

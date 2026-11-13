@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../../../types';
+import { GameState } from '@/src/types';
 
 export const getJumpQuestion = (prev: GameState): string | null => {
   return "Would you like to have a tea party, or go on an adventure?";

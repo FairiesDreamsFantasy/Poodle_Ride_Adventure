@@ -1,4 +1,4 @@
-import { GameState } from '../../../../System/Engine/Core/Types';
+import { GameState } from '@/src/System/Engine/Core/Types';
 
 export function drawPriscilla(ctx: CanvasRenderingContext2D, x: number, y: number, state: GameState) {
   // Priscilla: Rides Olga-Olivia.

@@ -1,3 +1,3 @@
-export * from './Garden/Railway/RailwayEffect';
-export * from './Manor/Foyer/Ramp/RampEffect';
-export * from './Manor/DiningRoom/Ramp/DiningRampEffect';
+export * from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/Garden/Railway/RailwayEffect';
+export * from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/Manor/Foyer/Ramp/RampEffect';
+export * from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/Manor/DiningRoom/Ramp/DiningRampEffect';

@@ -1,5 +1,5 @@
-export * from './Engine';
-import AccessibilityEngine from './Engine';
+export * from '@/src/System/Accessibility/Engine';
+import AccessibilityEngine from '@/src/System/Accessibility/Engine';
 
-export { default as AccessibilityEngine } from './Engine';
+export { default as AccessibilityEngine } from '@/src/System/Accessibility/Engine';
 export default AccessibilityEngine;

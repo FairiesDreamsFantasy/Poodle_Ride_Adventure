@@ -1,1 +1,1 @@
-export * from './General';
+export * from '@/src/Description_List/F/FrontPorch/General';

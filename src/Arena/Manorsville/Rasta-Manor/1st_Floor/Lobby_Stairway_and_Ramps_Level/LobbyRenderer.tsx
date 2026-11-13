@@ -1,5 +1,5 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { LOBBY_WIDTH, LOBBY_HEIGHT, ELEVATOR_X_MIN, ELEVATOR_Y_MIN, RAMP_ENCLOSURE_X_MAX, RAMP_ENCLOSURE_Y_MIN, EAST_ARCH_Y_MIN, EAST_ARCH_Y_MAX, WEST_DOOR_Y_MIN, WEST_DOOR_Y_MAX } from './LobbyConstants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { LOBBY_WIDTH, LOBBY_HEIGHT, ELEVATOR_X_MIN, ELEVATOR_Y_MIN, RAMP_ENCLOSURE_X_MAX, RAMP_ENCLOSURE_Y_MIN, EAST_ARCH_Y_MIN, EAST_ARCH_Y_MAX, WEST_DOOR_Y_MIN, WEST_DOOR_Y_MAX } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Lobby_Stairway_and_Ramps_Level/LobbyConstants';
 
 export function drawLobbyStairwayAndRamps(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

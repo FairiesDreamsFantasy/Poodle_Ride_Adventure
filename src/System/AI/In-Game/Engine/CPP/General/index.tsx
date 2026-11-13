@@ -10,7 +10,7 @@
  * 3. Cache-aligned AI object pooling.
  */
 
-import { UniquePtr, ObjectPoolCPP } from '../../../../../Engine/Assembly/CPP';
+import { UniquePtr, ObjectPoolCPP } from '@/src/System/Engine/Assembly/CPP';
 
 export class AIBehaviorNode {
   public id: string = "root";

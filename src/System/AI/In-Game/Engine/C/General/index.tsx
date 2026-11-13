@@ -10,7 +10,7 @@
  * 3. Fixed-point AI threshold calculators (Q16.16).
  */
 
-import { EngineAssemblyCManagerInstance, Q16FixedPoint } from '../../../../../Engine/Assembly/C';
+import { EngineAssemblyCManagerInstance, Q16FixedPoint } from '@/src/System/Engine/Assembly/C';
 
 export const executeCLevelAIDecision = (weight: number, threshold: number): boolean => {
   const qWeight = Q16FixedPoint.fromFloat(weight);

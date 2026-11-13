@@ -1,5 +1,5 @@
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
-import { GRAND_PLAYGROUND_OBSTACLES } from '../../../../../../../System/Engine/Core/O/Obstacles';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { GRAND_PLAYGROUND_OBSTACLES } from '@/src/System/Engine/Core/O/Obstacles';
 
 export function handleTheGrandPlaygroundCollision(
   gridX: number,

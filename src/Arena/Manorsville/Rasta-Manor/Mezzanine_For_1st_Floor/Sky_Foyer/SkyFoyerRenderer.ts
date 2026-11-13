@@ -1,7 +1,7 @@
 /**
  * Sky Foyer Mezzanine Renderer
  */
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 export function drawSkyFoyerMezzanine(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number, horizon: number, isNight: boolean, isEvening: boolean) {
   // Upper Foyer Perimeter Walkway (Sky Level)

@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 const RAINBOW_COLORS = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
 

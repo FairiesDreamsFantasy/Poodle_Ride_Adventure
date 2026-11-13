@@ -1,7 +1,7 @@
 /**
  * Rasta-Manor: Foyer Description
  */
-export * from './Dimensions';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer/Description/Dimensions';
 
 export const FOYER_DESCRIPTION = {
   name: "Foyer",

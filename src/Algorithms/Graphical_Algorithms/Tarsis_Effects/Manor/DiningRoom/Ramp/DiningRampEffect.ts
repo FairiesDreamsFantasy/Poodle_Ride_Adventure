@@ -1,4 +1,4 @@
-import { GameState } from "../../../../../../System/AI/In-Game/Logic/GameLogic";
+import { GameState } from "@/src/System/AI/In-Game/Logic/GameLogic";
 
 /**
  * Draws the Tarsis Effect for the Grand Dining Room ramp: 45-degree angle ramp slope with protective glass.

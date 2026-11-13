@@ -1,5 +1,5 @@
 import React from 'react';
-import { SAMPLE_GEMINI_ARENA_DATA } from '../Data';
+import { SAMPLE_GEMINI_ARENA_DATA } from '@/src/System/AI/External/Gemini/Components/Arenas/Data';
 
 /**
  * System/AI/External/Gemini/Components/Arenas/General/index.tsx

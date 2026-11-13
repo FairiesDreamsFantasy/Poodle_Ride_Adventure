@@ -3,8 +3,8 @@
  * Centralized entry point for all 1st floor areas.
  */
 
-export * from './Rugged_Play_Field';
-export * from './Foyer';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Rugged_Play_Field';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer';
 
 export const FIRST_FLOOR_CONFIG = {
   name: '1st Floor',

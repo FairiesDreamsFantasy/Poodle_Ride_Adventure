@@ -1,5 +1,5 @@
-import { Direction, GameState } from '../../../../../../System/Engine/Core/Types';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
+import { Direction, GameState } from '@/src/System/Engine/Core/Types';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 
 export const handleKitchenTransitions = (
   gridX: number,

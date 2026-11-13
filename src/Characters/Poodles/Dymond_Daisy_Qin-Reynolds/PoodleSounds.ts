@@ -4,7 +4,7 @@
  * [PRESERVED ARTISTIC CRAFT]
  */
 
-import { playElegantBark } from './Sounds/Elegant_Bark';
+import { playElegantBark } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds/Sounds/Elegant_Bark';
 
 export { playElegantBark };
 

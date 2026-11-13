@@ -3,7 +3,7 @@ import {
   CHECKERBOARD_PATTERN, 
   DIAGONAL_HATCH_PATTERN, 
   HERRINGBONE_PATTERN 
-} from '../../../../../../../../Registry/AI/Visuals/Animations/Color_Palette/Pattern_Palette/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Color_Palette/Pattern_Palette/General/index.tsx';
 
 /**
  * Samples an 8x8 bitmask pattern at continuous screen coordinates (x, y)

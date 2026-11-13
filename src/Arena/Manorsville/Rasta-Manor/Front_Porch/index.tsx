@@ -3,8 +3,8 @@
  * Entry point for the front porch area.
  */
 
-export * from './Animations';
-export * from './Dimensions';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Front_Porch/Animations';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/Front_Porch/Dimensions';
 
 
 export const FRONT_PORCH_CONFIG = {

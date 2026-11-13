@@ -6,7 +6,7 @@
  * environmental acoustics based on registry blueprints.
  */
 
-import { ArenaRegistryConfig, AreaRegistryDefinition } from '../../../../../Registry/AI/In-Game/Category/Arena';
+import { ArenaRegistryConfig, AreaRegistryDefinition } from '@/src/System/Registry/AI/In-Game/Category/Arena';
 
 export interface AreaMetrics {
   width: number;

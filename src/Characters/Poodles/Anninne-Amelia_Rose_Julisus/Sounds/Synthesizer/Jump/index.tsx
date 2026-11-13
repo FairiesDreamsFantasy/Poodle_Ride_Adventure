@@ -2,8 +2,8 @@
  * Anninne-Amelia Rose Julisus: Jump Synthesizer
  */
 
-export * from './Running';
-export * from './Hop';
+export * from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Synthesizer/Jump/Running';
+export * from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Synthesizer/Jump/Hop';
 
 export function playJumpSound(
   ctx: AudioContext,

@@ -1,5 +1,5 @@
 /**
- * System/Registry/AI/In-Game/Category/World/Levels/General/index.tsx
+ * System/Registry/AI/In-Game/Category/Levels/General/index.tsx
  * 
  * Master Registry Definitions for World Levels.
  */

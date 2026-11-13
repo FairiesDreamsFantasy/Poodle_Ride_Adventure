@@ -1,10 +1,10 @@
-import { TwoD } from './2-D';
-import { ThreeD } from './3-D';
-import { Polygons } from './Polygons';
-import { Pixelations } from './Pixelations';
-import { ColorPalette } from './Color_Palette';
-import { Geometry } from './Geometry';
+import { TwoD } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/2-D';
+import { ThreeD } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/3-D';
+import { Polygons } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/Polygons';
+import { Pixelations } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/Pixelations';
+import { ColorPalette } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/Color_Palette';
+import { Geometry } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/Geometry';
 
-export * as Paw from './Paw';
+export * as Paw from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Description/Body/Legs/Back_Left/Paw';
 
 export { TwoD, ThreeD, Polygons, Pixelations, ColorPalette, Geometry };

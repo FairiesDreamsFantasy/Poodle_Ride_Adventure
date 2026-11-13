@@ -9,7 +9,7 @@ import {
   LIBRARIAN_DOOR_X_MAX,
   LIBRARIAN_DOOR_HEIGHT,
   LIBRARIAN_DOOR_MAX_POODLE_HEIGHT
-} from '../../LibraryConstants';
+} from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Meditation_Halls_Library/LibraryConstants';
 
 export function handleLibraryCollision(
   gridX: number,

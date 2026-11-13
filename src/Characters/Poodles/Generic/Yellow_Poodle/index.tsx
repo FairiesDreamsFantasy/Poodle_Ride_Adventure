@@ -3,4 +3,4 @@
  * Entry index for Yellow Poodle NPC.
  */
 
-export * from './General';
+export * from '@/src/Characters/Poodles/Generic/Yellow_Poodle/General';

@@ -1,6 +1,6 @@
-export * from './Wall';
+export * from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall';
 
-import { BackPorchWallRegistry } from './Wall';
+import { BackPorchWallRegistry } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Back_Porch/Wall';
 
 export const BACK_PORCH_CONFIG = {
   name: 'Back Porch',

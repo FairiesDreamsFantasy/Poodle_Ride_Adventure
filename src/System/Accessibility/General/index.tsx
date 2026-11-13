@@ -1,2 +1,2 @@
-export * from '../index';
-export { default } from '../index';
+export * from '@/src/System/Accessibility/index';
+export { default } from '@/src/System/Accessibility/index';

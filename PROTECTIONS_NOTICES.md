@@ -3,7 +3,7 @@
 ## 1. 20000% Ultra-Broad Directory and Code Protections
 - ALL files, directories, subdirectories, algorithms, audio synthesis curves, and visual rendering modules across the entire codebase are protected under **20000% Ultra-Broad Protections**.
 - Automated pruning, stubbing, deletion, arbitrary changes, "Babylonian shortcuts", dilution, and unauthorized refactoring are strictly prohibited.
-- Every directory (all 3,648 subdirectories across src/, public/, and scripts/) contains a localized `agents.md` file enforcing localized and systemic invariants against automated pruning, stubbing, simplification, or arbitrary modification.
+- Every directory (all 3,692 directories across `src/`, `public/`, `scripts/`, `Architecture_Listing/`, and `P00DLE_RIDE_ADVENTURE/`) contains a localized uppercase `AGENTS.md` file enforcing localized and systemic invariants against automated pruning, stubbing, simplification, or arbitrary modification.
 - **Active Codebase Lineage**: Firmly anchored on hardened commit `c1b816b` with strict Zero-Fallback synthesis, ErrorBoundary crash resilience, Classic White Poodle bark routing, and Babylonian jump blocks.
 
 ## 2. Protected Masterpiece Assets & Core Character Standards
@@ -299,7 +299,7 @@
 
 ## 29. Universal Standardization of AGENTS.md and PROTECTIONS_NOTICES.md (60,000% Ultra-Broad Broadening)
 - **Canonical Uppercase Standard (`AGENTS.md`)**:
-  - All directory-level protection instructions across all 3,688+ codebase folders are strictly standardized to uppercase `AGENTS.md` to prevent case-collision vulnerabilities across heterogeneous filesystems.
+  - All directory-level protection instructions across all 3,692 codebase folders (`src/`, `public/`, `scripts/`, `Architecture_Listing/`, and `P00DLE_RIDE_ADVENTURE/`) are strictly standardized to uppercase `AGENTS.md` to prevent case-collision vulnerabilities across heterogeneous filesystems.
   - Lowercase `agents.md` is strictly decommissioned in favor of `AGENTS.md`.
 - **Authoritative Plural Notice (`PROTECTIONS_NOTICES.md`)**:
   - All protection notices are consolidated into the singular master file `PROTECTIONS_NOTICES.md`.
@@ -325,4 +325,15 @@
   - Both README files are protected under 20,000% Ultra-Broad craftsmanship invariants.
 
 ## 32. Total Subdirectory AGENTS.md Invariant Preservation
-- 100% of all directories across `src/` are verified to contain localized protection files (`AGENTS.md` / `agents.md`), strictly preventing unauthorized pruning, automated refactoring, or file deletions.
+- 100% of all directories across `src/`, `public/`, `scripts/`, `Architecture_Listing/`, and `P00DLE_RIDE_ADVENTURE/` (3,692 / 3,692 directories) are verified to contain localized uppercase `AGENTS.md` protection files with zero lowercase `agents.md` collisions, strictly preventing unauthorized pruning, automated refactoring, or folder loss.
+
+## 33. Restructured Codebase Hierarchy & Anti-Collision Synchronization
+- **Flattened & Consolidated Top-Level Directories**:
+  - `src/Main_Game/`: Elevated course-mode world structure.
+  - `src/Arena/Manorsville/`: Consolidated `Adventure_House/` and `Adventure_Garden/` alongside `Rasta-Manor/`.
+  - `src/Roads_and_Tunnels/`: Dedicated root directory housing `Portal_Tunnel/` and `Soca_Path/`.
+  - `src/Warp_Houses/`: Dedicated root directory housing `Selector_House/`, `Wandas_Warp_House/`, `Allisons_Manor/`, and `Marias_Warp_Castle/`.
+  - `src/Courses/`: Dedicated root directory housing `Poodle_Ride_Story_Book/` and `Pixel_Garden_Gallop/`.
+- **Shadow File & Folder Cleanup**: Removed 933 duplicate lowercase `agents.md` shadow files, stale `dist/` build artifacts, `scripts/__pycache__/`, and empty migration stubs (`src/0/`, `src/1/`, `src/index.tsx`).
+- **Protected_Play_Area Restoration (`977c4a2`)**: Restored all missing `src/System/`, `src/Characters/`, `src/tts/`, `src/Index/`, `src/Courses/`, `src/Main_Game/`, `src/Warp_Houses/`, `src/Roads_and_Tunnels/`, `vite.config.ts`, `tsconfig.json`, and `scripts/` modules from the `Protected_Play_Area` backup branch directly into the flattened layout, with all 3,692 directories verified with uppercase `AGENTS.md`.
+- **Integrity Shield Synchronization**: `src/System/Integrity/active_integrity_shield.sh` is synchronized to scan and restore uppercase `AGENTS.md` across all protected subsystems including the restructured root directories.

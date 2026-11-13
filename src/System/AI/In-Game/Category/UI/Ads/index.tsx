@@ -1,5 +1,5 @@
-import { InterstitialAd } from './Interstitial';
-import { AdBlockerDetected } from './Interstitial/Ad_Blocker_Detected';
+import { InterstitialAd } from '@/src/System/AI/In-Game/Category/UI/Ads/Interstitial';
+import { AdBlockerDetected } from '@/src/System/AI/In-Game/Category/UI/Ads/Interstitial/Ad_Blocker_Detected';
 
 /**
  * System/AI/In-Game/Category/UI/Ads/index.tsx

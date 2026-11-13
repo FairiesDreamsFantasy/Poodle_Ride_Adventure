@@ -2,8 +2,8 @@
  * Anninne-Amelia Rose Julisus: Walk Synthesizer
  */
 
-export * from './Slow';
-export * from './VerySlow';
+export * from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Synthesizer/Movement/Walk/Slow';
+export * from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Synthesizer/Movement/Walk/VerySlow';
 
 export const ANNINNE_AMELIA_NYHABINGHI_WALK = {
   timing: [0, 0.25, 0.5, 0.75],

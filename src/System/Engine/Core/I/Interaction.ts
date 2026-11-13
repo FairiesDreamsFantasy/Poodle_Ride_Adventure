@@ -1,6 +1,6 @@
-import { GameState } from '../Types';
-import { MANOR_OBJECTS } from '../../../../World/Main_Game/World/1/Levels/Level_7/Courses/Allisons_Manor/Manor/InteractiveObjects';
-import { addItemToInventory, removeItemFromInventory } from '../../../UI/Inventory/InventoryManager';
+import { GameState } from '@/src/System/Engine/Core/Types';
+import { MANOR_OBJECTS } from '@/src/Warp_Houses/Allisons_Manor/Manor/InteractiveObjects';
+import { addItemToInventory, removeItemFromInventory } from '@/src/System/UI/Inventory/InventoryManager';
 
 export function handleInteraction(state: GameState, speak: (msg: string, lang: string) => void, audio: any): GameState {
   const { gridX, gridY, area } = state;

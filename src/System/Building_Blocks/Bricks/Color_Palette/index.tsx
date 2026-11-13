@@ -1,6 +1,6 @@
 import React from 'react';
-import { BricksTexturePalette } from './Texture_Palette';
-import { BricksPatternPalette } from './Pattern_Palette';
+import { BricksTexturePalette } from '@/src/System/Building_Blocks/Bricks/Color_Palette/Texture_Palette';
+import { BricksPatternPalette } from '@/src/System/Building_Blocks/Bricks/Color_Palette/Pattern_Palette';
 
 export const BricksColorPalette: React.FC<any> = (props) => {
   return (

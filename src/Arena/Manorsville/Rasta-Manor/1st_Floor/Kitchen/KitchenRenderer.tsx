@@ -1,5 +1,5 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { drawKitchenCook, drawKitchenStaff } from '../../../../../Characters/Kitchen_Staff/KitchenStaff';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawKitchenCook, drawKitchenStaff } from '@/src/Characters/Kitchen_Staff/KitchenStaff';
 
 export function drawKitchen(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const horizon = height / 2;

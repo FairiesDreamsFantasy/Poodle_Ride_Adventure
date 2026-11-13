@@ -1,6 +1,6 @@
-import { GameState, GRID_SIZE } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { renderRainbowSlidingDoors } from '../../../../../System/Building_Blocks/Doors/Crafted/Rainbow_Sliding_Doors';
-import { renderSimulatedGardenDoors } from '../../../../../System/Building_Blocks/Doors/Crafted/Simulated_Garden_Sliding_Doors';
+import { GameState, GRID_SIZE } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { renderRainbowSlidingDoors } from '@/src/System/Building_Blocks/Doors/Crafted/Rainbow_Sliding_Doors';
+import { renderSimulatedGardenDoors } from '@/src/System/Building_Blocks/Doors/Crafted/Simulated_Garden_Sliding_Doors';
 
 const RAINBOW_COLORS = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
 

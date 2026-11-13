@@ -1,13 +1,13 @@
-import { Direction } from '../../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
+import { Direction } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 import {
   PLAYGROUND_WARP_X_MIN_SKY as PLAYGROUND_WARP_X_MIN,
   PLAYGROUND_WARP_Y_LOW_MIN,
   PLAYGROUND_WARP_Y_LOW_MAX,
   PLAYGROUND_WARP_Y_HIGH_MIN,
   PLAYGROUND_WARP_Y_HIGH_MAX
-} from '../../../../1st_Floor/Foyer/FoyerConstants';
+} from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Foyer/FoyerConstants';
 
 export const handlePlaygroundRamps = (
   area: string,

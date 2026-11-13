@@ -1,6 +1,6 @@
-import { WildcardWorldGeneral, WildcardWorldProps } from './General';
+import { WildcardWorldGeneral, WildcardWorldProps } from '@/src/System/AI/External/Gemini/Arena/World/_Wildcard_/General';
 
 export { WildcardWorldGeneral as WildcardWorld };
 export type { WildcardWorldProps };
-export * from './General';
-export * from './Levels/_Wildcard_';
+export * from '@/src/System/AI/External/Gemini/Arena/World/_Wildcard_/General';
+export * from '@/src/System/AI/External/Gemini/Arena/World/_Wildcard_/Levels/_Wildcard_';

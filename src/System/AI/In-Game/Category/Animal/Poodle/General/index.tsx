@@ -1,7 +1,7 @@
-import * as CraftedAI from '../Crafted/General';
+import * as CraftedAI from '@/src/System/AI/In-Game/Category/Animal/Poodle/Crafted/General';
 
-export * from '../Crafted/index.tsx';
-export * from '../Classic/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/Animal/Poodle/Crafted/index.tsx';
+export * from '@/src/System/AI/In-Game/Category/Animal/Poodle/Classic/index.tsx';
 
 export const handlePoodleAboutAI = (
   id: string,

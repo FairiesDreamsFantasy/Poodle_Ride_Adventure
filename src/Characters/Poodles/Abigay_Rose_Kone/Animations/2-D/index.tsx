@@ -3,8 +3,8 @@
  * Centralized canvas rendering logic for Abigay Rose Kone.
  */
 
-import { drawRiderLegs, drawRiderHands } from '../../../../Riders/Fairy-Rider/Animations/2-D';
-import { DiagnosticManager } from '../../../../../System/Diagnostics/DiagnosticManager';
+import { drawRiderLegs, drawRiderHands } from '@/src/Characters/Riders/Fairy-Rider/Animations/2-D';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 let lastLogTime = 0;
 const LOG_INTERVAL = 5000;

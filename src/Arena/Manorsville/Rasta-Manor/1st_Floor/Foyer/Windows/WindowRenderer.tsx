@@ -1,4 +1,4 @@
-import { GameState } from "../../../../../../System/AI/In-Game/Logic/GameLogic";
+import { GameState } from "@/src/System/AI/In-Game/Logic/GameLogic";
 
 export function drawWindowViews(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number, cstDate: Date) {
   const day = cstDate.getDay(); // 0=Sun, 1=Mon, ...

@@ -1,3 +1,3 @@
-export * from './General';
-export * from './Description';
-export * from './Animations';
+export * from '@/src/Characters/Riders/Priscilla/General';
+export * from '@/src/Characters/Riders/Priscilla/Description';
+export * from '@/src/Characters/Riders/Priscilla/Animations';

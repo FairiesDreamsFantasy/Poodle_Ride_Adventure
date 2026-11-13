@@ -1,11 +1,11 @@
-import { metadata as m1, drawVariant1 } from './Variant_1/ArcadeStaff_1';
-import { metadata as m2, drawVariant2 } from './Variant_2/ArcadeStaff_2';
-import { metadata as m3, drawVariant3 } from './Variant_3/ArcadeStaff_3';
-import { metadata as m4, drawVariant4 } from './Variant_4/ArcadeStaff_4';
-import { metadata as m5, drawVariant5 } from './Variant_5/ArcadeStaff_5';
-import { metadata as m6, drawVariant6 } from './Variant_6/ArcadeStaff_6';
-import { metadata as m7, drawVariant7 } from './Variant_7/ArcadeStaff_7';
-import { metadata as m8, drawVariant8 } from './Variant_8/ArcadeStaff_8';
+import { metadata as m1, drawVariant1 } from '@/src/Characters/Arcade_Staff/Variant_1/ArcadeStaff_1';
+import { metadata as m2, drawVariant2 } from '@/src/Characters/Arcade_Staff/Variant_2/ArcadeStaff_2';
+import { metadata as m3, drawVariant3 } from '@/src/Characters/Arcade_Staff/Variant_3/ArcadeStaff_3';
+import { metadata as m4, drawVariant4 } from '@/src/Characters/Arcade_Staff/Variant_4/ArcadeStaff_4';
+import { metadata as m5, drawVariant5 } from '@/src/Characters/Arcade_Staff/Variant_5/ArcadeStaff_5';
+import { metadata as m6, drawVariant6 } from '@/src/Characters/Arcade_Staff/Variant_6/ArcadeStaff_6';
+import { metadata as m7, drawVariant7 } from '@/src/Characters/Arcade_Staff/Variant_7/ArcadeStaff_7';
+import { metadata as m8, drawVariant8 } from '@/src/Characters/Arcade_Staff/Variant_8/ArcadeStaff_8';
 
 export interface ArcadeStaffMember {
   id: number;

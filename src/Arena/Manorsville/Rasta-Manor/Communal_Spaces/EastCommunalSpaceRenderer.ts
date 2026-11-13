@@ -1,7 +1,7 @@
-import { GameState } from '../../../../System/AI/In-Game/Logic/GameLogic';
-import { TILES, BRICKS } from '../../../../System/Building_Blocks/BlocksConstants';
-import { drawFloorTiling } from '../../../../System/Engine/Science/Graphical_Renderer/General';
-import { AREA_DIMENSIONS } from '../../../../System/Engine/Core/Constants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TILES, BRICKS } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawFloorTiling } from '@/src/System/Engine/Science/Graphical_Renderer/General';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
 
 export function drawEastCommunalSpace(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const { gridX, gridY } = state;

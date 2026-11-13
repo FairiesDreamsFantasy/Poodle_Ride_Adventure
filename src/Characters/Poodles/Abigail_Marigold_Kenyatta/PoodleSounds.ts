@@ -4,8 +4,8 @@
  * [PRESERVED ARTISTIC CRAFT]
  */
 
-import { playElegantBark } from './Sounds/Elegant_Bark';
-import { playAbigailGallopLogic } from './Sounds/Gallop_Sounds/AbigailGallopLogic';
+import { playElegantBark } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Elegant_Bark';
+import { playAbigailGallopLogic } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Gallop_Sounds/AbigailGallopLogic';
 
 export { playElegantBark };
 export { playElegantBark as playAbigailBark };

@@ -3,7 +3,7 @@ import {
   BarycentricWeights,
   UNIT_TRIANGLE_VERTICES,
   UNIT_QUAD_VERTICES
-} from '../../../../../../../Registry/AI/Visuals/Animations/Polygons/General/index.tsx';
+} from '@/src/System/Registry/AI/Visuals/Animations/Polygons/General/index.tsx';
 
 /**
  * Calculates the Signed Area of a Polygon using the Shoelace Formula (Green's Theorem)

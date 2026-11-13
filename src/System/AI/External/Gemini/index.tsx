@@ -1,10 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
-import { AISafetyFilter } from "./Safety";
+import { AISafetyFilter } from "@/src/System/AI/External/Gemini/Safety";
 
-export * from "./General";
-export * from "./Safety";
-export * from "./Components";
-export * from "./Arena";
+export * from "@/src/System/AI/External/Gemini/General";
+export * from "@/src/System/AI/External/Gemini/Safety";
+export * from "@/src/System/AI/External/Gemini/Components";
+export * from "@/src/System/AI/External/Gemini/Arena";
 
 /**
  * GeminiService handles AI-powered interactions for the Poodle Ride Adventure.

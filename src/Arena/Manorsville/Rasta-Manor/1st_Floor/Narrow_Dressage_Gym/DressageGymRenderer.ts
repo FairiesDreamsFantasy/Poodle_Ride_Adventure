@@ -1,7 +1,7 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { TILES, BRICKS, METAL_BARS, GLASS_BLOCKS } from '../../../../../System/Building_Blocks/BlocksConstants';
-import { drawFloorTiling, drawBuildingBlock } from '../../../../../System/Engine/Science/Graphical_Renderer/General';
-import { DRESSAGE_WIDTH, DRESSAGE_HEIGHT } from './DressageConstants';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TILES, BRICKS, METAL_BARS, GLASS_BLOCKS } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawFloorTiling, drawBuildingBlock } from '@/src/System/Engine/Science/Graphical_Renderer/General';
+import { DRESSAGE_WIDTH, DRESSAGE_HEIGHT } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Narrow_Dressage_Gym/DressageConstants';
 
 export function drawDressageGym(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const { gridX, gridY, level } = state;

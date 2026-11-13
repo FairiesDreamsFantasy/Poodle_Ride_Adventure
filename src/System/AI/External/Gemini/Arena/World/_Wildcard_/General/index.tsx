@@ -1,5 +1,5 @@
 import React from 'react';
-import { WildcardLevel } from '../Levels/_Wildcard_';
+import { WildcardLevel } from '@/src/System/AI/External/Gemini/Arena/World/_Wildcard_/Levels/_Wildcard_';
 
 /**
  * System/AI/External/Gemini/Arena/World/_Wildcard_/General/index.tsx

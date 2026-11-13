@@ -1,4 +1,4 @@
-import { GameState } from '../../../../../../../types';
+import { GameState } from '@/src/types';
 
 export const handleChoiceY = (prev: GameState): GameState => {
   if (prev.activeQuestion === 'ride_opossum') {

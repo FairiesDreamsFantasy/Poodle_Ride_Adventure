@@ -1,4 +1,4 @@
-import { GameState } from '../InputTypes';
+import { GameState } from '@/src/System/InputTypes';
 
 /**
  * AutomationManager handles scripted sequences, cutscenes, and automated agent behaviors.

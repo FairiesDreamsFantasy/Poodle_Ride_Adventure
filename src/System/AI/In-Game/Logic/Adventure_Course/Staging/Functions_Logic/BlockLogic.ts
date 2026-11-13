@@ -1,4 +1,4 @@
-import { GameState, Direction } from '../../../../../../../types';
+import { GameState, Direction } from '@/src/types';
 
 export const isGirlAt = (nx: number, ny: number, area: string, hasSharedRabbit: boolean): boolean => {
   if (hasSharedRabbit) return false; // Girl leaves the porch

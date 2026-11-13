@@ -11,7 +11,7 @@
  */
 
 import { Dispatch, SetStateAction, MutableRefObject } from 'react';
-import { GameState, Direction } from '../../../../Logic/GameLogic';
+import { GameState, Direction } from '@/src/System/AI/In-Game/Logic/GameLogic';
 
 const CONTINUOUS_TRACKS = [
   'PoodleRideStoryBookInitialPath',

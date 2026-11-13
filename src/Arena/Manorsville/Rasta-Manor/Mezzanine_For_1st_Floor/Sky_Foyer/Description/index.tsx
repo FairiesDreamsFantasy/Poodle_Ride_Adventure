@@ -1,4 +1,4 @@
-import { SKY_FOYER_DIMENSIONS } from './Dimensions';
+import { SKY_FOYER_DIMENSIONS } from '@/src/Arena/Manorsville/Rasta-Manor/Mezzanine_For_1st_Floor/Sky_Foyer/Description/Dimensions';
 
 /**
  * Sky Foyer Description

@@ -1,5 +1,5 @@
-import { GameState, Direction } from '../../../../../../../types';
-import { isGirlAt } from './BlockLogic';
+import { GameState, Direction } from '@/src/types';
+import { isGirlAt } from '@/src/System/AI/In-Game/Logic/Adventure_Course/Staging/Functions_Logic/BlockLogic';
 
 export const checkProximitySound = (prev: GameState): boolean => {
   // Check all girl positions

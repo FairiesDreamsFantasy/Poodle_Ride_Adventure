@@ -2,7 +2,7 @@
  * Anninne-Amelia Rose Julisus: Classic Elegant Bark Synthesizer
  */
 
-import { playAnninneAmeliaBow } from '../Bow';
+import { playAnninneAmeliaBow } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Synthesizer/Elegant_Bark/Bow';
 
 export const POODLE_BARK_MSG = "A Poodle Barks Elegantly";
 

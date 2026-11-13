@@ -1,8 +1,8 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { drawWestGrandArcadeNorth } from './Animations/North';
-import { drawWestGrandArcadeSouth } from './Animations/South';
-import { drawWestGrandArcadeEast } from './Animations/East';
-import { drawWestGrandArcadeWest } from './Animations/West';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawWestGrandArcadeNorth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/West_Grand_Arcade/Animations/North';
+import { drawWestGrandArcadeSouth } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/West_Grand_Arcade/Animations/South';
+import { drawWestGrandArcadeEast } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/West_Grand_Arcade/Animations/East';
+import { drawWestGrandArcadeWest } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/West_Grand_Arcade/Animations/West';
 
 /**
  * WEST GRAND ARCADE RENDERER

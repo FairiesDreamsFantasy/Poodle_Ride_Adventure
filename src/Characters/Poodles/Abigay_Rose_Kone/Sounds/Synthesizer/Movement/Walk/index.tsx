@@ -2,8 +2,8 @@
  * Abigay Rose Kone: Walking Synthesizer
  */
 
-export * from './Slow';
-export * from './VerySlow';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Movement/Walk/Slow';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Movement/Walk/VerySlow';
 
 /**
  * Standard Nyhabinghi Walk

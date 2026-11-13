@@ -1,5 +1,5 @@
-import { Direction } from '../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
+import { Direction } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
 
 export const handleDishWasherTransitions = (
   gridX: number,

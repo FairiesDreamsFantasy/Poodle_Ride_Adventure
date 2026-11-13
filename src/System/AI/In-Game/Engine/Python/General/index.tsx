@@ -10,7 +10,7 @@
  * 3. Statistical AI behavior trend analysis.
  */
 
-import { NumPy, SciPy } from '../../../../../Engine/Python';
+import { NumPy, SciPy } from '@/src/System/Engine/Python';
 
 export const calculateAIBevahiorMatrix = (weights: number[], size: number): number[] => {
   const matrix = NumPy.array(weights, size, size);

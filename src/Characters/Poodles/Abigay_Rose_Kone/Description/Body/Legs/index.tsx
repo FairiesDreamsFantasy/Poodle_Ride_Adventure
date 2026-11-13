@@ -1,13 +1,13 @@
-import { TwoD } from './2-D';
-import { ThreeD } from './3-D';
-import { Polygons } from './Polygons';
-import { Pixelations } from './Pixelations';
-import { ColorPalette } from './Color_Palette';
-import { Geometry } from './Geometry';
+import { TwoD } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/2-D';
+import { ThreeD } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/3-D';
+import { Polygons } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Polygons';
+import { Pixelations } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Pixelations';
+import { ColorPalette } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Color_Palette';
+import { Geometry } from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Geometry';
 
-export * as FrontLeft from './Front_Left';
-export * as FrontRight from './Front_Right';
-export * as BackLeft from './Back_Left';
-export * as BackRight from './Back_Right';
+export * as FrontLeft from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Front_Left';
+export * as FrontRight from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Front_Right';
+export * as BackLeft from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Back_Left';
+export * as BackRight from '@/src/Characters/Poodles/Abigay_Rose_Kone/Description/Body/Legs/Back_Right';
 
 export { TwoD, ThreeD, Polygons, Pixelations, ColorPalette, Geometry };

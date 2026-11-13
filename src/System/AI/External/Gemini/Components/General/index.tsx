@@ -1,7 +1,7 @@
 import React from 'react';
-import { GeminiArenas } from '../Arenas';
-import { GeminiCharacters } from '../Characters';
-import { GeminiInput } from '../Input';
+import { GeminiArenas } from '@/src/System/AI/External/Gemini/Components/Arenas';
+import { GeminiCharacters } from '@/src/System/AI/External/Gemini/Components/Characters';
+import { GeminiInput } from '@/src/System/AI/External/Gemini/Components/Input';
 
 /**
  * System/AI/External/Gemini/Components/General/index.tsx

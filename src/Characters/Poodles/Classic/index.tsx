@@ -1,2 +1,2 @@
-export * from './General';
-export * from './White_Poodle';
+export * from '@/src/Characters/Poodles/Classic/General';
+export * from '@/src/Characters/Poodles/Classic/White_Poodle';

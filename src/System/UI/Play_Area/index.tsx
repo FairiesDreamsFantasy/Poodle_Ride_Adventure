@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Rabbit as DogIcon, X, Clock, Pause, Play } from 'lucide-react';
-import { InterstitialAd } from '../../Registry/UI/Ads';
-import { SoundManager } from '../../Sound/SoundManager';
-import { manageDoorProximity } from './General/DoorManager';
+import { InterstitialAd } from '@/src/System/Registry/UI/Ads';
+import { SoundManager } from '@/src/System/Sound/SoundManager';
+import { manageDoorProximity } from '@/src/System/UI/Play_Area/General/DoorManager';
 import { 
   GameState, INITIAL_STATE, DIRECTIONS, MOVE_COOLDOWN, getCSTTime, getLightingMode, 
   GRID_SIZE, FOYER_DESCRIPTIONS, CELLAR_DESCRIPTIONS, 
@@ -11,74 +11,74 @@ import {
   RUGGED_PLAY_FIELD_DESCRIPTIONS, MEDITATION_HALL_DESCRIPTIONS, GARDEN_DESCRIPTIONS,
   getWallDescription, isOutdoorArea,
   Direction, GAME_WIDTH, GAME_HEIGHT, TRUE_BLACK, SynthMode
-} from '../../AI/In-Game/Logic/GameLogic';
-import { evaluatePlayAreaActivity } from '../../AI/In-Game/Category/UI/Play_Area';
-import { formulateAreaMetrics as formulateArenaMetrics } from '../../AI/In-Game/Category/Arena';
-import { getRelativePositionDescription, getAreaPerimeterDescription } from '../../Engine/Scientific_Imports/P/Positions';
-import { drawPoodleRiderView, drawPoodle3D } from '../../../Characters/Poodles/Abigay_Rose_Kone';
-import { drawAnninneAmeliaRiderView } from '../../../Characters/Poodles/Anninne-Amelia_Rose_Julisus';
-import { drawAbigailRiderView } from '../../../Characters/Poodles/Abigail_Marigold_Kenyatta';
-import { PoodleSelectionMenu } from '../Animal_Selection';
-import { drawDymondRiderView } from '../../../Characters/Poodles/Dymond_Daisy_Qin-Reynolds';
-import { drawWorldObjects } from '../../Engine/Science/Graphical_Renderer/W/WorldRenderer';
-import { drawStoryBookCourse, drawToyInterface } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookRenderer';
-import { drawInitialShort400FeetPath } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/Initial_Short_400_Feet_Path/InitialPathRenderer';
-import { STORY_BOOK_PAGES } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
-import { drawPoodlePOV } from '../../../Characters/Riders/Fairy-Rider/POV';
-import { drawPriscillaRiderView, drawPriscillaPOV } from '../../../Characters/Riders/Priscilla/Animations/PriscillaRiderRenderer';
-import { checkCollision } from '../../Engine/Core/C/Collision';
-import { checkAnnouncementFlags } from '../../Engine/Core/Announcement';
-import { ScreenReader as ScreenReaderComponent } from '../../Registry/Sound/TTS';
-import { drawEnvironment, drawWindowViews } from '../../../Arena/Manorsville/Rasta-Manor/Environment';
-import FloorFoyerGrid from '../../../System/Engine/Mathematics/Grid/Floor_Foyer_Grid';
-import { detectHardwareProfile, applyLegacyConstraints } from '../../HardwareOptimization';
-import { TOY_DIMENSIONS } from '../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/Obstacles/Interactive_Obstacles/Ride-On_Pink_Poodle_Rocker/Dimensions/Dimensions';
-import { calculateMovement } from '../../../System/Engine/Movement/M/Movement';
-import { routeKeyboardEvent } from '../../../System/Engine/Scientific_Imports/K/Keyboard';
-import { PlayAreaMenuBar, GameView, HUD, Diagnostics } from '../../Registry/UI/Play_Area';
-import { PlayAreaHeader } from './Header';
-import { PlayAreaMainContainer } from './Main';
-import { PlayAreaFooter } from './Footer';
-import { SystemTheme, ThemeProvider } from '../../../System/Theme';
-import { getFootage, getMeasurementDescription, getSpeedDescription, convertText } from '../../../System/Engine/Science/Physics/Measurements';
-import { FOYER_OBSTACLES, GARDEN_OBSTACLES, Obstacle as LegacyObstacle } from '../../../System/Engine/Core/O/Obstacles';
-import { ADVENTURE_COURSE, checkCourseTransition, CourseArea } from '../../Levels/CourseManager';
-import { generateObstacles, checkObstacleCollision, getObstacleBeepInterval, Obstacle } from '../../Building_Blocks/Obstacles/ObstacleManager';
-import { calculateObstaclePoints, updateScore, INITIAL_LEVEL_MEMORY, saveLevelProgress, LevelMemory } from '../../State';
-import { KeyboardCommandsModal } from '../../Modal';
-import { BitMode } from '../../../types';
-import { InventoryMenu } from '../../Registry/UI/Inventory';
-import { generateCoins, checkCoinCollection } from '../../Items/Coins';
+} from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { evaluatePlayAreaActivity } from '@/src/System/AI/In-Game/Category/UI/Play_Area';
+import { formulateAreaMetrics as formulateArenaMetrics } from '@/src/System/AI/In-Game/Category/Arena';
+import { getRelativePositionDescription, getAreaPerimeterDescription } from '@/src/System/Engine/Scientific_Imports/P/Positions';
+import { drawPoodleRiderView, drawPoodle3D } from '@/src/Characters/Poodles/Abigay_Rose_Kone';
+import { drawAnninneAmeliaRiderView } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus';
+import { drawAbigailRiderView } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta';
+import { PoodleSelectionMenu } from '@/src/System/UI/Animal_Selection';
+import { drawDymondRiderView } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds';
+import { drawWorldObjects } from '@/src/System/Engine/Science/Graphical_Renderer/W/WorldRenderer';
+import { drawStoryBookCourse, drawToyInterface } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookRenderer';
+import { drawInitialShort400FeetPath } from '@/src/Courses/Poodle_Ride_Story_Book/Initial_Short_400_Feet_Path/InitialPathRenderer';
+import { STORY_BOOK_PAGES } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookLogic';
+import { drawPoodlePOV } from '@/src/Characters/Riders/Fairy-Rider/POV';
+import { drawPriscillaRiderView, drawPriscillaPOV } from '@/src/Characters/Riders/Priscilla/Animations/PriscillaRiderRenderer';
+import { checkCollision } from '@/src/System/Engine/Core/C/Collision';
+import { checkAnnouncementFlags } from '@/src/System/Engine/Core/Announcement';
+import { ScreenReader as ScreenReaderComponent } from '@/src/System/Registry/Sound/TTS';
+import { drawEnvironment, drawWindowViews } from '@/src/Arena/Manorsville/Rasta-Manor/Environment';
+import FloorFoyerGrid from '@/src/System/Engine/Mathematics/Grid/Floor_Foyer_Grid';
+import { detectHardwareProfile, applyLegacyConstraints } from '@/src/System/HardwareOptimization';
+import { TOY_DIMENSIONS } from '@/src/Courses/Poodle_Ride_Story_Book/Obstacles/Interactive_Obstacles/Ride-On_Pink_Poodle_Rocker/Dimensions/Dimensions';
+import { calculateMovement } from '@/src/System/Engine/Movement/M/Movement';
+import { routeKeyboardEvent } from '@/src/System/Engine/Scientific_Imports/K/Keyboard';
+import { PlayAreaMenuBar, GameView, HUD, Diagnostics } from '@/src/System/Registry/UI/Play_Area';
+import { PlayAreaHeader } from '@/src/System/UI/Play_Area/Header';
+import { PlayAreaMainContainer } from '@/src/System/UI/Play_Area/Main';
+import { PlayAreaFooter } from '@/src/System/UI/Play_Area/Footer';
+import { SystemTheme, ThemeProvider } from '@/src/System/Theme';
+import { getFootage, getMeasurementDescription, getSpeedDescription, convertText } from '@/src/System/Engine/Science/Physics/Measurements';
+import { FOYER_OBSTACLES, GARDEN_OBSTACLES, Obstacle as LegacyObstacle } from '@/src/System/Engine/Core/O/Obstacles';
+import { ADVENTURE_COURSE, checkCourseTransition, CourseArea } from '@/src/System/Levels/CourseManager';
+import { generateObstacles, checkObstacleCollision, getObstacleBeepInterval, Obstacle } from '@/src/System/Building_Blocks/Obstacles/ObstacleManager';
+import { calculateObstaclePoints, updateScore, INITIAL_LEVEL_MEMORY, saveLevelProgress, LevelMemory } from '@/src/System/State';
+import { KeyboardCommandsModal } from '@/src/System/Modal';
+import { BitMode } from '@/src/types';
+import { InventoryMenu } from '@/src/System/Registry/UI/Inventory';
+import { generateCoins, checkCoinCollection } from '@/src/System/Items/Coins';
 
-import { PoodleLandingPage } from '../Landing_Page';
-import { ThanksForPlaying } from './Thanks_4_Playing';
-import { FinalScore } from './Final_Score';
+import { PoodleLandingPage } from '@/src/System/UI/Landing_Page';
+import { ThanksForPlaying } from '@/src/System/UI/Play_Area/Thanks_4_Playing';
+import { FinalScore } from '@/src/System/UI/Play_Area/Final_Score';
 
 // Modular Imports
-import { WELCOME_MESSAGE, getDynamicWelcomeMessage } from '../../Engine/Scientific_Imports/W/Welcome';
-import { draw2DView } from '../../Engine/Scientific_Imports/D/Drawing';
-import { getInputLearnDescription, getWallInteractionDescription } from '../../Engine/Scientific_Imports/I/InputDescriptions';
-import { getSystemStatusDescription } from '../../Engine/Scientific_Imports/S/SystemStatus';
-import { triggerAmbientSounds } from '../../Engine/Scientific_Imports/A/Ambient';
-import { handleGoatSchedule } from '../../Engine/Scientific_Imports/G/Goat';
-import { handleShiftMultiTap, handleRegularMultiTap } from '../../Keyboards_and_Controllers/Keyboard';
-import { handlePoodleBark, handlePoodlePet, handlePoodleLean, handlePoodleCollar } from './Main/Logic/Interaction/Poodle/PoodleInteractions';
-import { GeneralDOM, DOMEngine } from '../../DOM';
+import { WELCOME_MESSAGE, getDynamicWelcomeMessage } from '@/src/System/Engine/Scientific_Imports/W/Welcome';
+import { draw2DView } from '@/src/System/Engine/Scientific_Imports/D/Drawing';
+import { getInputLearnDescription, getWallInteractionDescription } from '@/src/System/Engine/Scientific_Imports/I/InputDescriptions';
+import { getSystemStatusDescription } from '@/src/System/Engine/Scientific_Imports/S/SystemStatus';
+import { triggerAmbientSounds } from '@/src/System/Engine/Scientific_Imports/A/Ambient';
+import { handleGoatSchedule } from '@/src/System/Engine/Scientific_Imports/G/Goat';
+import { handleShiftMultiTap, handleRegularMultiTap } from '@/src/System/Keyboards_and_Controllers/Keyboard';
+import { handlePoodleBark, handlePoodlePet, handlePoodleLean, handlePoodleCollar } from '@/src/System/UI/Play_Area/Main/Logic/Interaction/Poodle/PoodleInteractions';
+import { GeneralDOM, DOMEngine } from '@/src/System/DOM';
 
-import { MultipleChoiceOverlay } from './Components/MultipleChoiceOverlay';
-import { GameFooter } from './Components/GameFooter';
-import { handleMovementInput } from '../../InputHandler';
-import { InputContext } from '../../InputTypes';
-import { ScreenReader } from '../../Sound/TTS/ScreenReader';
-import { AudioManager } from '../../Audio/AudioManager';
-import { ActionDispatcher } from '../../State/ActionDispatcher';
-import { GeminiService } from '../../AI/External';
-import { AutomationManager } from '../../Automation/AutomationManager';
-import { DiagnosticManager } from '../../Diagnostics/DiagnosticManager';
+import { MultipleChoiceOverlay } from '@/src/System/UI/Play_Area/Components/MultipleChoiceOverlay';
+import { GameFooter } from '@/src/System/UI/Play_Area/Components/GameFooter';
+import { handleMovementInput } from '@/src/System/InputHandler';
+import { InputContext } from '@/src/System/InputTypes';
+import { ScreenReader } from '@/src/System/Sound/TTS/ScreenReader';
+import { AudioManager } from '@/src/System/Audio/AudioManager';
+import { ActionDispatcher } from '@/src/System/State/ActionDispatcher';
+import { GeminiService } from '@/src/System/AI/External';
+import { AutomationManager } from '@/src/System/Automation/AutomationManager';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 const audio = new SoundManager();
 
-import { PoodleRideProps, MovementContext, handleMoveForward, handleMoveReverse, bark as poodleBark, pet as poodlePet, lean as poodleLean, collar as poodleCollar } from './Main/General';
+import { PoodleRideProps, MovementContext, handleMoveForward, handleMoveReverse, bark as poodleBark, pet as poodlePet, lean as poodleLean, collar as poodleCollar } from '@/src/System/UI/Play_Area/Main/General';
 
 export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpenDownloads }: PoodleRideProps) {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);

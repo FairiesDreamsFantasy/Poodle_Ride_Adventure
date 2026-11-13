@@ -1,4 +1,4 @@
-import { ART_DESCRIPTIONS } from '../../../A/Art';
+import { ART_DESCRIPTIONS } from '@/src/Description_List/A/Art';
 
 export const FOYER_DESCRIPTIONS = {
   START: `You are at the entrance of the Floor Foyer (2000x2000), facing South. The ceilings are exceptionally high, soaring nearly 45 feet above.`,

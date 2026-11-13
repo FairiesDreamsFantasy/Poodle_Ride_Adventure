@@ -1,4 +1,4 @@
-import { SIMULATED_GARDEN_AREA_DIMENSIONS } from './Dimensions';
+import { SIMULATED_GARDEN_AREA_DIMENSIONS } from '@/src/Arena/Manorsville/Rasta-Manor/1st_Floor/Simulated_Garden_Area/Description/Dimensions';
 
 /**
  * Simulated Garden Area Description

@@ -14,9 +14,9 @@
  */
 
 import { Dispatch, SetStateAction, MutableRefObject } from 'react';
-import { GameState } from '../../../../Logic/GameLogic';
-import { checkObstacleCollision } from '../../../../../../Building_Blocks/Obstacles/ObstacleManager';
-import { DiagnosticManager } from '../../../../../../Diagnostics/DiagnosticManager';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { checkObstacleCollision } from '@/src/System/Building_Blocks/Obstacles/ObstacleManager';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 export interface JumpActionContext {
   gameStateRef: MutableRefObject<GameState>;

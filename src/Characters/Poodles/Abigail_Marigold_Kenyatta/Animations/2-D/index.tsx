@@ -3,7 +3,7 @@
  * Featuring refined craftsmanship for the ally character.
  */
 
-import { DiagnosticManager } from '../../../../../System/Diagnostics/DiagnosticManager';
+import { DiagnosticManager } from '@/src/System/Diagnostics/DiagnosticManager';
 
 let lastLogTime = 0;
 const LOG_INTERVAL = 5000;

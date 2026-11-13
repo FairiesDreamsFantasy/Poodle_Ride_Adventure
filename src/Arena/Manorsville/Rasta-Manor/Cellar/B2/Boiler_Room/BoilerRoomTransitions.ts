@@ -1,6 +1,6 @@
-import { Direction, GameState } from '../../../../../../System/AI/In-Game/Logic/GameLogic';
-import { TransitionResult } from '../../../../../../System/Engine/Transitions';
-import { BOILER_WIDTH, BOILER_HEIGHT, BOILER_WALL_THICKNESS, GATE_X, GATE_WIDTH } from './BoilerRoomConstants';
+import { Direction, GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { BOILER_WIDTH, BOILER_HEIGHT, BOILER_WALL_THICKNESS, GATE_X, GATE_WIDTH } from '@/src/Arena/Manorsville/Rasta-Manor/Cellar/B2/Boiler_Room/BoilerRoomConstants';
 
 export const handleBoilerRoomTransitions = (
   gridX: number,

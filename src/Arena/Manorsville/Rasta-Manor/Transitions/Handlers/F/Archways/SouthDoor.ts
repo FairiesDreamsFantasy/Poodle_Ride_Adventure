@@ -1,7 +1,7 @@
-import { Direction } from '../../../../../../../System/Engine/Core/Types';
-import { AREA_DIMENSIONS } from '../../../../../../../System/Engine/Core/Constants';
-import { TransitionResult } from '../../../../../../../System/Engine/Transitions';
-import { isSouthward } from '../../../../../../../System/Engine/Core/Utils/Direction';
+import { Direction } from '@/src/System/Engine/Core/Types';
+import { AREA_DIMENSIONS } from '@/src/System/Engine/Core/Constants';
+import { TransitionResult } from '@/src/System/Engine/Transitions';
+import { isSouthward } from '@/src/System/Engine/Core/Utils/Direction';
 
 export const handleSouthDoorTransition = (
   direction: Direction,

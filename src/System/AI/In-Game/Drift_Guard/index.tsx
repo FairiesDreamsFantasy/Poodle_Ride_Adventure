@@ -15,11 +15,11 @@ import {
   applySymplecticEulerCorrection,
   enforceHeadStabilityInvariant,
   snapToGridBoundary,
-} from './General';
-import { DRIFT_GUARD_CONSTANTS, DEFAULT_DRIFT_GUARD_CONFIG, DriftGuardConfig } from '../../../Registry/AI/In-Game/Drift_Guard';
+} from '@/src/System/AI/In-Game/Drift_Guard/General';
+import { DRIFT_GUARD_CONSTANTS, DEFAULT_DRIFT_GUARD_CONFIG, DriftGuardConfig } from '@/src/System/Registry/AI/In-Game/Drift_Guard';
 
-export * from './General';
-export * from './Kinematics';
+export * from '@/src/System/AI/In-Game/Drift_Guard/General';
+export * from '@/src/System/AI/In-Game/Drift_Guard/Kinematics';
 
 export class DriftGuardEngine {
   private static instance: DriftGuardEngine | null = null;

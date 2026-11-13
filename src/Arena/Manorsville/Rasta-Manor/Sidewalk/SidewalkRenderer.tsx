@@ -1,1 +1,1 @@
-export { drawSidewalk } from '../../../../Arena/Manorsville/Sidewalk';
+export { drawSidewalk } from '@/src/Arena/Manorsville/Sidewalk';

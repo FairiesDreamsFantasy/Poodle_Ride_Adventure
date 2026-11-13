@@ -1,5 +1,5 @@
-import { GameState, AREA_DIMENSIONS } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { drawDiningRampEffect } from '../../../../../System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
+import { GameState, AREA_DIMENSIONS } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawDiningRampEffect } from '@/src/System/Engine/Science/Graphical_Renderer/Tarsis_Effects/TarsisEffectsList';
 
 /**
  * GRAND DINING ROOM RENDERER

@@ -1,5 +1,5 @@
-import { GameState } from '../../../System/Engine/Core/Types';
-import { drawSegment1 } from '../Segment_1';
+import { GameState } from '@/src/System/Engine/Core/Types';
+import { drawSegment1 } from '@/src/Arena/Do_You_Remember_This/Segment_1';
 
 export interface DoYouRememberThisProps {
   ctx: CanvasRenderingContext2D;

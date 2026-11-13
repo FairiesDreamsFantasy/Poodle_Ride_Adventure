@@ -2,5 +2,5 @@
  * Abigay Rose Kone: Lean Synthesizer
  */
 
-export * from './Forward';
-export * from './Upright';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Lean/Forward';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Lean/Upright';

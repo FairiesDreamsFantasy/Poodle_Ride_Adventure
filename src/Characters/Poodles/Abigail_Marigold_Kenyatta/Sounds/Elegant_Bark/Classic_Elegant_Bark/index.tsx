@@ -3,7 +3,7 @@
  * Logic for Abigail Marigold Kenyatta's elegant bark.
  */
 
-import { playAbigailBow } from '../Elegant_BOW';
+import { playAbigailBow } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta/Sounds/Elegant_Bark/Elegant_BOW';
 
 export const ABIGAIL_BARK_MSG = "Abigail Marigold Kenyatta Barks Elegantly";
 

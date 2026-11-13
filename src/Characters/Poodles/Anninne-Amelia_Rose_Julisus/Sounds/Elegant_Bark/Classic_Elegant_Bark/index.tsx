@@ -3,7 +3,7 @@
  * Logic for Anninne-Amelia's elegant bark.
  */
 
-import { playAnninneAmeliaBow } from '../Elegant_BOW';
+import { playAnninneAmeliaBow } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus/Sounds/Elegant_Bark/Elegant_BOW';
 
 export const POODLE_BARK_MSG = "A Poodle Barks Elegantly";
 

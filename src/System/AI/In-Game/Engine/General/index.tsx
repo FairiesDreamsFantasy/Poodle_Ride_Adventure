@@ -6,7 +6,7 @@ import {
   AIR_DENSITY_SEA_LEVEL_KG_M3,
   DEFAULT_INTEGRATOR_CONFIG,
   TERRAIN_FRICTION_REGISTRY
-} from '../../../../Registry/AI/In-Game/Engine/General/index.tsx';
+} from '@/src/System/Registry/AI/In-Game/Engine/General/index.tsx';
 
 export interface PhaseSpaceState3D {
   position: Vector3Physics;

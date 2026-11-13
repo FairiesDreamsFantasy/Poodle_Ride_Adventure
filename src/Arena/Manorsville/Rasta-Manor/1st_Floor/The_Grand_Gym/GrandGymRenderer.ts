@@ -1,6 +1,6 @@
-import { GameState } from '../../../../../System/AI/In-Game/Logic/GameLogic';
-import { TILES, WALL_PANELS } from '../../../../../System/Building_Blocks/BlocksConstants';
-import { drawFloorTiling } from '../../../../../System/Engine/Science/Graphical_Renderer/General';
+import { GameState } from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { TILES, WALL_PANELS } from '@/src/System/Building_Blocks/BlocksConstants';
+import { drawFloorTiling } from '@/src/System/Engine/Science/Graphical_Renderer/General';
 
 export function drawGrandGym(ctx: CanvasRenderingContext2D, width: number, height: number, state: GameState, time: number) {
   const { gridX, gridY } = state;

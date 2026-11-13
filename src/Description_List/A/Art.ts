@@ -1,1 +1,1 @@
-export * from './Art/index';
+export * from '@/src/Description_List/A/Art/index';

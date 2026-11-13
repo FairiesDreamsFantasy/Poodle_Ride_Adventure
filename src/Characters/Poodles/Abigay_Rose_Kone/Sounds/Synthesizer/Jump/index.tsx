@@ -2,8 +2,8 @@
  * Abigay Rose Kone: Jump Synthesizer
  */
 
-export * from './Running';
-export * from './Hop';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Jump/Running';
+export * from '@/src/Characters/Poodles/Abigay_Rose_Kone/Sounds/Synthesizer/Jump/Hop';
 
 export function playJumpSound(
   ctx: AudioContext,

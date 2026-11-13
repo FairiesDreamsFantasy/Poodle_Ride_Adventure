@@ -25,21 +25,21 @@ import {
   getCSTTime,
   getLightingMode,
   GameState
-} from '../../../Logic/GameLogic';
-import { drawEnvironment, drawWindowViews } from '../../../../../../Arena/Manorsville/Rasta-Manor/Environment';
-import { drawWorldObjects } from '../../../../../Engine/Science/Graphical_Renderer/W/WorldRenderer';
-import { drawToyInterface } from '../../../../../../World/Main_Game/World/1/Levels/Level_1/Courses/Poodle_Ride_Story_Book/StoryBookRenderer';
-import { draw2DView } from '../../../../../Engine/Scientific_Imports/D/Drawing';
-import { drawPoodleRiderView, drawPoodle3D } from '../../../../../../Characters/Poodles/Abigay_Rose_Kone';
-import { drawAnninneAmeliaRiderView } from '../../../../../../Characters/Poodles/Anninne-Amelia_Rose_Julisus';
-import { drawAbigailRiderView } from '../../../../../../Characters/Poodles/Abigail_Marigold_Kenyatta';
-import { drawDymondRiderView } from '../../../../../../Characters/Poodles/Dymond_Daisy_Qin-Reynolds';
-import { drawPriscillaRiderView, drawPriscillaPOV } from '../../../../../../Characters/Riders/Priscilla/Animations/PriscillaRiderRenderer';
-import { drawPoodlePOV } from '../../../../../../Characters/Riders/Fairy-Rider/POV';
-import { applyLegacyConstraints } from '../../../../../HardwareOptimization';
-import { formulateAreaMetrics as formulateArenaMetrics } from '../../Arena';
-import { getRelativePositionDescription } from '../../../../../Engine/Scientific_Imports/P/Positions';
-import { getFootage } from '../../../../../Engine/Science/Physics/Measurements';
+} from '@/src/System/AI/In-Game/Logic/GameLogic';
+import { drawEnvironment, drawWindowViews } from '@/src/Arena/Manorsville/Rasta-Manor/Environment';
+import { drawWorldObjects } from '@/src/System/Engine/Science/Graphical_Renderer/W/WorldRenderer';
+import { drawToyInterface } from '@/src/Courses/Poodle_Ride_Story_Book/StoryBookRenderer';
+import { draw2DView } from '@/src/System/Engine/Scientific_Imports/D/Drawing';
+import { drawPoodleRiderView, drawPoodle3D } from '@/src/Characters/Poodles/Abigay_Rose_Kone';
+import { drawAnninneAmeliaRiderView } from '@/src/Characters/Poodles/Anninne-Amelia_Rose_Julisus';
+import { drawAbigailRiderView } from '@/src/Characters/Poodles/Abigail_Marigold_Kenyatta';
+import { drawDymondRiderView } from '@/src/Characters/Poodles/Dymond_Daisy_Qin-Reynolds';
+import { drawPriscillaRiderView, drawPriscillaPOV } from '@/src/Characters/Riders/Priscilla/Animations/PriscillaRiderRenderer';
+import { drawPoodlePOV } from '@/src/Characters/Riders/Fairy-Rider/POV';
+import { applyLegacyConstraints } from '@/src/System/HardwareOptimization';
+import { formulateAreaMetrics as formulateArenaMetrics } from '@/src/System/AI/In-Game/Category/Arena';
+import { getRelativePositionDescription } from '@/src/System/Engine/Scientific_Imports/P/Positions';
+import { getFootage } from '@/src/System/Engine/Science/Physics/Measurements';
 
 export interface CanvasRenderParams {
   canvas: HTMLCanvasElement;
