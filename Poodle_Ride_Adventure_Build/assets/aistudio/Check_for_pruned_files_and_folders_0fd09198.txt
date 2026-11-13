@@ -1,0 +1,374 @@
+# Check for pruned files and folders
+
+## Log
+
+23:42:15.019
+Backend
+Log
+ Server started on port 3000. 
+23:42:15.019
+Backend
+Log
+ Pre-warming 1 paths...
+  
+  > react-example@0.9.9.9 dev
+  > tsx server.ts --port 3000 --host 0.0.0.0
+  
+  Server running on http://localhost:3000 
+23:42:15.019
+Backend
+Log
+ Pre-warming completed.
+  5:42:13 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../Theme/Engine" from "src/System/Modal/Theme_Switcher/General/index.tsx". Does the file exist?
+    Plugin: vite:import-analysis
+    File: /app/applet/src/System/Modal/Theme_Switcher/General/index.tsx:3:56
+    2  |  import { useState } from "react";
+    3  |  import { Palette, Check, X } from "lucide-react";
+    4  |  import { useThemeEngine } from "../../../Theme/Engine";
+       |                                  ^
+    5  |  export const ThemeSwitcherGeneral = ({ isOpen, onClose }) => {
+    6  |    const { themeConfig, setTheme } = useThemeEngine();
+  5:42:13 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../Theme/Engine" from "src/System/Modal/Theme_Switcher/General/index.tsx". Does the file exist?
+    Plugin: vite:import-analysis
+    File: /app/applet/src/System/Modal/Theme_Switcher/General/index.tsx:3:56
+    2  |  import { useState } from "react";
+    3  |  import { Palette, Check, X } from "lucide-react";
+    4  |  import { useThemeEngine } from "../../../Theme/Engine";
+       |                                  ^
+    5  |  export const ThemeSwitcherGeneral = ({ isOpen, onClose }) => {
+    6  |    const { themeConfig, setTheme } = useThemeEngine();
+  5:42:15 AM [vite] (client) Pre-transform error: Failed to resolve import "@/src/System/Sound/SoundManager" from "src/System/UI/Play_Area/index.tsx". Does the file exist?
+    Plugin: vite:import-analysis
+    File: /app/applet/src/System/UI/Play_Area/index.tsx:5:29
+    3  |  import { AnimatePresence } from "motion/react";
+    4  |  import { InterstitialAd } from "@/src/System/Registry/UI/Ads";
+    5  |  import { SoundManager } from "@/src/System/Sound/SoundManager";
+       |                                ^
+    6  |  import { manageDoorProximity } from "@/src/System/UI/Play_Area/General/DoorManager";
+    7  |  import {
+  5:42:15 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../UI/Ads/Interstitial" from "src/System/Registry/UI/Ads/index.tsx". Does the file exist?
+    Plugin: vite:import-analysis
+    File: /app/applet/src/System/Registry/UI/Ads/index.tsx:1:31
+    1  |  import { InterstitialAd } from "../../../UI/Ads/Interstitial";
+       |                                  ^
+    2  |  export { InterstitialAd };
+    3  |  
+  5:42:15 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../UI/Inventory" from "src/System/Registry/UI/Inventory/index.tsx". Does the file exist?
+    Plugin: vite:import-analysis
+    File: /app/applet/src/System/Registry/UI/Inventory/index.tsx:1:48
+    1  |  import { InventoryManager, InventoryMenu } from "../../../UI/Inventory";
+       |                                                   ^
+    2  |  export { InventoryManager, InventoryMenu };
+    3  |  export * from "./Items"; 
+23:42:15.085
+Backend
+Log
+ CONNECTED 
+23:42:15.089
+Backend
+Error
+ 5:42:15 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../../UI/Play_Area/Main/Menu_Bar/Layouts" from "src/System/Registry/UI/Play_Area/Menu_Bar/index.tsx". Does the file exist? 
+23:42:15.089
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:15.089
+Backend
+Log
+ File: /app/applet/src/System/Registry/UI/Play_Area/Menu_Bar/index.tsx:7:28 
+23:42:15.089
+Backend
+Log
+ 2  |  import { useState } from "react"; 
+23:42:15.089
+Backend
+Log
+ 3  |  import { ChevronDown } from "lucide-react"; 
+23:42:15.089
+Backend
+Log
+ 4  |  import { LayoutsMenu } from "../../../../UI/Play_Area/Main/Menu_Bar/Layouts"; 
+23:42:15.089
+Backend
+Log
+ |                               ^ 
+23:42:15.089
+Backend
+Log
+ 5  |  import { SoundMenu } from "../../../../UI/Play_Area/Main/Menu_Bar/Sound"; 
+23:42:15.089
+Backend
+Log
+ 6  |  import { AccessibilityMenu } from "../../../../UI/Play_Area/Main/Menu_Bar/Accessibility"; 
+23:42:15.169
+Backend
+Error
+ 5:42:16 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../../UI/Play_Area/Main/HUD/Classic_Crafted_HUD" from "src/System/Registry/UI/Play_Area/HUD/index.tsx". Does the file exist? 
+23:42:15.169
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:15.169
+Backend
+Log
+ File: /app/applet/src/System/Registry/UI/Play_Area/HUD/index.tsx:3:34 
+23:42:15.169
+Backend
+Log
+ 1  |  import { jsxDEV } from "react/jsx-dev-runtime"; 
+23:42:15.169
+Backend
+Log
+ 2  |  import { ClassicCraftedHUD } from "../../../../UI/Play_Area/Main/HUD/Classic_Crafted_HUD"; 
+23:42:15.169
+Backend
+Log
+ |                                     ^ 
+23:42:15.170
+Backend
+Log
+ 3  |  export const HUD = ({ gameState }) => { 
+23:42:15.170
+Backend
+Log
+ 4  |    return /* @__PURE__ */ jsxDEV(ClassicCraftedHUD, { gameState }, void 0, false, { 
+23:42:15.473
+Backend
+Error
+ 5:42:16 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../UI/Inventory" from "src/System/Registry/UI/Inventory/index.tsx". Does the file exist? 
+23:42:15.473
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:15.473
+Backend
+Log
+ File: /app/applet/src/System/Registry/UI/Inventory/index.tsx:1:48 
+23:42:15.473
+Backend
+Log
+ 1  |  import { InventoryManager, InventoryMenu } from "../../../UI/Inventory"; 
+23:42:15.473
+Backend
+Log
+ |                                                   ^ 
+23:42:15.473
+Backend
+Log
+ 2  |  export { InventoryManager, InventoryMenu }; 
+23:42:15.524
+Backend
+Log
+ 3  |  export * from "./Items"; 
+23:42:15.995
+Backend
+Error
+ 5:42:16 AM [vite] (client) Pre-transform error: Failed to resolve import "@/src/System/UI/Inventory/InventoryManager" from "src/System/Engine/Core/I/Interaction.ts". Does the file exist? 
+23:42:15.995
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:15.995
+Backend
+Log
+ File: /app/applet/src/System/Engine/Core/I/Interaction.ts:3:60 
+23:42:15.995
+Backend
+Log
+ 1  |  import { MANOR_OBJECTS } from "@/src/Warp_Houses/Allisons_Manor/Manor/InteractiveObjects"; 
+23:42:15.995
+Backend
+Log
+ 2  |  import { addItemToInventory } from "@/src/System/UI/Inventory/InventoryManager"; 
+23:42:15.995
+Backend
+Log
+ |                                      ^ 
+23:42:15.995
+Backend
+Log
+ 3  |  export function handleInteraction(state, speak, audio) { 
+23:42:15.995
+Backend
+Log
+ 4  |    const { gridX, gridY, area } = state; 
+23:42:16.335
+Backend
+Error
+ 5:42:17 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../../../../../Sound/SFX/Alphabetical/D/Door/Sliding_Door/Crafted/Simulated_Garden_Sliding_Door/Open" from "src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Simulated_Garden_Sliding_Door/Sound/Synthesizer/index.tsx". Does the file exist? 
+23:42:16.335
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:16.335
+Backend
+Log
+ File: /app/applet/src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Simulated_Garden_Sliding_Door/Sound/Synthesizer/index.tsx:1:57 
+23:42:16.335
+Backend
+Log
+ 1  |  import { playSimulatedGardenSlidingDoorOpenAction } from "../../../../../../../Sound/SFX/Alphabetical/D/Door/Sliding_Door/Crafted/Simulated_Garden_Sliding_Door/Open"; 
+23:42:16.335
+Backend
+Log
+ |                                                            ^ 
+23:42:16.335
+Backend
+Log
+ 2  |  import { playSimulatedGardenSlidingDoorCloseAction } from "../../../../../../../Sound/SFX/Alphabetical/D/Door/Sliding_Door/Crafted/Simulated_Garden_Sliding_Door/Close"; 
+23:42:16.335
+Backend
+Log
+ 3  |  export const SimulatedGardenSoundSynthesizer = { 
+23:42:16.335
+Backend
+Error
+ 5:42:17 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../../../../../Sound/SFX/Alphabetical/D/Door/Sliding_Door/Crafted/Rainbow_Glass_Sliding_Door/Open" from "src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Rainbow_Glass_Sliding_Door/Sound/Synthesizer/index.tsx". Does the file exist? 
+23:42:16.335
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:16.386
+Backend
+Log
+ File: /app/applet/src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Rainbow_Glass_Sliding_Door/Sound/Synthesizer/index.tsx:1:54 
+23:42:16.386
+Backend
+Log
+ 1  |  import { playRainbowGlassSlidingDoorOpenAction } from "../../../../../../../Sound/SFX/Alphabetical/D/Door/Sliding_Door/Crafted/Rainbow_Glass_Sliding_Door/Open"; 
+23:42:19.058
+System
+Build
+ Render End 
+23:42:19.068
+Backend
+Error
+ 5:42:19 AM [vite] Internal server error: Failed to resolve import "@/src/System/Sound/SoundManager" from "src/System/UI/Play_Area/index.tsx". Does the file exist? 
+23:42:19.068
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:19.068
+Backend
+Log
+ File: /app/applet/src/System/UI/Play_Area/index.tsx:5:29 
+23:42:19.068
+Backend
+Log
+ 3  |  import { AnimatePresence } from "motion/react"; 
+23:42:19.068
+Backend
+Log
+ 4  |  import { InterstitialAd } from "@/src/System/Registry/UI/Ads"; 
+23:42:19.068
+Backend
+Log
+ 5  |  import { SoundManager } from "@/src/System/Sound/SoundManager"; 
+23:42:19.068
+Backend
+Log
+ |                                ^ 
+23:42:19.068
+Backend
+Log
+ 6  |  import { manageDoorProximity } from "@/src/System/UI/Play_Area/General/DoorManager"; 
+23:42:19.068
+Backend
+Log
+ 7  |  import { 
+23:42:19.068
+Backend
+Log
+ at TransformPluginContext._formatLog (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41) 
+23:42:19.068
+Backend
+Log
+ at TransformPluginContext.error (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16) 
+23:42:19.068
+Backend
+Log
+ at normalizeUrl (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23) 
+23:42:19.068
+Backend
+Log
+ at process.processTicksAndRejections (node:internal/process/task_queues:103:5) 
+23:42:19.068
+Backend
+Log
+ at async <anonymous> (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37) 
+23:42:19.068
+Backend
+Log
+ at async Promise.all (index 4) 
+23:42:19.068
+Backend
+Log
+ at async TransformPluginContext.transform (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7) 
+23:42:19.068
+Backend
+Log
+ at async EnvironmentPluginContainer.transform (/app/applet/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18) 
+23:42:19.068
+Backend
+Error
+ 5:42:19 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../UI/Ads/Interstitial" from "src/System/Registry/UI/Ads/index.tsx". Does the file exist? 
+23:42:19.068
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:19.068
+Backend
+Log
+ File: /app/applet/src/System/Registry/UI/Ads/index.tsx:1:31 
+23:42:19.068
+Backend
+Log
+ 1  |  import { InterstitialAd } from "../../../UI/Ads/Interstitial"; 
+23:42:19.068
+Backend
+Log
+ |                                  ^ 
+23:42:19.068
+Backend
+Log
+ 2  |  export { InterstitialAd }; 
+23:42:19.068
+Backend
+Log
+ 3  | 
+23:42:19.068
+Backend
+Error
+ 5:42:19 AM [vite] (client) Pre-transform error: Failed to resolve import "../../../UI/Inventory" from "src/System/Registry/UI/Inventory/index.tsx". Does the file exist? 
+23:42:19.068
+Backend
+Log
+ Plugin: vite:import-analysis 
+23:42:19.068
+Backend
+Log
+ File: /app/applet/src/System/Registry/UI/Inventory/index.tsx:1:48 
+23:42:19.068
+Backend
+Log
+ 1  |  import { InventoryManager, InventoryMenu } from "../../../UI/Inventory"; 
+23:42:19.233
+App
+Debug
+ [vite] connecting... 
+23:46:18.027
+App
+Error
+ [vite] failed to connect to websocket (Error: WebSocket closed without opened.).  
+23:46:18.105
+App
+Unhandled Rejection
+ Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (https://ais-dev-ilwegf4zv6fwv3clnxjbef-106157393272.us-west2.run.app/@vite/client:454:22) 
+23:52:14.830
+Backend
+Log
+ CONNECTED 
+* Important
+**Don't edit this game just yet.**
+***Pause, ask me for verification.***
