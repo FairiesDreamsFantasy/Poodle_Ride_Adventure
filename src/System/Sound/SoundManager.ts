@@ -73,6 +73,7 @@ export class SoundManager {
     this.connectSFX = this.connectSFX.bind(this);
     this.setBitMode = this.setBitMode.bind(this);
     this.setSynthMode = this.setSynthMode.bind(this);
+    this.playWithSynth = this.playWithSynth.bind(this);
     this.setReverbProfile = this.setReverbProfile.bind(this);
     this.setMuted = this.setMuted.bind(this);
     this.setVolume = this.setVolume.bind(this);
@@ -343,9 +344,13 @@ export class SoundManager {
 
   public async playWithSynth(method: keyof ISynth, ...args: any[]) {
     this.init();
-    const area = args[0] || 'Foyer';
-    // The last argument is usually the animal if it was passed from the public method
-    const animal = args[args.length - 1];
+    const [
+      area = 'Foyer',
+      _x = 0,
+      _y = 0,
+      _z = 0,
+      animal = 'Abigay Rose Kone'
+    ] = args;
     
     // Map areas to reverb profiles
     const reverbMap: Record<string, any> = {
@@ -454,7 +459,7 @@ export class SoundManager {
       // @ts-ignore
       this.classicSynth[method](this.ctx, this.sfxGain, surfaceType, hasReverb, area, animal);
     }
-    if (this.currentSynthMode === 'Advanced' || this.currentSynthMode === 'Mix') {
+    if (this.currentSynthMode === 'Advanced' || this.currentSynthMode === 'Advanced Yamaha' || this.currentSynthMode === 'ADVANCED' || this.currentSynthMode === 'Mix') {
       // @ts-ignore
       this.advancedSynth[method](this.ctx, this.sfxGain, surfaceType, hasReverb, area, animal);
     }
@@ -617,8 +622,13 @@ export class SoundManager {
     await J_Sounds.playJumpSound(this as any, area, x, y, z, animal);
   }
 
-  async playForwardSound(x: number = 0, y: number = 0, z: number = 0) {
-    await F_Sounds.playForwardSound(this as any, x, y, z);
+  async playForwardSound(areaOrX: string | number = 'Foyer', yOrX: number = 0, zOrY: number = 0, z: number = 0, animal: string = 'Abigay Rose Kone') {
+    this.init();
+    if (typeof areaOrX === 'number') {
+      await F_Sounds.playForwardSound(this as any, 'Foyer', areaOrX, yOrX, zOrY, animal);
+    } else {
+      await F_Sounds.playForwardSound(this as any, areaOrX, yOrX, zOrY, z, animal);
+    }
   }
 
   async playRampBeep(step: number, isDescending: boolean = false, x: number = 0, y: number = 0, z: number = 0) {

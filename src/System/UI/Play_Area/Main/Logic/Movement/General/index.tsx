@@ -71,7 +71,7 @@ export function handleMoveForward(
   } else if (isTapped) {
     audio.playPoodleScoot(state.area, 0, 0, 0, state.ridingAnimal);
   } else {
-    audio.playPoodleGallop(state.area);
+    audio.playPoodleGallop(state.area, 0, 0, 0, state.ridingAnimal);
     if (state.isPositioningEnabled && state.area === 'Garden' && state.gridY < 100) {
       audio.playAmbientChimes(0, 0, 1);
     }

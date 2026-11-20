@@ -348,7 +348,9 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
       obstacles: initialObstacles,
       isStarted: true,
       viewMode,
+      synthMode: selectedSynth,
     });
+    audio.setSynthMode(selectedSynth);
     setShowLanding(false);
     
     const welcomeMsg = getDynamicWelcomeMessage(gameState.characterName || 'Fairy-Rider', gameState.ridingAnimal || 'Abigay Rose Kone');
@@ -647,7 +649,7 @@ export default function PoodleRideAdventure({ isEmbedded = false, onBack, onOpen
       const jumpDuration = isRunning ? 800 : 500;
       
       setTimeout(() => {
-        audio.playPoodleThump(area); // Land thump
+        audio.playPoodleThump(area, 0, 0, 0, state.ridingAnimal); // Land thump
         setGameState(prev => ({ ...prev, isJumping: false, isRunningJump: false }));
       }, jumpDuration);
     }

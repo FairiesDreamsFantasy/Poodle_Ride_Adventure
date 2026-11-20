@@ -1,4 +1,4 @@
-
+import { SynthMode } from '../../types';
 
 export interface SoundContext {
   ctx: AudioContext;
@@ -11,6 +11,7 @@ export interface SoundContext {
   reverbFilter: BiquadFilterNode;
   reverbFeedback: GainNode;
   listener: AudioListener;
+  currentSynthMode?: SynthMode;
   createPanner: (x: number, y: number, z: number) => PannerNode;
   connectSFX: (node: AudioNode, hasReverb?: boolean) => void;
   playWithSynth: (method: any, ...args: any[]) => Promise<void>;

@@ -1,5 +1,5 @@
 export type Direction = 'North' | 'South' | 'East' | 'West' | 'Northeast' | 'Southeast' | 'Southwest' | 'Northwest' | 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
-export type SynthMode = 'Classic' | 'Advanced' | 'Mix' | 'CLASSIC' | 'ADVANCED';
+export type SynthMode = 'Classic' | 'Advanced' | 'Advanced Yamaha' | 'Mix' | 'CLASSIC' | 'ADVANCED';
 export type BitMode = '64-bit' | '64BIT';
 export type TTSLanguage = 'EN_US' | 'En_Rastafari' | 'En_JP_UK' | 'En_JP_US' | 'Japanese' | 'EN_En-RP';
 

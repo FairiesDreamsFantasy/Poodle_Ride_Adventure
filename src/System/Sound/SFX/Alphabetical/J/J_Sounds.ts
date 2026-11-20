@@ -9,60 +9,109 @@ import { disambiguatePoodle, PoodleClass } from "../../../../Registry/Characters
 
 export const J_Sounds = {
   async playJumpSound(context: SoundContext, area: string = 'Foyer', x: number = 0, y: number = 0, z: number = 0, animal: string = 'Abigay Rose Kone') {
-    const { ctx, connectSFX } = context;
+    const { ctx, connectSFX, currentSynthMode } = context;
     const hasReverb = area === 'Foyer' || area === 'Meditation Hall';
-    
-    const pData = disambiguatePoodle(animal);
-    if (!pData) return;
+    const normalizedAnimal = animal === 'Abigail Marigold_Kenyatta' ? 'Abigail Marigold Kenyatta' : animal;
 
-    if (animal === 'Abigay Rose Kone') {
-      AbigaySynth.playJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Anninne-Amelia Rose Julisus') {
-      AnninneAmeliaSynth.playJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Dymond Daisy Qin-Reynolds') {
-      DymondSynth.playJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Abigail Marigold Kenyatta' || animal === 'Abigail Marigold_Kenyatta') {
-      AbigailSynth.playJumpSound(ctx, connectSFX, hasReverb);
-    } else if (pData.className === PoodleClass.CLASSIC) {
-      // Classic White Poodles use the shared jump system logic
+    const pData = disambiguatePoodle(normalizedAnimal);
+    if (!pData || pData.className === PoodleClass.BABYLONIAN) return;
+
+    const mode = currentSynthMode || 'Classic';
+    const isAdvanced = mode === 'Advanced' || mode === 'Advanced Yamaha' || mode === 'ADVANCED';
+    const isMix = mode === 'Mix';
+
+    if (pData.className === PoodleClass.CLASSIC) {
+      if (isAdvanced) {
+        await context.playWithSynth('playJumpSound', area, x, y, z, normalizedAnimal);
+        return;
+      }
       playJump(ctx, connectSFX, hasReverb);
+      if (isMix) {
+        await context.playWithSynth('playJumpSound', area, x, y, z, normalizedAnimal);
+      }
+      return;
+    }
+
+    if (isAdvanced || isMix) {
+      await context.playWithSynth('playJumpSound', area, x, y, z, normalizedAnimal);
+      return;
+    }
+
+    if (normalizedAnimal === 'Abigay Rose Kone') {
+      AbigaySynth.playJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Anninne-Amelia Rose Julisus') {
+      AnninneAmeliaSynth.playJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Dymond Daisy Qin-Reynolds') {
+      DymondSynth.playJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Abigail Marigold Kenyatta') {
+      AbigailSynth.playJumpSound(ctx, connectSFX, hasReverb);
     }
   },
 
   async playRunningJumpSound(context: SoundContext, area: string = 'Foyer', x: number = 0, y: number = 0, z: number = 0, animal: string = 'Abigay Rose Kone') {
-    const { ctx, connectSFX } = context;
+    const { ctx, connectSFX, currentSynthMode } = context;
     const hasReverb = area === 'Foyer' || area === 'Meditation Hall';
-    
-    const pData = disambiguatePoodle(animal);
-    if (!pData) return;
+    const normalizedAnimal = animal === 'Abigail Marigold_Kenyatta' ? 'Abigail Marigold Kenyatta' : animal;
 
-    if (animal === 'Abigay Rose Kone') {
-      AbigaySynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Anninne-Amelia Rose Julisus') {
-      AnninneAmeliaSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Dymond Daisy Qin-Reynolds') {
-      DymondSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Abigail Marigold Kenyatta' || animal === 'Abigail Marigold_Kenyatta') {
-      AbigailSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
-    } else if (pData.className === PoodleClass.CLASSIC) {
+    const pData = disambiguatePoodle(normalizedAnimal);
+    if (!pData || pData.className === PoodleClass.BABYLONIAN) return;
+
+    const mode = currentSynthMode || 'Classic';
+    const isAdvanced = mode === 'Advanced' || mode === 'Advanced Yamaha' || mode === 'ADVANCED';
+    const isMix = mode === 'Mix';
+
+    if (pData.className === PoodleClass.CLASSIC) {
+      if (isAdvanced) {
+        await context.playWithSynth('playRunningJumpSound', area, x, y, z, normalizedAnimal);
+        return;
+      }
       playRunningJump(ctx, connectSFX, hasReverb);
+      if (isMix) {
+        await context.playWithSynth('playRunningJumpSound', area, x, y, z, normalizedAnimal);
+      }
+      return;
+    }
+
+    if (isAdvanced || isMix) {
+      await context.playWithSynth('playRunningJumpSound', area, x, y, z, normalizedAnimal);
+      return;
+    }
+
+    if (normalizedAnimal === 'Abigay Rose Kone') {
+      AbigaySynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Anninne-Amelia Rose Julisus') {
+      AnninneAmeliaSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Dymond Daisy Qin-Reynolds') {
+      DymondSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
+    } else if (normalizedAnimal === 'Abigail Marigold Kenyatta') {
+      AbigailSynth.playRunningJumpSound(ctx, connectSFX, hasReverb);
     }
   },
 
   async playHopSound(context: SoundContext, area: string = 'Foyer', x: number = 0, y: number = 0, z: number = 0, animal: string = 'Abigay Rose Kone') {
-    const { ctx, connectSFX } = context;
+    const { ctx, connectSFX, currentSynthMode } = context;
     const hasReverb = area === 'Foyer' || area === 'Meditation Hall';
-    
-    const pData = disambiguatePoodle(animal);
-    if (!pData) return;
+    const normalizedAnimal = animal === 'Abigail Marigold_Kenyatta' ? 'Abigail Marigold Kenyatta' : animal;
 
-    if (animal === 'Abigay Rose Kone') {
+    const pData = disambiguatePoodle(normalizedAnimal);
+    if (!pData || pData.className === PoodleClass.BABYLONIAN) return;
+
+    const mode = currentSynthMode || 'Classic';
+    const isAdvanced = mode === 'Advanced' || mode === 'Advanced Yamaha' || mode === 'ADVANCED';
+    const isMix = mode === 'Mix';
+
+    if (isAdvanced || isMix) {
+      await context.playWithSynth('playJumpSound', area, x, y, z, normalizedAnimal);
+      return;
+    }
+
+    if (normalizedAnimal === 'Abigay Rose Kone') {
       AbigaySynth.playHopSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Anninne-Amelia Rose Julisus') {
+    } else if (normalizedAnimal === 'Anninne-Amelia Rose Julisus') {
       AnninneAmeliaSynth.playHopSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Dymond Daisy Qin-Reynolds') {
+    } else if (normalizedAnimal === 'Dymond Daisy Qin-Reynolds') {
       DymondSynth.playHopSound(ctx, connectSFX, hasReverb);
-    } else if (animal === 'Abigail Marigold Kenyatta' || animal === 'Abigail Marigold_Kenyatta') {
+    } else if (normalizedAnimal === 'Abigail Marigold Kenyatta') {
       AbigailSynth.playHopSound(ctx, connectSFX, hasReverb);
     } else if (pData.className === PoodleClass.CLASSIC) {
       // For classic white poodles, hop defaults to jump logic if specific hop not defined

@@ -2,7 +2,20 @@
 import { SoundContext } from '../../../SoundContext';
 
 export const F_Sounds = {
-  async playForwardSound(context: SoundContext, x: number = 0, y: number = 0, z: number = 0) {
+  async playForwardSound(
+    context: SoundContext,
+    area: string = 'Foyer',
+    x: number = 0,
+    y: number = 0,
+    z: number = 0,
+    animal: string = 'Abigay Rose Kone'
+  ) {
+    const mode = context.currentSynthMode || 'Classic';
+    if (mode === 'Advanced' || mode === 'Advanced Yamaha' || mode === 'ADVANCED' || mode === 'Mix') {
+      await context.playWithSynth('playPoodleWalk', area, x, y, z, animal);
+      return;
+    }
+
     const { ctx, sfxGain, createPanner } = context;
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();

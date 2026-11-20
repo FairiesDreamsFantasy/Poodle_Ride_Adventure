@@ -363,3 +363,22 @@
   - Replaced hardcoded `git push origin HEAD:main` with dynamic `git push origin "HEAD:${TARGET_BRANCH}"` and a stale-HEAD safety check so `StableFallback` and `main` never cross-push or overwrite newer commits.
 - **Workflow Directory Protection**: Added uppercase `AGENTS.md` files to `.github/` and `.github/workflows/` under **20000% Ultra-Broad Protections**.
 
+## 36. Authentic Yamaha FM Synthesizer Restoration & Craftsmanship Safeguards
+- **Yamaha 2-Operator Frequency Modulation (FM) Restoration (`src/System/Sound/Synths/Advanced_Synth/`)**:
+  - Restored authentic Yamaha FM sound engine (`playFMSound`) utilizing mathematical carrier and modulator dual sine oscillators, dynamic exponential modulation index decay, and 3D panner spatial positioning.
+  - Implemented authentic acoustic presets: Solid FM Impact (`45 Hz`, `modRatio: 0.5`, `modDepth: 800`), FM Step with Chime (`50 Hz`, `modRatio: 3.5`, `modDepth: 200`), Classic FM Bell-Like Jump (`200 Hz`, Euler harmonic ratio `2.71828`, `modDepth: 500`), Slidey FM Scoot (`150 Hz`, `modRatio: 0.8`, `modDepth: 400`), and Shimmering Dual-Operator FM Whoosh (`100–800 Hz` ramp with `250 Hz` modulator).
+  - Preserved multi-character acoustic branching for Empress Abigay Rose Kone, Anninne-Amelia Rose Julisus, Dymond Daisy Qin-Reynolds, and Abigail Marigold Kenyatta under strict zero-generic-fallback rules.
+- **Classic Synthesizer Absolute Invariance (`src/System/Sound/Synths/Classic_Synth/`)**:
+  - Preserved the working `ClassicSynth` module 100% untouched and unchanged, guaranteeing complete backward compatibility for classical 8-bit sound paths.
+- **Synthesizer Mode Union & Audio Routing Harmonization**:
+  - Synchronized `SynthMode` in `src/types.ts` to include `'Advanced Yamaha'`, aligning the Menu Bar selection (`Advanced Yamaha Engine`) directly with `SoundManager.playWithSynth` routing and eliminating silent routing dropouts.
+- **High-Definition Synthesizer Mathematical Hardening (`src/System/Sound/HD/Synths/`)**:
+  - Upgraded HD synthesizers with Yamaha OPL/DX 4-algorithm topologies and Bessel function sideband expansion calculations ($J_n(\beta)$) to eliminate stubs and ensure mathematical rigor.
+
+## 37. Acoustics Science Subsystem & Sound Routing Synchronization (`src/System/Engine/Science/Acoustics/`)
+- **Dedicated Acoustics Engine (`src/System/Engine/Science/Acoustics/`)**:
+  - Decouples mathematical acoustic computations, reverb profile resolution (`resolveAcousticReverbProfile`), carrier frequency calculations, and exponential decay models from UI layers into a dedicated scientific module.
+- **Sound Routing Harmonization**:
+  - Synchronized `SoundManager`, `J_Sounds`, `F_Sounds`, and `playWithSynth` to fully respect active synthesizer modes (`Classic`, `Advanced Yamaha`, `Mix`) while preserving Babylonian character isolation and Classic White Poodle logic.
+
+
